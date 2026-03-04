@@ -2,24 +2,56 @@
 
 {% block body %}
 
-<h3>Admin Dashboard (Teacher)</h3>
+<h2>Create Exam</h2>
 
-<a href="/create-exam">Create New Exam</a> |
-<a href="/logout">Logout</a>
+<form method="POST" action="/create-exam">
+    <label>Exam Title:</label><br>
+    <input type="text" name="title" required><br><br>
 
-<br><br>
+    <label>Exam Date:</label><br>
+    <input type="date" name="exam_date" required><br><br>
 
-<h4>All Exams</h4>
+    <label>Start Time:</label><br>
+    <input type="time" name="start_time" required><br><br>
 
-<ul>
+    <label>End Time:</label><br>
+    <input type="time" name="end_time" required><br><br>
+
+    <label>Duration (minutes):</label><br>
+    <input type="number" name="duration" required><br><br>
+
+    <button type="submit">Create Exam</button>
+</form>
+
+<hr>
+
+<h2>Scheduled Exams</h2>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Duration</th>
+        <th>Action</th>
+    </tr>
+
     {% for exam in exams %}
-        <li>
-            {{ exam.title }} |
-            Date: {{ exam.exam_date }} |
-            {{ exam.start_time }} - {{ exam.end_time }} |
-            Duration: {{ exam.duration }} minutes
-        </li>
+    <tr>
+        <td>{{ exam['id'] }}</td>
+        <td>{{ exam['title'] }}</td>
+        <td>{{ exam['exam_date'] }}</td>
+        <td>{{ exam['start_time'] }}</td>
+        <td>{{ exam['end_time'] }}</td>
+        <td>{{ exam['duration'] }} mins</td>
+        <td>
+            <a href="/delete-exam/{{ exam['id'] }}">Delete</a>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+
+</table>
 
 {% endblock %}

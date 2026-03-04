@@ -1,30 +1,42 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect
+import sqlite3
 from datetime import datetime
-from models import get_db_connection, create_tables
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
 
-create_tables()
+# ---------------------------
+# DATABASE INITIALIZATION
+# ---------------------------
+def init_db():
+    conn = sqlite3.connect('database.db')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS exams (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            exam_date TEXT NOT NULL,
+            start_time TEXT NOT NULL,
+            end_time TEXT NOT NULL,
+            duration INTEGER NOT NULL
+        )
+    ''')
+    conn.close()
 
-# ---------------------
-# LOGIN
-# ---------------------
+init_db()
+
+
+# ---------------------------
+# SIMPLE LOGIN (NO DATABASE)
+# ---------------------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        # Admin Login
         if username == "teacher" and password == "1234":
-            session['role'] = "admin"
             return redirect('/admin-dashboard')
 
-        # Student Login
         elif username == "student" and password == "group4":
-            session['role'] = "student"
             return redirect('/student-dashboard')
 
         else:
@@ -33,106 +45,121 @@ def login():
     return render_template('login.html')
 
 
-# ---------------------
-# LOGOUT
-# ---------------------
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/')
-
-
-# ---------------------
-# ADMIN DASHBOARD
-# ---------------------
+# ---------------------------
+# ADMIN DASHBOARD (DATE SORTED)
+# ---------------------------
 @app.route('/admin-dashboard')
 def admin_dashboard():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
 
-    if session.get('role') != "admin":
-        return redirect('/')
+    exams = conn.execute("""
+        SELECT * FROM exams
+        ORDER BY exam_date ASC, start_time ASC
+    """).fetchall()
 
-    conn = get_db_connection()
-    exams = conn.execute('SELECT * FROM exams').fetchall()
     conn.close()
 
     return render_template('admin_dashboard.html', exams=exams)
 
 
-# ---------------------
-# CREATE EXAM
-# ---------------------
-@app.route('/create-exam', methods=['GET', 'POST'])
+# ---------------------------
+# CREATE EXAM (WITH CONFLICT CHECK)
+# ---------------------------
+@app.route('/create-exam', methods=['POST'])
 def create_exam():
+    title = request.form['title']
+    exam_date = request.form['exam_date']
+    start_time = request.form['start_time']
+    end_time = request.form['end_time']
+    duration = request.form['duration']
 
-    if session.get('role') != "admin":
-        return redirect('/')
+    conn = sqlite3.connect('database.db')
 
-    if request.method == 'POST':
-        title = request.form['title']
-        exam_date = request.form['exam_date']
-        start_time = request.form['start_time']
-        end_time = request.form['end_time']
-        duration = request.form['duration']
+    # CHECK FOR TIME CONFLICT ON SAME DATE
+    conflict = conn.execute('''
+        SELECT * FROM exams
+        WHERE exam_date = ?
+        AND (start_time < ? AND end_time > ?)
+    ''', (exam_date, end_time, start_time)).fetchall()
 
-        conn = get_db_connection()
-        conn.execute(
-            'INSERT INTO exams (title, exam_date, start_time, end_time, duration) VALUES (?, ?, ?, ?, ?)',
-            (title, exam_date, start_time, end_time, duration)
-        )
-        conn.commit()
+    if conflict:
         conn.close()
+        return "Another exam is already scheduled at this time!"
 
-        return redirect('/admin-dashboard')
+    conn.execute('''
+        INSERT INTO exams (title, exam_date, start_time, end_time, duration)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (title, exam_date, start_time, end_time, duration))
 
-    return render_template('create_exam.html')
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin-dashboard')
 
 
-# ---------------------
-# STUDENT DASHBOARD
-# ---------------------
+# ---------------------------
+# DELETE EXAM
+# ---------------------------
+@app.route('/delete-exam/<int:exam_id>')
+def delete_exam(exam_id):
+    conn = sqlite3.connect('database.db')
+    conn.execute('DELETE FROM exams WHERE id=?', (exam_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin-dashboard')
+
+
+# ---------------------------
+# STUDENT DASHBOARD (DATE SORTED)
+# ---------------------------
 @app.route('/student-dashboard')
 def student_dashboard():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
 
-    if session.get('role') != "student":
-        return redirect('/')
+    exams = conn.execute("""
+        SELECT * FROM exams
+        ORDER BY exam_date ASC, start_time ASC
+    """).fetchall()
 
-    conn = get_db_connection()
-    exams = conn.execute('SELECT * FROM exams').fetchall()
     conn.close()
 
     return render_template('student_dashboard.html', exams=exams)
 
 
-# ---------------------
-# START EXAM (Eligibility Check)
-# ---------------------
+# ---------------------------
+# START EXAM (ELIGIBILITY CHECK)
+# ---------------------------
 @app.route('/start-exam/<int:exam_id>')
 def start_exam(exam_id):
-
-    if session.get('role') != "student":
-        return redirect('/')
-
-    conn = get_db_connection()
-    exam = conn.execute('SELECT * FROM exams WHERE id = ?', (exam_id,)).fetchone()
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    exam = conn.execute("SELECT * FROM exams WHERE id=?", (exam_id,)).fetchone()
     conn.close()
 
-    if exam is None:
-        return "Exam not found."
+    if not exam:
+        return "Exam not found"
 
     now = datetime.now()
     today = now.strftime("%Y-%m-%d")
     current_time = now.strftime("%H:%M")
 
+    # Date check
     if today < exam['exam_date']:
-        return "Exam has not started yet."
+        return "Exam not started yet"
+
+    if today > exam['exam_date']:
+        return "Exam already finished"
+
+    # Time check
+    if current_time < exam['start_time']:
+        return "Exam not started yet"
 
     if current_time > exam['end_time']:
-        return "Exam already finished."
+        return "Exam time is over"
 
-    if exam['start_time'] <= current_time <= exam['end_time']:
-        return "You can start the exam now!"
-
-    return "You cannot access this exam at this time."
+    return f"You can start the exam: {exam['title']}"
 
 
 if __name__ == '__main__':
