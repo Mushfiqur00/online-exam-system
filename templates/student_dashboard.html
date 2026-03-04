@@ -2,19 +2,33 @@
 
 {% block body %}
 
-<h3>Student Dashboard</h3>
+<h2 style="text-align:center;">Available Exams</h2>
 
-<a href="/logout">Logout</a>
+<table border="1" cellpadding="10" cellspacing="0"
+    style="margin:auto; width:80%; text-align:center; border-collapse: collapse;">
+    <tr style="background-color:#f2f2f2;">
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Duration (Minutes)</th>
+        <th>Action</th>
+    </tr>
 
-<br><br>
-
-<ul>
     {% for exam in exams %}
-    <li>
-        {{ exam.title }}
-        <a href="/start-exam/{{ exam.id }}">Start Exam</a>
-    </li>
+    <tr>
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
+        <td>{{ exam.duration }}</td>
+        <td>
+            <a href="/start-exam/{{ exam.id }}">
+                <button>Start Exam</button>
+            </a>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 
 {% endblock %}
