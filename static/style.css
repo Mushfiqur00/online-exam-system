@@ -14,10 +14,7 @@ body {
     align-items: center;
 }
 
-.navbar h2 {
-    margin: 0;
-}
-
+/* LOGOUT */
 .logout-btn {
     background-color: white;
     color: #ff7a00;
@@ -35,13 +32,13 @@ body {
 /* CENTER CONTENT */
 .container {
     min-height: 80vh;
+    padding: 30px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
+    align-items: center;
 }
 
-/* FORM CARD */
+/* CARD */
 .card {
     background-color: white;
     padding: 30px;
@@ -50,14 +47,8 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.card h3 {
-    text-align: center;
-    color: #ff7a00;
-}
-
 /* INPUTS */
-input,
-select {
+input {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -67,7 +58,6 @@ select {
 
 /* BUTTON */
 button {
-    width: 100%;
     padding: 10px;
     background-color: #ff7a00;
     color: white;
@@ -104,7 +94,7 @@ tr:hover {
     background-color: #fff0e6;
 }
 
-/* Start Button States */
+/* BUTTON STATES */
 .start-active {
     background-color: #90ee90;
     color: black;
@@ -120,5 +110,9 @@ tr:hover {
     background-color: #ff7a00;
     color: white;
     text-align: center;
-    padding: 15px;
+    padding: 20px;
+}
+
+.footer p {
+    margin: 5px 0;
 }

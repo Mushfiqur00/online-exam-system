@@ -1,90 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Online Exam System</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff8f0;
-        }
-
-        .navbar {
-            background-color: #ff7a00;
-            padding: 15px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar h2 {
-            margin: 0;
-        }
-
-        .logout-btn {
-            background-color: white;
-            color: #ff7a00;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .logout-btn:hover {
-            background-color: #ffe0cc;
-        }
-
-        .container {
-            padding: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-        }
-
-        th {
-            background-color: #ff7a00;
-            color: white;
-            padding: 12px;
-        }
-
-        td {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:hover {
-            background-color: #fff0e6;
-        }
-
-        .start-active {
-            background-color: #90ee90;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .start-inactive {
-            background-color: #dddddd;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: not-allowed;
-        }
-
-        h3 {
-            color: #ff7a00;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
 
     <div class="navbar">
@@ -98,6 +17,12 @@
         {% block body %}{% endblock %}
     </div>
 
-</body>
+    <div class="footer">
+        <p><strong>Daffodil International University</strong></p>
+        <p>Capstone Project | Group-4</p>
+        <p>Developed by: Mushfiqur, Subrota, Rafi</p>
+        <p>Final Year (4th Year) | © 2026</p>
+    </div>
 
+</body>
 </html>

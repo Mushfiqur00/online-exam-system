@@ -1,49 +1,37 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
 from datetime import datetime
+from models import db, Exam
 
 app = Flask(__name__)
+
+# SECRET KEY
 app.secret_key = "secretkey"
 
-# -----------------------------
-# DATABASE INITIALIZATION
-# -----------------------------
-def init_db():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
+# DATABASE CONFIG
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS exams (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            exam_date TEXT NOT NULL,
-            start_time TEXT NOT NULL,
-            end_time TEXT NOT NULL,
-            duration INTEGER NOT NULL
-        )
-    """)
+db.init_app(app)
 
-    conn.commit()
-    conn.close()
+# CREATE DATABASE
+with app.app_context():
+    db.create_all()
 
-init_db()
-
-# -----------------------------
-# LOGIN
-# -----------------------------
+# ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form["username"]
+        password = request.form["password"]
 
-        # Fixed credentials
         if username == "teacher" and password == "1234":
             session["role"] = "admin"
             return redirect("/admin-dashboard")
 
         elif username == "student" and password == "group4":
             session["role"] = "student"
+            session["username"] = "student"
+            session["group"] = "group4"
             return redirect("/student-dashboard")
 
         else:
@@ -52,156 +40,101 @@ def login():
     return render_template("login.html")
 
 
-# -----------------------------
-# ADMIN DASHBOARD
-# -----------------------------
+# ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin-dashboard")
 def admin_dashboard():
     if session.get("role") != "admin":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-
-    exams = conn.execute("""
-        SELECT * FROM exams
-        ORDER BY exam_date ASC, start_time ASC
-    """).fetchall()
-
-    conn.close()
-
+    exams = Exam.query.order_by(Exam.exam_date.asc()).all()
     return render_template("admin_dashboard.html", exams=exams)
 
 
-# -----------------------------
-# CREATE EXAM
-# -----------------------------
+# ---------------- CREATE EXAM ----------------
 @app.route("/create-exam", methods=["POST"])
 def create_exam():
     if session.get("role") != "admin":
         return redirect("/")
 
-    title = request.form.get("title")
-    exam_date = request.form.get("exam_date")
-    start_time = request.form.get("start_time")
-    end_time = request.form.get("end_time")
-    duration = request.form.get("duration")
+    new_exam = Exam(
+        title=request.form["title"],
+        exam_date=request.form["exam_date"],
+        start_time=request.form["start_time"],
+        end_time=request.form["end_time"],
+        duration=request.form["duration"],
+        assigned_to=request.form["assigned_to"]
+    )
 
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO exams (title, exam_date, start_time, end_time, duration)
-        VALUES (?, ?, ?, ?, ?)
-    """, (title, exam_date, start_time, end_time, duration))
-
-    conn.commit()
-    conn.close()
+    db.session.add(new_exam)
+    db.session.commit()
 
     return redirect("/admin-dashboard")
 
 
-# -----------------------------
-# DELETE EXAM
-# -----------------------------
+# ---------------- DELETE EXAM ----------------
 @app.route("/delete-exam/<int:exam_id>")
 def delete_exam(exam_id):
     if session.get("role") != "admin":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM exams WHERE id = ?", (exam_id,))
-    conn.commit()
-    conn.close()
+    exam = Exam.query.get_or_404(exam_id)
+    db.session.delete(exam)
+    db.session.commit()
 
     return redirect("/admin-dashboard")
 
 
-# -----------------------------
-# STUDENT DASHBOARD
-# -----------------------------
+# ---------------- STUDENT DASHBOARD ----------------
 @app.route("/student-dashboard")
 def student_dashboard():
     if session.get("role") != "student":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
+    username = session.get("username")
+    group = session.get("group")
 
-    exams = conn.execute("""
-        SELECT * FROM exams
-        ORDER BY exam_date ASC, start_time ASC
-    """).fetchall()
-
-    conn.close()
+    exams = Exam.query.filter(
+        (Exam.assigned_to == username) |
+        (Exam.assigned_to == group)
+    ).order_by(Exam.exam_date.asc()).all()
 
     now = datetime.now()
     today = now.strftime("%Y-%m-%d")
     current_time = now.strftime("%H:%M")
+
+    upcoming = []
+    ongoing = []
+    completed = []
+
+    for exam in exams:
+        if exam.exam_date > today:
+            upcoming.append(exam)
+
+        elif exam.exam_date == today:
+            if current_time < exam.start_time:
+                upcoming.append(exam)
+            elif exam.start_time <= current_time <= exam.end_time:
+                ongoing.append(exam)
+            else:
+                completed.append(exam)
+
+        else:
+            completed.append(exam)
 
     return render_template(
         "student_dashboard.html",
-        exams=exams,
-        today=today,
-        current_time=current_time
+        upcoming=upcoming,
+        ongoing=ongoing,
+        completed=completed
     )
 
 
-# -----------------------------
-# START EXAM (Eligibility Check)
-# -----------------------------
-@app.route("/start-exam/<int:exam_id>")
-def start_exam(exam_id):
-    if session.get("role") != "student":
-        return redirect("/")
-
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-
-    exam = conn.execute(
-        "SELECT * FROM exams WHERE id = ?",
-        (exam_id,)
-    ).fetchone()
-
-    conn.close()
-
-    if exam is None:
-        return "Exam not found"
-
-    now = datetime.now()
-    today = now.strftime("%Y-%m-%d")
-    current_time = now.strftime("%H:%M")
-
-    # Date check
-    if today < exam["exam_date"]:
-        return "Exam has not started yet"
-
-    if today > exam["exam_date"]:
-        return "Exam date is over"
-
-    # Time check
-    if current_time < exam["start_time"]:
-        return "Exam has not started yet"
-
-    if current_time > exam["end_time"]:
-        return "Exam time is over"
-
-    return "Exam Started Successfully"
-
-
-# -----------------------------
-# LOGOUT
-# -----------------------------
+# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
 
-# -----------------------------
-# RUN APP
-# -----------------------------
 if __name__ == "__main__":
     app.run(debug=True)

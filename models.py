@@ -1,23 +1,17 @@
-import sqlite3
+from flask_sqlalchemy import SQLAlchemy
 
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+db = SQLAlchemy()
 
-def create_tables():
-    conn = get_db_connection()
+class Exam(db.Model):
+    __tablename__ = "exams"
 
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS exams (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            exam_date TEXT NOT NULL,
-            start_time TEXT NOT NULL,
-            end_time TEXT NOT NULL,
-            duration INTEGER NOT NULL
-        )
-    ''')
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    exam_date = db.Column(db.String(20), nullable=False)
+    start_time = db.Column(db.String(10), nullable=False)
+    end_time = db.Column(db.String(10), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
+    assigned_to = db.Column(db.String(50), nullable=False)
 
-    conn.commit()
-    conn.close()
+    def __repr__(self):
+        return f"<Exam {self.title}>"

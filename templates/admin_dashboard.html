@@ -1,36 +1,22 @@
 {% extends "layout.html" %}
-
 {% block body %}
 
-<h2>Create Exam</h2>
-<a href="/logout">Logout</a>
+<div class="card">
+    <h3>Create Exam</h3>
+    <form action="/create-exam" method="POST">
+        <input type="text" name="title" placeholder="Exam Title" required>
+        <input type="date" name="exam_date" required>
+        <input type="time" name="start_time" required>
+        <input type="time" name="end_time" required>
+        <input type="number" name="duration" placeholder="Duration (minutes)" required>
+        <button type="submit">Create Exam</button>
+    </form>
+</div>
 
-<form method="POST" action="/create-exam">
-    <label>Exam Title:</label><br>
-    <input type="text" name="title" required><br><br>
+<h3>Scheduled Exams</h3>
 
-    <label>Exam Date:</label><br>
-    <input type="date" name="exam_date" required><br><br>
-
-    <label>Start Time:</label><br>
-    <input type="time" name="start_time" required><br><br>
-
-    <label>End Time:</label><br>
-    <input type="time" name="end_time" required><br><br>
-
-    <label>Duration (minutes):</label><br>
-    <input type="number" name="duration" required><br><br>
-
-    <button type="submit">Create Exam</button>
-</form>
-
-<hr>
-
-<h2>Scheduled Exams</h2>
-
-<table border="1" cellpadding="5">
+<table>
     <tr>
-        <th>ID</th>
         <th>Title</th>
         <th>Date</th>
         <th>Start</th>
@@ -41,18 +27,18 @@
 
     {% for exam in exams %}
     <tr>
-        <td>{{ exam['id'] }}</td>
-        <td>{{ exam['title'] }}</td>
-        <td>{{ exam['exam_date'] }}</td>
-        <td>{{ exam['start_time'] }}</td>
-        <td>{{ exam['end_time'] }}</td>
-        <td>{{ exam['duration'] }} mins</td>
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
+        <td>{{ exam.duration }}</td>
         <td>
-            <a href="/delete-exam/{{ exam['id'] }}">Delete</a>
+            <a href="/delete-exam/{{ exam.id }}">
+                <button>Delete</button>
+            </a>
         </td>
     </tr>
     {% endfor %}
-
 </table>
 
 {% endblock %}
