@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff8f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #ff7a00;
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 70%;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #ff7a00;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #ff7a00;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #e56d00;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th {
+            background-color: #ff7a00;
+            color: white;
+            padding: 10px;
+        }
+
+        table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tr:hover {
+            background-color: #fff0e6;
+        }
+
+        .flash {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="header">
+    Admin Dashboard - Assign Exams
+</div>
+
+<div class="container">
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {{ messages[0] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <h2>Assign Exam</h2>
+
+    <form action="/assign-exam" method="POST">
+
+        <label>Select Exam:</label>
+        <select name="exam_id" required>
+            {% for exam in exams %}
+            <option value="{{ exam.id }}">{{ exam.title }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Assign to Individual Student:</label>
+        <select name="student_id">
+            <option value="">-- Select Student --</option>
+            {% for student in students %}
+            <option value="{{ student.id }}">
+                {{ student.username }} ({{ student.group_name }})
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>OR Assign to Group:</label>
+        <select name="group_name">
+            <option value="">-- Select Group --</option>
+            <option value="Group-1">Group-1</option>
+            <option value="Group-2">Group-2</option>
+            <option value="Group-3">Group-3</option>
+            <option value="Group-4">Group-4</option>
+        </select>
+
+        <button type="submit">Assign Exam</button>
+    </form>
+
+    <hr>
+
+    <h3>All Exams</h3>
+
+    <table>
+        <tr>
+            <th>Exam Title</th>
+            <th>Date</th>
+        </tr>
+
+        {% for exam in exams %}
+        <tr>
+            <td>{{ exam.title }}</td>
+            <td>{{ exam.exam_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>
