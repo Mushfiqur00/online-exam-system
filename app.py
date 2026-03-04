@@ -137,7 +137,16 @@ def student_dashboard():
 
     conn.close()
 
-    return render_template("student_dashboard.html", exams=exams)
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M")
+
+    return render_template(
+        "student_dashboard.html",
+        exams=exams,
+        today=today,
+        current_time=current_time
+    )
 
 
 # -----------------------------

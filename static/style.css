@@ -1,0 +1,124 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #fff8f0;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: #ff7a00;
+    padding: 15px 30px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h2 {
+    margin: 0;
+}
+
+.logout-btn {
+    background-color: white;
+    color: #ff7a00;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background-color: #ffe0cc;
+}
+
+/* CENTER CONTENT */
+.container {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* FORM CARD */
+.card {
+    background-color: white;
+    padding: 30px;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    text-align: center;
+    color: #ff7a00;
+}
+
+/* INPUTS */
+input,
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff7a00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #e66a00;
+}
+
+/* TABLE */
+table {
+    width: 90%;
+    border-collapse: collapse;
+    background-color: white;
+    margin-top: 20px;
+}
+
+th {
+    background-color: #ff7a00;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #fff0e6;
+}
+
+/* Start Button States */
+.start-active {
+    background-color: #90ee90;
+    color: black;
+}
+
+.start-inactive {
+    background-color: #dddddd;
+    cursor: not-allowed;
+}
+
+/* FOOTER */
+.footer {
+    background-color: #ff7a00;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}

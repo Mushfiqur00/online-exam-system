@@ -2,11 +2,10 @@
 
 {% block body %}
 
-<h2 style="text-align:center;">Available Exams</h2>
+<h3>Scheduled Exams</h3>
 
-<table border="1" cellpadding="10" cellspacing="0"
-    style="margin:auto; width:80%; text-align:center; border-collapse: collapse;">
-    <tr style="background-color:#f2f2f2;">
+<table>
+    <tr>
         <th>Title</th>
         <th>Date</th>
         <th>Start Time</th>
@@ -23,12 +22,19 @@
         <td>{{ exam.end_time }}</td>
         <td>{{ exam.duration }}</td>
         <td>
-            <a href="/start-exam/{{ exam.id }}">
-                <button>Start Exam</button>
-            </a>
+            {% if today == exam.exam_date
+            and current_time >= exam.start_time
+            and current_time <= exam.end_time %} <a href="/start-exam/{{ exam.id }}">
+                <button class="start-active">Start Exam</button>
+                </a>
+
+                {% else %}
+                <button class="start-inactive">Not Available</button>
+                {% endif %}
         </td>
     </tr>
     {% endfor %}
+
 </table>
 
 {% endblock %}
