@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h3>Admin Dashboard (Teacher)</h3>
+
+<a href="/create-exam">Create New Exam</a> |
+<a href="/logout">Logout</a>
+
+<br><br>
+
+<h4>All Exams</h4>
+
+<ul>
+    {% for exam in exams %}
+        <li>
+            {{ exam.title }} |
+            Date: {{ exam.exam_date }} |
+            {{ exam.start_time }} - {{ exam.end_time }} |
+            Duration: {{ exam.duration }} minutes
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
