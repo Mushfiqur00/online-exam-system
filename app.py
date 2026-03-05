@@ -5,9 +5,9 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "secretkey"
 
-# -----------------------------
+
 # DATABASE INITIALIZATION
-# -----------------------------
+
 def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -28,9 +28,9 @@ def init_db():
 
 init_db()
 
-# -----------------------------
+
 # LOGIN
-# -----------------------------
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -52,9 +52,9 @@ def login():
     return render_template("login.html")
 
 
-# -----------------------------
+
 # ADMIN DASHBOARD
-# -----------------------------
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
     if session.get("role") != "admin":
@@ -73,9 +73,9 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", exams=exams)
 
 
-# -----------------------------
+
 # CREATE EXAM
-# -----------------------------
+
 @app.route("/create-exam", methods=["POST"])
 def create_exam():
     if session.get("role") != "admin":
@@ -101,9 +101,9 @@ def create_exam():
     return redirect("/admin-dashboard")
 
 
-# -----------------------------
+
 # DELETE EXAM
-# -----------------------------
+
 @app.route("/delete-exam/<int:exam_id>")
 def delete_exam(exam_id):
     if session.get("role") != "admin":
@@ -119,9 +119,9 @@ def delete_exam(exam_id):
     return redirect("/admin-dashboard")
 
 
-# -----------------------------
+
 # STUDENT DASHBOARD
-# -----------------------------
+
 @app.route("/student-dashboard")
 def student_dashboard():
     if session.get("role") != "student":
@@ -147,9 +147,9 @@ def student_dashboard():
         today=today,
         current_time=current_time
     )
-# -----------------------------
+
 # START EXAM (Eligibility Check)
-# -----------------------------
+
 @app.route("/start-exam/<int:exam_id>")
 def start_exam(exam_id):
     if session.get("role") != "student":
@@ -189,17 +189,15 @@ def start_exam(exam_id):
     return "Exam Started Successfully"
 
 
-# -----------------------------
 # LOGOUT
-# -----------------------------
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
 
-# -----------------------------
 # RUN APP
-# -----------------------------
+
 if __name__ == "__main__":
     app.run(debug=True)
