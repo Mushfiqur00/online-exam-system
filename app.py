@@ -1,36 +1,21 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
 from datetime import datetime
+from models import db, Exam   # using Flask SQLAlchemy models
 
 app = Flask(__name__)
 app.secret_key = "secretkey"
 
+# DATABASE CONFIG
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# DATABASE INITIALIZATION
+db.init_app(app)
 
-def init_db():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS exams (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            exam_date TEXT NOT NULL,
-            start_time TEXT NOT NULL,
-            end_time TEXT NOT NULL,
-            duration INTEGER NOT NULL
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
-init_db()
+with app.app_context():
+    db.create_all()
 
 
 # LOGIN
-
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -52,32 +37,23 @@ def login():
     return render_template("login.html")
 
 
-
 # ADMIN DASHBOARD
-
 @app.route("/admin-dashboard")
 def admin_dashboard():
+
     if session.get("role") != "admin":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-
-    exams = conn.execute("""
-        SELECT * FROM exams
-        ORDER BY exam_date ASC, start_time ASC
-    """).fetchall()
-
-    conn.close()
+    # changed from raw SQL to SQLAlchemy
+    exams = Exam.query.order_by(Exam.exam_date, Exam.start_time).all()
 
     return render_template("admin_dashboard.html", exams=exams)
 
 
-
 # CREATE EXAM
-
 @app.route("/create-exam", methods=["POST"])
 def create_exam():
+
     if session.get("role") != "admin":
         return redirect("/")
 
@@ -87,55 +63,45 @@ def create_exam():
     end_time = request.form.get("end_time")
     duration = request.form.get("duration")
 
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
+    # SQLAlchemy insert
+    new_exam = Exam(
+        title=title,
+        exam_date=exam_date,
+        start_time=start_time,
+        end_time=end_time,
+        duration=duration
+    )
 
-    cursor.execute("""
-        INSERT INTO exams (title, exam_date, start_time, end_time, duration)
-        VALUES (?, ?, ?, ?, ?)
-    """, (title, exam_date, start_time, end_time, duration))
-
-    conn.commit()
-    conn.close()
+    db.session.add(new_exam)
+    db.session.commit()
 
     return redirect("/admin-dashboard")
-
 
 
 # DELETE EXAM
-
 @app.route("/delete-exam/<int:exam_id>")
 def delete_exam(exam_id):
+
     if session.get("role") != "admin":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
+    exam = Exam.query.get(exam_id)
 
-    cursor.execute("DELETE FROM exams WHERE id = ?", (exam_id,))
-    conn.commit()
-    conn.close()
+    if exam:
+        db.session.delete(exam)
+        db.session.commit()
 
     return redirect("/admin-dashboard")
 
 
-
 # STUDENT DASHBOARD
-
 @app.route("/student-dashboard")
 def student_dashboard():
+
     if session.get("role") != "student":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-
-    exams = conn.execute("""
-        SELECT * FROM exams
-        ORDER BY exam_date ASC, start_time ASC
-    """).fetchall()
-
-    conn.close()
+    exams = Exam.query.order_by(Exam.exam_date, Exam.start_time).all()
 
     now = datetime.now()
     today = now.strftime("%Y-%m-%d")
@@ -148,22 +114,15 @@ def student_dashboard():
         current_time=current_time
     )
 
-# START EXAM (Eligibility Check)
 
+# START EXAM
 @app.route("/start-exam/<int:exam_id>")
 def start_exam(exam_id):
+
     if session.get("role") != "student":
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-
-    exam = conn.execute(
-        "SELECT * FROM exams WHERE id = ?",
-        (exam_id,)
-    ).fetchone()
-
-    conn.close()
+    exam = Exam.query.get(exam_id)
 
     if exam is None:
         return "Exam not found"
@@ -173,24 +132,23 @@ def start_exam(exam_id):
     current_time = now.strftime("%H:%M")
 
     # Date check
-    if today < exam["exam_date"]:
+    if today < exam.exam_date:
         return "Exam has not started yet"
 
-    if today > exam["exam_date"]:
+    if today > exam.exam_date:
         return "Exam date is over"
 
     # Time check
-    if current_time < exam["start_time"]:
+    if current_time < exam.start_time:
         return "Exam has not started yet"
 
-    if current_time > exam["end_time"]:
+    if current_time > exam.end_time:
         return "Exam time is over"
 
     return "Exam Started Successfully"
 
 
 # LOGOUT
-
 @app.route("/logout")
 def logout():
     session.clear()
@@ -198,6 +156,5 @@ def logout():
 
 
 # RUN APP
-
 if __name__ == "__main__":
     app.run(debug=True)
