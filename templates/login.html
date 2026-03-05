@@ -1,13 +1,72 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<div class="card">
-    <h3>Login</h3>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Enter Username" required>
-        <input type="password" name="password" placeholder="Enter Password" required>
-        <button type="submit">Login</button>
-    </form>
+<style>
+    .center-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70vh;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        width: 320px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h3 {
+        text-align: center;
+        color: #ff7a00;
+    }
+
+    .card form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card input {
+        padding: 10px;
+        margin-top: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .card button {
+        margin-top: 15px;
+        padding: 10px;
+        background: #ff7a00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .card button:hover {
+        background: #e66a00;
+    }
+</style>
+
+
+<div class="center-box">
+
+    <div class="card">
+        <h3>Login</h3>
+
+        <form method="POST">
+
+            <input type="text" name="username" placeholder="Enter Username" required>
+
+            <input type="password" name="password" placeholder="Enter Password" required>
+
+            <button type="submit">Login</button>
+
+        </form>
+    </div>
+
 </div>
 
 {% endblock %}

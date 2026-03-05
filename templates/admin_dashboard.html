@@ -1,21 +1,106 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<div class="card">
-    <h3>Create Exam</h3>
-    <form action="/create-exam" method="POST">
-        <input type="text" name="title" placeholder="Exam Title" required>
-        <input type="date" name="exam_date" required>
-        <input type="time" name="start_time" required>
-        <input type="time" name="end_time" required>
-        <input type="number" name="duration" placeholder="Duration (minutes)" required>
-        <button type="submit">Create Exam</button>
-    </form>
+<style>
+    .center-box {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        width: 350px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h3 {
+        text-align: center;
+        color: #ff7a00;
+    }
+
+    .card form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card input {
+        padding: 10px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .card button {
+        margin-top: 15px;
+        padding: 10px;
+        background: #ff7a00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .card button:hover {
+        background: #e66a00;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 40px;
+        background: white;
+    }
+
+    th {
+        background: #ff7a00;
+        color: white;
+        padding: 12px;
+    }
+
+    td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tr:hover {
+        background: #fff0e6;
+    }
+</style>
+
+
+<div class="center-box">
+
+    <div class="card">
+        <h3>Create Exam</h3>
+
+        <form action="/create-exam" method="POST">
+
+            <input type="text" name="title" placeholder="Exam Title" required>
+
+            <input type="date" name="exam_date" required>
+
+            <input type="time" name="start_time" required>
+
+            <input type="time" name="end_time" required>
+
+            <input type="number" name="duration" placeholder="Duration (minutes)" required>
+
+            <button type="submit">Create Exam</button>
+
+        </form>
+    </div>
+
 </div>
 
-<h3>Scheduled Exams</h3>
+
+<h3 style="color:#ff7a00;margin-top:40px;">Scheduled Exams</h3>
 
 <table>
+
     <tr>
         <th>Title</th>
         <th>Date</th>
@@ -27,18 +112,22 @@
 
     {% for exam in exams %}
     <tr>
+
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
         <td>{{ exam.start_time }}</td>
         <td>{{ exam.end_time }}</td>
         <td>{{ exam.duration }}</td>
+
         <td>
             <a href="/delete-exam/{{ exam.id }}">
                 <button>Delete</button>
             </a>
         </td>
+
     </tr>
     {% endfor %}
+
 </table>
 
 {% endblock %}
