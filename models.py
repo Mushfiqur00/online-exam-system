@@ -1,4 +1,15 @@
+from flask_sqlalchemy import SQLAlchemy
+
+# Initialize SQLAlchemy
+db = SQLAlchemy()
+
+
+# -----------------------------
+# EXAM TABLE (Your Feature)
+# -----------------------------
 class Exam(db.Model):
+    __tablename__ = "exam"
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     exam_date = db.Column(db.String(20))
