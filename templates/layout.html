@@ -2,101 +2,133 @@
 <html>
 
 <head>
-    <title>Online Exam System</title>
+    <title>Examora - Online Exam System</title>
+
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff8f0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fff8f0;
         }
 
+        /* NAVBAR */
+
         .navbar {
-            background-color: #ff7a00;
-            padding: 15px;
-            color: white;
+            background: #ff7a00;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px 30px;
         }
 
-        .navbar h2 {
-            margin: 0;
+        .nav-left {
+            display: flex;
+            align-items: center;
         }
 
-        .logout-btn {
-            background-color: white;
-            color: #ff7a00;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .site-name {
+            font-size: 22px;
+            color: white;
             font-weight: bold;
         }
 
-        .logout-btn:hover {
-            background-color: #ffe0cc;
-        }
-
-        .container {
-            padding: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-        }
-
-        th {
-            background-color: #ff7a00;
+        .nav-right a {
             color: white;
-            padding: 12px;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
         }
 
-        td {
-            padding: 10px;
+        .nav-right a:hover {
+            text-decoration: underline;
+        }
+
+        /* PAGE CONTENT */
+
+        .content {
+            width: 80%;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #333;
+            color: white;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 40px;
         }
 
-        tr:hover {
-            background-color: #fff0e6;
-        }
-
-        .start-active {
-            background-color: #90ee90;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .start-inactive {
-            background-color: #dddddd;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: not-allowed;
-        }
-
-        h3 {
-            color: #ff7a00;
+        footer p {
+            margin: 5px;
+            font-size: 14px;
         }
     </style>
+
 </head>
 
 <body>
 
-    <div class="navbar">
-        <h2>Online Exam System</h2>
-        <a href="/logout">
-            <button class="logout-btn">Logout</button>
-        </a>
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="nav-left">
+
+            <img src="{{ url_for('static', filename='logo.png') }}" class="logo">
+
+            <span class="site-name">Examora</span>
+
+        </div>
+
+        <div class="nav-right">
+
+            <a href="/">Home</a>
+
+            <a href="/student-dashboard">Dashboard</a>
+
+            <a href="/admin-dashboard">Admin</a>
+
+            <a href="/logout">Logout</a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="content">
+
+        {% block content %}
+
+        {% endblock %}
+
     </div>
 
-    <div class="container">
-        {% block body %}{% endblock %}
-    </div>
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <p>Examora – Smart. Secure. Simplified Exams.</p>
+
+        <p>Capstone Project | Daffodil International University</p>
+
+        <p>© 2026 Group‑4</p>
+
+    </footer>
 
 </body>
 
