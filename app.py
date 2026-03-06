@@ -22,12 +22,21 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Fixed credentials
+        # Admin login
         if username == "teacher" and password == "1234":
             session["role"] = "admin"
             return redirect("/admin-dashboard")
 
-        elif username == "student" and password == "group4":
+        # Student logins
+        elif username == "Subroto" and password == "1036":
+            session["role"] = "student"
+            return redirect("/student-dashboard")
+
+        elif username == "Rakibul" and password == "1273":
+            session["role"] = "student"
+            return redirect("/student-dashboard")
+
+        elif username == "Mushfiq" and password == "1405":
             session["role"] = "student"
             return redirect("/student-dashboard")
 
@@ -35,7 +44,6 @@ def login():
             return "Invalid Credentials"
 
     return render_template("login.html")
-
 
 # ADMIN DASHBOARD
 @app.route("/admin-dashboard")
