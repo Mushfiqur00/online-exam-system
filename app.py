@@ -12,9 +12,16 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 with app.app_context():
+
     db.create_all()
 
+    if Student.query.count() == 0:
+        s1 = Student(username="Mushfiq")
+        s2 = Student(username="Subroto")
+        s3 = Student(username="Rakibul")
 
+        db.session.add_all([s1, s2, s3])
+        db.session.commit()
 # LOGIN
 @app.route("/", methods=["GET", "POST"])
 def login():
