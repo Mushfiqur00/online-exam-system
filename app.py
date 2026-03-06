@@ -164,13 +164,33 @@ def student_dashboard():
     today = now.strftime("%Y-%m-%d")
     current_time = now.strftime("%H:%M")
 
+    upcoming = []
+    ongoing = []
+    completed = []
+
+    for exam in exams:
+
+        if exam.exam_date > today:
+            upcoming.append(exam)
+
+        elif exam.exam_date == today:
+
+            if exam.start_time <= current_time <= exam.end_time:
+                ongoing.append(exam)
+            else:
+                upcoming.append(exam)
+
+        else:
+            completed.append(exam)
+
     return render_template(
         "student_dashboard.html",
-        exams=exams,
+        upcoming=upcoming,
+        ongoing=ongoing,
+        completed=completed,
         today=today,
         current_time=current_time
     )
-
 
 # START EXAM
 @app.route("/start-exam/<int:exam_id>")
