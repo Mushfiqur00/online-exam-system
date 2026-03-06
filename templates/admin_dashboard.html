@@ -43,10 +43,6 @@
         cursor: pointer;
     }
 
-    .card button:hover {
-        background: #e66a00;
-    }
-
     table {
         width: 100%;
         border-collapse: collapse;
@@ -69,7 +65,25 @@
     tr:hover {
         background: #fff0e6;
     }
+
+    .flash {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
 </style>
+
+
+<!-- FLASH MESSAGE -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash">
+    {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
 
 
 <div class="center-box">
@@ -95,6 +109,43 @@
     </div>
 
 </div>
+
+
+<hr>
+
+<h3 style="color:#ff7a00;margin-top:40px;">Assign Exam</h3>
+
+<form action="/assign-exam" method="POST">
+
+    <label>Select Exam:</label>
+    <select name="exam_id" required>
+        {% for exam in exams %}
+        <option value="{{ exam.id }}">{{ exam.title }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Assign to Individual Student:</label>
+    <select name="student_id">
+        <option value="">-- Select Student --</option>
+        {% for student in students %}
+        <option value="{{ student.id }}">
+            {{ student.username }} ({{ student.group_name }})
+        </option>
+        {% endfor %}
+    </select>
+
+    <label>OR Assign to Group:</label>
+    <select name="group_name">
+        <option value="">-- Select Group --</option>
+        <option value="Group-1">Group-1</option>
+        <option value="Group-2">Group-2</option>
+        <option value="Group-3">Group-3</option>
+        <option value="Group-4">Group-4</option>
+    </select>
+
+    <button type="submit">Assign Exam</button>
+
+</form>
 
 
 <h3 style="color:#ff7a00;margin-top:40px;">Scheduled Exams</h3>

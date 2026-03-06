@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 from datetime import datetime
-from models import db, Exam   # using Flask SQLAlchemy models
+from models import db, Student, Exam, ExamAssignment
 
 app = Flask(__name__)
 app.secret_key = "secretkey"
@@ -41,13 +41,55 @@ def login():
 @app.route("/admin-dashboard")
 def admin_dashboard():
 
+    # Your security check
     if session.get("role") != "admin":
         return redirect("/")
 
-    # changed from raw SQL to SQLAlchemy
+    # Your exam ordering improvement
     exams = Exam.query.order_by(Exam.exam_date, Exam.start_time).all()
 
-    return render_template("admin_dashboard.html", exams=exams)
+    # Shubroto's student list (needed for assignment)
+    students = Student.query.all()
+
+    return render_template(
+        "admin_dashboard.html",
+        exams=exams,
+        students=students
+    )
+
+# ASSIGN EXAM (Individual or Group)
+
+@app.route("/assign-exam", methods=["POST"])
+def assign_exam():
+    exam_id = request.form.get("exam_id")
+    student_id = request.form.get("student_id")
+    group_name = request.form.get("group_name")
+
+    # Assign to individual student
+    if student_id:
+        new_assignment = ExamAssignment(
+            exam_id=exam_id,
+            student_id=student_id
+        )
+        db.session.add(new_assignment)
+
+    # Assign to group of students
+    if group_name:
+        group_students = Student.query.filter_by(
+            group_name=group_name
+        ).all()
+
+        for student in group_students:
+            new_assignment = ExamAssignment(
+                exam_id=exam_id,
+                student_id=student.id
+            )
+            db.session.add(new_assignment)
+
+    db.session.commit()
+    flash("Exam assigned successfully!")
+    return redirect("/admin-dashboard")
+
 
 
 # CREATE EXAM
