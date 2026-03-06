@@ -22,7 +22,7 @@ with app.app_context():
 
         db.session.add_all([s1, s2, s3])
         db.session.commit()
-# LOGIN
+             # LOGIN
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":

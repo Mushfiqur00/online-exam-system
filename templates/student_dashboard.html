@@ -2,70 +2,36 @@
 
 {% block body %}
 
-<h3>Upcoming Exams</h3>
+<h3>Scheduled Exams</h3>
+
 <table>
     <tr>
         <th>Title</th>
         <th>Date</th>
-        <th>Status</th>
-    </tr>
-
-    {% for exam in upcoming %}
-    <tr>
-        <td>{{ exam.title }}</td>
-        <td>{{ exam.exam_date }}</td>
-        <td>Not Started</td>
-    </tr>
-    {% endfor %}
-</table>
-
-
-<h3>Ongoing Exams</h3>
-<table>
-    <tr>
-        <th>Title</th>
-        <th>Date</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Duration (Minutes)</th>
         <th>Action</th>
     </tr>
 
-    {% for exam in ongoing %}
+    {% for exam in exams %}
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
+        <td>{{ exam.duration }}</td>
         <td>
-
             {% if today == exam.exam_date
             and current_time >= exam.start_time
             and current_time <= exam.end_time %} <a href="/start-exam/{{ exam.id }}">
-                <button>Start Exam</button>
+                <button class="start-active">Start Exam</button>
                 </a>
 
                 {% else %}
-
-                <button disabled>Not Available</button>
-
+                <button class="start-inactive">Not Available</button>
                 {% endif %}
-
         </td>
-    </tr>
-    {% endfor %}
-
-</table>
-
-
-<h3>Completed Exams</h3>
-<table>
-    <tr>
-        <th>Title</th>
-        <th>Date</th>
-        <th>Status</th>
-    </tr>
-
-    {% for exam in completed %}
-    <tr>
-        <td>{{ exam.title }}</td>
-        <td>{{ exam.exam_date }}</td>
-        <td>Finished</td>
     </tr>
     {% endfor %}
 
