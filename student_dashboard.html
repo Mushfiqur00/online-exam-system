@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background-color:#fff8f0;
+            margin:0;
+        }
+
+        .header{
+            background:#ff7a00;
+            color:white;
+            padding:15px;
+            font-size:20px;
+        }
+
+        .container{
+            width:80%;
+            margin:30px auto;
+            background:white;
+            padding:25px;
+            border-radius:8px;
+            box-shadow:0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            color:#ff7a00;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+        }
+
+        th{
+            background:#ff7a00;
+            color:white;
+            padding:10px;
+        }
+
+        td{
+            padding:10px;
+            border-bottom:1px solid #ddd;
+            text-align:center;
+        }
+
+        .upcoming{
+            background:#fff3cd;
+        }
+
+        .ongoing{
+            background:#d4edda;
+        }
+
+        .completed{
+            background:#f8d7da;
+        }
+
+        .btn{
+            background:#28a745;
+            color:white;
+            padding:6px 12px;
+            text-decoration:none;
+            border-radius:5px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="header">
+Student Dashboard
+</div>
+
+<div class="container">
+
+<h2>Upcoming Exams</h2>
+
+<table>
+<tr>
+<th>Exam</th>
+<th>Date</th>
+<th>Status</th>
+</tr>
+
+{% for exam in upcoming %}
+<tr class="upcoming">
+<td>{{ exam.title }}</td>
+<td>{{ exam.exam_date }}</td>
+<td>Not Started</td>
+</tr>
+{% endfor %}
+
+</table>
+
+
+
+<h2>Ongoing Exams</h2>
+
+<table>
+<tr>
+<th>Exam</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+
+{% for exam in ongoing %}
+<tr class="ongoing">
+<td>{{ exam.title }}</td>
+<td>{{ exam.exam_date }}</td>
+<td>
+<a class="btn" href="/start-exam/{{ exam.id }}">Start Exam</a>
+</td>
+</tr>
+{% endfor %}
+
+</table>
+
+
+
+<h2>Completed Exams</h2>
+
+<table>
+<tr>
+<th>Exam</th>
+<th>Date</th>
+<th>Status</th>
+</tr>
+
+{% for exam in completed %}
+<tr class="completed">
+<td>{{ exam.title }}</td>
+<td>{{ exam.exam_date }}</td>
+<td>Finished</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>
