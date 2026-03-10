@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Main code part
-=======
 from flask import Flask, render_template, request, redirect, session, flash
 from datetime import datetime
 from models import db, Student, Exam, ExamAssignment
@@ -238,4 +235,3 @@ def logout():
 # RUN APP
 if __name__ == "__main__":
     app.run(debug=True)
->>>>>>> module1
