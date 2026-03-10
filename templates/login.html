@@ -1,72 +1,71 @@
-{% extends "layout.html" %}
-{% block body %}
+<!DOCTYPE html>
+<html>
 
-<style>
-    .center-box {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 70vh;
-    }
+<head>
 
-    .card {
-        background: white;
-        padding: 30px;
-        width: 320px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
+    <title>Login</title>
 
-    .card h3 {
-        text-align: center;
-        color: #ff7a00;
-    }
+    <style>
+        body {
+            background: #fff7ed;
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    .card form {
-        display: flex;
-        flex-direction: column;
-    }
+        .box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-    .card input {
-        padding: 10px;
-        margin-top: 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
+        h2 {
+            color: #ea580c;
+        }
 
-    .card button {
-        margin-top: 15px;
-        padding: 10px;
-        background: #ff7a00;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-    }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
 
-    .card button:hover {
-        background: #e66a00;
-    }
-</style>
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
 
+</head>
 
-<div class="center-box">
+<body>
 
-    <div class="card">
-        <h3>Login</h3>
+    <div class="box">
+
+        <h2>Admin Login</h2>
 
         <form method="POST">
 
-            <input type="text" name="username" placeholder="Enter Username" required>
+            <input name="username" placeholder="Username">
 
-            <input type="password" name="password" placeholder="Enter Password" required>
+            <input type="password" name="password" placeholder="Password">
 
-            <button type="submit">Login</button>
+            <button>Login</button>
 
         </form>
+
     </div>
 
-</div>
+</body>
 
-{% endblock %}
+</html>

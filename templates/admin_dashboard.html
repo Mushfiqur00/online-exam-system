@@ -1,246 +1,184 @@
-{% extends "layout.html" %}
-{% block body %}
+<!DOCTYPE html>
+<html>
 
-<style>
-    .center-box {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        margin-top: 30px;
-    }
+<head>
 
-    .card {
-        background: white;
-        padding: 30px;
-        width: 350px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
+    <title>Admin Dashboard</title>
 
-    .card h3 {
-        text-align: center;
-        color: #ff7a00;
-    }
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff7ed;
+            padding: 40px;
+        }
 
-    .card form {
-        display: flex;
-        flex-direction: column;
-    }
+        h2 {
+            color: #ea580c;
+        }
 
-    .card input {
-        padding: 10px;
-        margin-top: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
+        button {
+            padding: 10px 20px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-    .card button {
-        margin-top: 15px;
-        padding: 10px;
-        background: #ff7a00;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 40px;
-        background: white;
-    }
+        th {
+            background: #f97316;
+            color: white;
+        }
 
-    th {
-        background: #ff7a00;
-        color: white;
-        padding: 12px;
-    }
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
 
-    td {
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
-    }
+        select {
+            padding: 8px;
+            margin: 5px;
+        }
 
-    tr:hover {
-        background: #fff0e6;
-    }
+        label {
+            margin-left: 10px;
+        }
+    </style>
 
-    .flash {
-        background: #d4edda;
-        color: #155724;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-    }
+</head>
 
-    .assign-box {
-        margin-top: 40px;
-    }
+<body>
 
-    .assign-box select {
-        padding: 8px;
-        margin: 10px;
-    }
-</style>
+    <h2>Admin Dashboard</h2>
 
-<!-- FLASH MESSAGE -->
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div class="flash">
-    {{ messages[0] }}
-</div>
-{% endif %}
-{% endwith %}
+    <a href="/group-management">
+        <button>Create Group</button>
+    </a>
 
-<!-- CREATE GROUP + CREATE EXAM -->
-<div class="center-box">
+    <a href="/create-exam-page">
+        <button>Create Exam</button>
+    </a>
 
-    <!-- CREATE GROUP -->
-    <div class="card">
-
-        <h3>Create Group</h3>
-
-        <form action="/create-group" method="POST">
-
-            <input type="text" name="group_name" placeholder="Group Name" required>
-
-            <button type="submit">Create Group</button>
-
-        </form>
-
-    </div>
-
-
-    <!-- CREATE EXAM -->
-    <div class="card">
-
-        <h3>Create Exam</h3>
-
-        <form action="/create-exam" method="POST">
-
-            <input type="text" name="title" placeholder="Exam Title" required>
-
-            <input type="date" name="exam_date" required>
-
-            <input type="time" name="start_time" required>
-
-            <input type="time" name="end_time" required>
-
-            <input type="number" name="duration" placeholder="Duration (minutes)" required>
-
-            <button type="submit">Create Exam</button>
-
-        </form>
-
-    </div>
-
-</div>
-
-
-<!-- ASSIGN EXAM -->
-<div class="assign-box">
-
-    <h3 style="color:#ff7a00;">Assign Exam</h3>
+    <h3>Assign Exam</h3>
 
     <form action="/assign-exam" method="POST">
 
-        <label>Select Exam:</label>
+        <label>Select Exam</label>
 
         <select name="exam_id" required>
 
+            <option value="">Select Exam</option>
+
             {% for exam in exams %}
-
-            <option value="{{ exam.id }}">{{ exam.title }}</option>
-
+            <option value="{{exam.id}}">
+                {{exam.title}}
+            </option>
             {% endfor %}
 
         </select>
 
-
-        <label>Assign to Individual Student:</label>
+        <label>Select Student</label>
 
         <select name="student_id">
 
-            <option value="">-- Select Student --</option>
+            <option value="">None</option>
 
             {% for student in students %}
-
-            <option value="{{ student.id }}">
-                {{ student.username }} ({{ student.group_name }})
+            <option value="{{student.id}}">
+                {{student.username}}
             </option>
-
             {% endfor %}
 
         </select>
 
+        <label>Select Group</label>
 
-        <label>OR Assign to Group:</label>
+        <select name="group_id">
 
-        <select name="group_name">
-
-            <option value="">-- Select Group --</option>
+            <option value="">None</option>
 
             {% for group in groups %}
-
-            <option value="{{ group }}">{{ group }}</option>
-
+            <option value="{{group.id}}">
+                {{group.name}}
+            </option>
             {% endfor %}
 
         </select>
 
-        <button type="submit">Assign Exam</button>
+        <button type="submit">Assign</button>
 
     </form>
 
-</div>
+    <h3>Scheduled Exams</h3>
 
+    <table>
 
-<!-- EXAM TABLE -->
+        <tr>
 
-<h3 style="color:#ff7a00;margin-top:40px;">Scheduled Exams</h3>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Assigned To</th>
+            <th>Action</th>
 
-<table>
+        </tr>
 
-    <tr>
-        <th>Title</th>
-        <th>Date</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Duration</th>
-        <th>Assigned</th>
-        <th>Action</th>
-    </tr>
+        {% for exam in exams %}
 
-    {% for exam in exams %}
+        <tr>
 
-    <tr>
+            <td>{{exam.title}}</td>
+            <td>{{exam.exam_date}}</td>
+            <td>{{exam.start_time}}</td>
+            <td>{{exam.end_time}}</td>
 
-        <td>{{ exam.title }}</td>
-        <td>{{ exam.exam_date }}</td>
-        <td>{{ exam.start_time }}</td>
-        <td>{{ exam.end_time }}</td>
-        <td>{{ exam.duration }}</td>
+            <td>
 
-        <td>
-            {% if exam.assignments %}
-            Assigned
-            {% else %}
-            None
-            {% endif %}
-        </td>
+                {% for a in assignments %}
 
-        <td>
-            <a href="/delete-exam/{{ exam.id }}">
-                <button>Delete</button>
-            </a>
-        </td>
+                {% if a.exam_id == exam.id %}
 
-    </tr>
+                {% for student in students %}
 
-    {% endfor %}
+                {% if student.id == a.student_id %}
 
-</table>
+                {{student.username}}
+                <br>
 
-{% endblock %}
+                {% endif %}
+
+                {% endfor %}
+
+                {% endif %}
+
+                {% endfor %}
+
+            </td>
+
+            <td>
+
+                <a href="/delete-exam/{{exam.id}}">
+                    <button>Delete</button>
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+
+</html>

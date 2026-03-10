@@ -1,33 +1,102 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html>
 
-{% block body %}
+<head>
 
-<h3>Create Exam</h3>
+    <title>Create Exam</title>
 
-<form method="POST">
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff7ed;
+            padding: 40px;
+        }
 
-    <label>Exam Title:</label><br>
-    <input type="text" name="title" placeholder="Example: Math Final Exam" required>
-    <br><br>
+        h2 {
+            color: #ea580c;
+        }
 
-    <label>Exam Date:</label><br>
-    <input type="date" name="exam_date" required>
-    <br><br>
+        button {
+            padding: 10px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
 
-    <label>Start Time:</label><br>
-    <input type="time" name="start_time" required>
-    <br><br>
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+        }
 
-    <label>End Time:</label><br>
-    <input type="time" name="end_time" required>
-    <br><br>
+        th {
+            background: #f97316;
+            color: white;
+        }
 
-    <label>Duration (minutes):</label><br>
-    <input type="number" name="duration" placeholder="Example: 60" required>
-    <br><br>
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
 
-    <button type="submit">Create Exam</button>
+        input {
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
 
-</form>
+</head>
 
-{% endblock %}
+<body>
+
+    <h2>Create Exam</h2>
+
+    <form action="/create-exam" method="POST">
+
+        <input name="title" placeholder="Exam Title">
+
+        <input type="date" name="exam_date">
+
+        <input type="time" name="start_time">
+
+        <input type="time" name="end_time">
+
+        <input type="number" name="duration" placeholder="Duration">
+
+        <button>Create Exam</button>
+
+    </form>
+
+    <h3>Created Exams</h3>
+
+    <table>
+
+        <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+        </tr>
+
+        {% for exam in exams %}
+
+        <tr>
+
+            <td>{{ exam.title }}</td>
+            <td>{{ exam.exam_date }}</td>
+            <td>{{ exam.start_time }}</td>
+            <td>{{ exam.end_time }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+
+</html>

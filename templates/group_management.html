@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Group Management</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff7ed;
+            padding: 40px;
+        }
+
+        h2 {
+            color: #ea580c;
+        }
+
+        button {
+            padding: 10px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f97316;
+            color: white;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h2>Create Group</h2>
+    <form action="/create-group" method="POST">
+
+        <input type="text" name="name" placeholder="Group Name" required>
+
+        <button type="submit">Create Group</button>
+
+
+
+    </form>
+
+    <h3>Groups</h3>
+
+    <table>
+
+        <tr>
+            <th>Group Name</th>
+            <th>Code</th>
+        </tr>
+
+        {% for group in groups %}
+
+        <tr>
+
+            <td>{{ group.name }}</td>
+            <td>{{ group.code }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+
+</html>

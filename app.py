@@ -1,118 +1,130 @@
-from flask import Flask, render_template, request, redirect, session, flash
-from datetime import datetime
-from models import db, Student, Exam, ExamAssignment
+from flask import Flask, render_template, request, redirect, flash, session
+from models import db, Group, Student, Exam, ExamAssignment
+import random
+import string
 
 app = Flask(__name__)
-app.secret_key = "secretkey"
+app.secret_key = "secret"
 
-# DATABASE CONFIG
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
 with app.app_context():
-
     db.create_all()
 
-    if Student.query.count() == 0:
-        s1 = Student(username="Mushfiq")
-        s2 = Student(username="Subroto")
-        s3 = Student(username="Rakibul")
+def generate_code():
 
-        db.session.add_all([s1, s2, s3])
-        db.session.commit()
-             # LOGIN
-@app.route("/", methods=["GET", "POST"])
+    letters = string.ascii_uppercase
+    numbers = string.digits
+
+    return ''.join(random.choice(letters+numbers) for i in range(6))
+
+
+@app.route("/", methods=["GET","POST"])
 def login():
+
     if request.method == "POST":
+
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Admin login
         if username == "teacher" and password == "1234":
+
             session["role"] = "admin"
+
             return redirect("/admin-dashboard")
-
-        # Student logins
-        elif username == "Subroto" and password == "1036":
-            session["role"] = "student"
-            return redirect("/student-dashboard")
-
-        elif username == "Rakibul" and password == "1273":
-            session["role"] = "student"
-            return redirect("/student-dashboard")
-
-        elif username == "Mushfiq" and password == "1405":
-            session["role"] = "student"
-            return redirect("/student-dashboard")
-
-        else:
-            return "Invalid Credentials"
 
     return render_template("login.html")
 
-# ADMIN DASHBOARD
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
 
-    # Your security check
-    if session.get("role") != "admin":
-        return redirect("/")
-
-    # Your exam ordering improvement
-    exams = Exam.query.order_by(Exam.exam_date, Exam.start_time).all()
-
-    # Shubroto's student list (needed for assignment)
+    exams = Exam.query.all()
     students = Student.query.all()
+    groups = Group.query.all()
+    assignments = ExamAssignment.query.all()
 
     return render_template(
         "admin_dashboard.html",
         exams=exams,
-        students=students
+        students=students,
+        groups=groups,
+        assignments=assignments
     )
 
-# ASSIGN EXAM (Individual or Group)
 
-@app.route("/assign-exam", methods=["POST"])
-def assign_exam():
-    exam_id = request.form.get("exam_id")
-    student_id = request.form.get("student_id")
-    group_name = request.form.get("group_name")
+@app.route("/group-management")
+def group_management():
 
-    # Assign to individual student
-    if student_id:
-        new_assignment = ExamAssignment(
-            exam_id=exam_id,
-            student_id=student_id
-        )
-        db.session.add(new_assignment)
+    groups = Group.query.all()
 
-    # Assign to group of students
-    if group_name:
-        group_students = Student.query.filter_by(
-            group_name=group_name
-        ).all()
+    return render_template(
+        "group_management.html",
+        groups=groups
+    )
 
-        for student in group_students:
-            new_assignment = ExamAssignment(
-                exam_id=exam_id,
-                student_id=student.id
-            )
-            db.session.add(new_assignment)
+@app.route("/delete-exam/<int:id>")
+def delete_exam(id):
 
-    db.session.commit()
-    flash("Exam assigned successfully!")
+    exam = Exam.query.get(id)
+
+    if exam:
+        db.session.delete(exam)
+        db.session.commit()
+
+    flash("Exam deleted")
+
     return redirect("/admin-dashboard")
 
 
+@app.route("/create-group", methods=["GET","POST"])
+def create_group():
 
-# CREATE EXAM
+    if request.method == "POST":
+
+        name = request.form.get("name")
+
+        if not name:
+            flash("Group name required")
+            return redirect("/create-group")
+
+        # duplicate check
+        existing = Group.query.filter_by(name=name).first()
+
+        if existing:
+            flash("Group already exists")
+            return redirect("/create-group")
+
+        group = Group(
+            name=name,
+            code=generate_code()
+        )
+
+        db.session.add(group)
+        db.session.commit()
+
+        flash("Group created successfully")
+
+        return redirect("/create-group")
+
+    return render_template("group_management.html")
+
+@app.route("/create-exam-page")
+def create_exam_page():
+
+    exams = Exam.query.all()
+
+    return render_template(
+        "create_exam.html",
+        exams=exams
+    )
+
+
 @app.route("/create-exam", methods=["POST"])
 def create_exam():
-
-    if session.get("role") != "admin":
-        return redirect("/")
 
     title = request.form.get("title")
     exam_date = request.form.get("exam_date")
@@ -120,8 +132,12 @@ def create_exam():
     end_time = request.form.get("end_time")
     duration = request.form.get("duration")
 
-    # SQLAlchemy insert
-    new_exam = Exam(
+    # validation
+    if not title or not exam_date or not start_time or not end_time or not duration:
+        flash("All fields are required!")
+        return redirect("/create-exam")
+
+    exam = Exam(
         title=title,
         exam_date=exam_date,
         start_time=start_time,
@@ -129,109 +145,64 @@ def create_exam():
         duration=duration
     )
 
-    db.session.add(new_exam)
+    db.session.add(exam)
     db.session.commit()
 
-    return redirect("/admin-dashboard")
-
-
-# DELETE EXAM
-@app.route("/delete-exam/<int:exam_id>")
-def delete_exam(exam_id):
-
-    if session.get("role") != "admin":
-        return redirect("/")
-
-    exam = Exam.query.get(exam_id)
-
-    if exam:
-        db.session.delete(exam)
-        db.session.commit()
+    flash("Exam created successfully!")
 
     return redirect("/admin-dashboard")
 
+@app.route("/assign-exam", methods=["POST"])
+def assign_exam():
 
-# STUDENT DASHBOARD
-@app.route("/student-dashboard")
-def student_dashboard():
+    exam_id = request.form.get("exam_id")
+    student_id = request.form.get("student_id")
+    group_id = request.form.get("group_id")
 
-    if session.get("role") != "student":
-        return redirect("/")
+    # exam select check
+    if not exam_id:
+        flash("Please select an exam")
+        return redirect("/admin-dashboard")
 
-    exams = Exam.query.order_by(Exam.exam_date, Exam.start_time).all()
+    # group or student select check
+    if not student_id and not group_id:
+        flash("Please select a student or a group")
+        return redirect("/admin-dashboard")
 
-    now = datetime.now()
-    today = now.strftime("%Y-%m-%d")
-    current_time = now.strftime("%H:%M")
+    # assign to individual student
+    if student_id:
 
-    upcoming = []
-    ongoing = []
-    completed = []
+        assign = ExamAssignment(
+            exam_id=exam_id,
+            student_id=student_id
+        )
 
-    for exam in exams:
+        db.session.add(assign)
 
-        if exam.exam_date > today:
-            upcoming.append(exam)
+    # assign to group
+    if group_id:
 
-        elif exam.exam_date == today:
+        students = Student.query.filter_by(group_id=group_id).all()
 
-            if exam.start_time <= current_time <= exam.end_time:
-                ongoing.append(exam)
-            else:
-                upcoming.append(exam)
+        if not students:
+            flash("No students found in this group")
+            return redirect("/admin-dashboard")
 
-        else:
-            completed.append(exam)
+        for s in students:
 
-    return render_template(
-        "student_dashboard.html",
-        upcoming=upcoming,
-        ongoing=ongoing,
-        completed=completed,
-        today=today,
-        current_time=current_time
-    )
+            assign = ExamAssignment(
+                exam_id=exam_id,
+                student_id=s.id
+            )
 
-# START EXAM
-@app.route("/start-exam/<int:exam_id>")
-def start_exam(exam_id):
+            db.session.add(assign)
 
-    if session.get("role") != "student":
-        return redirect("/")
+    db.session.commit()
 
-    exam = Exam.query.get(exam_id)
+    flash("Exam assigned successfully")
 
-    if exam is None:
-        return "Exam not found"
-
-    now = datetime.now()
-    today = now.strftime("%Y-%m-%d")
-    current_time = now.strftime("%H:%M")
-
-    # Date check
-    if today < exam.exam_date:
-        return "Exam has not started yet"
-
-    if today > exam.exam_date:
-        return "Exam date is over"
-
-    # Time check
-    if current_time < exam.start_time:
-        return "Exam has not started yet"
-
-    if current_time > exam.end_time:
-        return "Exam time is over"
-
-    return "Exam Started Successfully"
+    return redirect("/admin-dashboard")
 
 
-# LOGOUT
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
-
-# RUN APP
 if __name__ == "__main__":
     app.run(debug=True)
