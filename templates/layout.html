@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Examora</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff8f0;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            background-color: #ff7a00;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .logout-btn {
+            background-color: white;
+            color: #ff7a00;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #ffe0cc;
+        }
+
+        /* MAIN CONTAINER */
+
+        .container {
+            padding: 30px;
+            min-height: 70vh;
+        }
+
+        /* CARD DESIGN (FOR FORMS) */
+
+        .card {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+
+        .card h3 {
+            text-align: center;
+            color: #ff7a00;
+        }
+
+        .card form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .card button {
+            margin-top: 15px;
+            padding: 10px;
+            background: #ff7a00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .card button:hover {
+            background: #e66a00;
+        }
+
+        /* TABLE DESIGN */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: white;
+        }
+
+        th {
+            background: #ff7a00;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #fff0e6;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <div class="nav-left">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
+            <h2>Examora</h2>
+        </div>
+
+        {% if session.get('user_id') %}
+        <a href="/logout">
+            <button class="logout-btn">Logout</button>
+        </a>
+        {% endif %}
+
+    </div>
+
+
+    <!-- PAGE CONTENT -->
+
+    <div class="container">
+
+        {% block body %}
+
+        {% endblock %}
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+        <p>Examora</p>
+        <p>Capstone Project – Daffodil International University</p>
+        <p>© 2026 Group-4 Project</p>
+    </div>
+
+
+</body>
+
+</html>
