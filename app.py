@@ -38,9 +38,19 @@ def login():
 
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/")
+
 
 @app.route("/admin-dashboard")
 def admin_dashboard():
+
+    if "role" not in session:
+        return redirect("/")
 
     exams = Exam.query.all()
     students = Student.query.all()
@@ -55,7 +65,6 @@ def admin_dashboard():
         assignments=assignments
     )
 
-
 @app.route("/group-management")
 def group_management():
 
@@ -66,18 +75,7 @@ def group_management():
         groups=groups
     )
 
-@app.route("/delete-exam/<int:id>")
-def delete_exam(id):
 
-    exam = Exam.query.get(id)
-
-    if exam:
-        db.session.delete(exam)
-        db.session.commit()
-
-    flash("Exam deleted")
-
-    return redirect("/admin-dashboard")
 
 
 @app.route("/create-group", methods=["GET","POST"])
@@ -89,14 +87,13 @@ def create_group():
 
         if not name:
             flash("Group name required")
-            return redirect("/create-group")
+            return redirect("/group-management")
 
-        # duplicate check
         existing = Group.query.filter_by(name=name).first()
 
         if existing:
             flash("Group already exists")
-            return redirect("/create-group")
+            return redirect("/group-management")
 
         group = Group(
             name=name,
@@ -108,19 +105,25 @@ def create_group():
 
         flash("Group created successfully")
 
-        return redirect("/create-group")
+        return redirect("/group-management")
 
-    return render_template("group_management.html")
-
-@app.route("/create-exam-page")
-def create_exam_page():
-
-    exams = Exam.query.all()
+    groups = Group.query.all()
 
     return render_template(
-        "create_exam.html",
-        exams=exams
+        "group_management.html",
+        groups=groups
     )
+
+
+@app.route("/delete-group/<int:id>")
+def delete_group(id):
+
+    group = Group.query.get(id)
+
+    db.session.delete(group)
+    db.session.commit()
+
+    return redirect("/group-management")
 
 
 @app.route("/create-exam", methods=["POST"])
@@ -132,10 +135,9 @@ def create_exam():
     end_time = request.form.get("end_time")
     duration = request.form.get("duration")
 
-    # validation
     if not title or not exam_date or not start_time or not end_time or not duration:
-        flash("All fields are required!")
-        return redirect("/create-exam")
+        flash("All fields required")
+        return redirect("/create-exam-page")
 
     exam = Exam(
         title=title,
@@ -148,10 +150,33 @@ def create_exam():
     db.session.add(exam)
     db.session.commit()
 
-    flash("Exam created successfully!")
+    flash("Exam created successfully")
 
-    return redirect("/admin-dashboard")
+    return redirect("/create-exam-page")
 
+
+@app.route("/delete-exam/<int:id>")
+def delete_exam(id):
+
+    exam = Exam.query.get(id)
+
+    if exam:
+        db.session.delete(exam)
+        db.session.commit()
+
+    flash("Exam deleted")
+
+    return redirect("/create-exam-page")
+
+@app.route("/create-exam-page")
+def create_exam_page():
+
+    exams = Exam.query.all()
+
+    return render_template(
+        "create_exam.html",
+        exams=exams
+    )
 @app.route("/assign-exam", methods=["POST"])
 def assign_exam():
 
@@ -159,18 +184,21 @@ def assign_exam():
     student_id = request.form.get("student_id")
     group_id = request.form.get("group_id")
 
-    # exam select check
     if not exam_id:
-        flash("Please select an exam")
+        flash("Please select exam")
         return redirect("/admin-dashboard")
 
-    # group or student select check
-    if not student_id and not group_id:
-        flash("Please select a student or a group")
-        return redirect("/admin-dashboard")
-
-    # assign to individual student
+    # student assign
     if student_id:
+
+        existing = ExamAssignment.query.filter_by(
+            exam_id=exam_id,
+            student_id=student_id
+        ).first()
+
+        if existing:
+            flash("Already assigned to this student")
+            return redirect("/admin-dashboard")
 
         assign = ExamAssignment(
             exam_id=exam_id,
@@ -179,30 +207,50 @@ def assign_exam():
 
         db.session.add(assign)
 
-    # assign to group
-    if group_id:
 
-        students = Student.query.filter_by(group_id=group_id).all()
+    # group assign
+    elif group_id:
 
-        if not students:
-            flash("No students found in this group")
+        existing = ExamAssignment.query.filter_by(
+            exam_id=exam_id,
+            group_id=group_id
+        ).first()
+
+        if existing:
+            flash("Already assigned to this group")
             return redirect("/admin-dashboard")
 
-        for s in students:
+        assign = ExamAssignment(
+            exam_id=exam_id,
+            group_id=group_id
+        )
 
-            assign = ExamAssignment(
-                exam_id=exam_id,
-                student_id=s.id
-            )
+        db.session.add(assign)
 
-            db.session.add(assign)
+    else:
+        flash("Please select student or group")
+        return redirect("/admin-dashboard")
 
     db.session.commit()
 
     flash("Exam assigned successfully")
 
     return redirect("/admin-dashboard")
+    
+@app.route("/clear-assignment/<int:exam_id>")
+def clear_assignment(exam_id):
 
+    assignments = ExamAssignment.query.filter_by(exam_id=exam_id).all()
+
+    for a in assignments:
+        db.session.delete(a)
+
+    db.session.commit()
+
+    flash("Assignments cleared")
+
+    return redirect("/admin-dashboard")
+   
 
 if __name__ == "__main__":
     app.run(debug=True)

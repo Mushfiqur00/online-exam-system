@@ -12,10 +12,6 @@
             padding: 40px;
         }
 
-        h2 {
-            color: #ea580c;
-        }
-
         button {
             padding: 10px 20px;
             background: #f97316;
@@ -52,13 +48,106 @@
         label {
             margin-left: 10px;
         }
+
+        /* NAVBAR */
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f97316;
+            padding: 10px 20px;
+            border-bottom: 2px solid #ea580c;
+            margin-bottom: 30px;
+        }
+
+        .nav-left {
+            width: 33%;
+        }
+
+        .nav-center {
+            width: 33%;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-right {
+            width: 33%;
+            text-align: right;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        .back-btn {
+            background: #dc2626;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .back-btn:hover {
+            background: #b91c1c;
+        }
     </style>
+
 
 </head>
 
 <body>
+    <div class="navbar">
 
-    <h2>Admin Dashboard</h2>
+        <div class="nav-left">
+
+            <button class="back-btn" onclick="history.back()">Back</button>
+
+        </div>
+
+        <div class="nav-center">
+
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
+            <span class="title">Examora</span>
+
+        </div>
+
+        <div class="nav-right">
+
+            <a href="/logout">
+                <button class="logout-btn">Logout</button>
+            </a>
+
+        </div>
+
+    </div>
 
     <a href="/group-management">
         <button>Create Group</button>
@@ -118,59 +207,97 @@
 
     </form>
 
+
     <h3>Scheduled Exams</h3>
 
     <table>
 
         <tr>
-
             <th>Title</th>
             <th>Date</th>
             <th>Start</th>
             <th>End</th>
+            <th>Status</th>
             <th>Assigned To</th>
             <th>Action</th>
-
         </tr>
 
         {% for exam in exams %}
 
         <tr>
 
-            <td>{{exam.title}}</td>
-            <td>{{exam.exam_date}}</td>
-            <td>{{exam.start_time}}</td>
-            <td>{{exam.end_time}}</td>
+            <td>{{ exam.title }}</td>
+            <td>{{ exam.exam_date }}</td>
+            <td>{{ exam.start_time }}</td>
+            <td>{{ exam.end_time }}</td>
+
+            <!-- STATUS COLUMN -->
 
             <td>
+
+                {% set assigned = [] %}
+
+                {% for a in assignments %}
+                {% if a.exam_id == exam.id %}
+                {% set _ = assigned.append(a.student_id) %}
+                {% endif %}
+                {% endfor %}
+
+                {% if assigned|length > 0 %}
+                <span style="color:green;font-weight:bold">Assigned</span>
+                {% else %}
+                <span style="color:red;font-weight:bold">Not Assigned</span>
+                {% endif %}
+
+            </td>
+
+            <!-- ASSIGNED TO COLUMN -->
+
+            <td>
+
+                {% set found = false %}
 
                 {% for a in assignments %}
 
                 {% if a.exam_id == exam.id %}
 
+                {% set found = true %}
+
+                {% if a.student_id %}
+
                 {% for student in students %}
-
                 {% if student.id == a.student_id %}
+                Student: {{student.username}} <br>
+                {% endif %}
+                {% endfor %}
 
-                {{student.username}}
-                <br>
+                {% endif %}
+
+                {% if a.group_id %}
+
+                {% for group in groups %}
+                {% if group.id == a.group_id %}
+                Group: {{group.name}} <br>
+                {% endif %}
+                {% endfor %}
+
+                {% endif %}
 
                 {% endif %}
 
                 {% endfor %}
 
+                {% if not found %}
+                -
                 {% endif %}
-
-                {% endfor %}
 
             </td>
 
             <td>
 
-                <a href="/delete-exam/{{exam.id}}">
-                    <button>Delete</button>
+                <a href="/clear-assignment/{{exam.id}}">
+                    <button style="background:#ef4444;">Clear Assigned</button>
                 </a>
-
             </td>
 
         </tr>
@@ -178,7 +305,6 @@
         {% endfor %}
 
     </table>
-
 </body>
 
 </html>
