@@ -21,20 +21,64 @@ def generate_code():
 
     return ''.join(random.choice(letters+numbers) for i in range(6))
 
+@app.route("/student-register", methods=["GET","POST"])
+def student_register():
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        student_id = request.form["student_id"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        username = request.form["username"]
+        password = request.form["password"]
+        group_code = request.form["group_code"]
+
+        group = Group.query.filter_by(code=group_code).first()
+
+        if not group:
+            return "Invalid Group Code"
+
+        student = Student(
+            name=name,
+            student_id=student_id,
+            email=email,
+            phone=phone,
+            username=username,
+            password=password,
+            group_id=group.id
+        )
+
+        db.session.add(student)
+        db.session.commit()
+
+        return redirect("/")
+
+    return render_template("register.html")
+
 
 @app.route("/", methods=["GET","POST"])
 def login():
 
     if request.method == "POST":
 
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form["username"]
+        password = request.form["password"]
 
         if username == "teacher" and password == "1234":
-
-            session["role"] = "admin"
-
+            session["admin"] = True
             return redirect("/admin-dashboard")
+
+        student = Student.query.filter_by(
+            username=username,
+            password=password
+        ).first()
+
+        if student:
+            session["student_id"] = student.id
+            return redirect("/student-dashboard")
+
+        return "Invalid Login"
 
     return render_template("login.html")
 
@@ -49,7 +93,7 @@ def logout():
 @app.route("/admin-dashboard")
 def admin_dashboard():
 
-    if "role" not in session:
+    if "admin" not in session:
         return redirect("/")
 
     exams = Exam.query.all()
@@ -64,6 +108,18 @@ def admin_dashboard():
         groups=groups,
         assignments=assignments
     )
+
+
+@app.route("/student-dashboard")
+def student_dashboard():
+
+    if "student_id" not in session:
+        return redirect("/")
+
+    student = Student.query.get(session["student_id"])
+
+    return render_template("student_dashboard.html", student=student)
+
 
 @app.route("/group-management")
 def group_management():
