@@ -1,6 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-import random
-import string
 
 db = SQLAlchemy()
 
@@ -12,7 +10,6 @@ class Group(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    code = db.Column(db.String(10), unique=True)
 
     def __repr__(self):
         return f"<Group {self.name}>"
@@ -52,7 +49,7 @@ class Exam(db.Model):
 
 
 # -------------------
-# Exam Assignment Model
+# Exam Assignment
 # -------------------
 class ExamAssignment(db.Model):
     __tablename__ = "exam_assignment"
@@ -60,10 +57,8 @@ class ExamAssignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     exam_id = db.Column(db.Integer, db.ForeignKey("exam.id"))
-
-    student_id = db.Column(db.Integer, db.ForeignKey("student.id"), nullable=True)
-
-    group_id = db.Column(db.Integer, db.ForeignKey("group.id"), nullable=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("student.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
     def __repr__(self):
         return f"<Assignment Exam:{self.exam_id}>"
