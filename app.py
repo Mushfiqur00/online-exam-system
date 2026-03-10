@@ -16,9 +16,9 @@ with app.app_context():
     db.create_all()
 
     if Student.query.count() == 0:
-        s1 = Student(username="Mushfiq", group_name="Group-1")
-        s2 = Student(username="Subroto", group_name="Group-2")
-        s3 = Student(username="Rakibul", group_name="Group-3")
+        s1 = Student(username="Mushfiq")
+        s2 = Student(username="Subroto")
+        s3 = Student(username="Rakibul")
 
         db.session.add_all([s1, s2, s3])
         db.session.commit()
