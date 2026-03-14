@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session , make_response
 from models import db, Group, Student, Exam, ExamAssignment
 import random
 import string
+
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "secret"
@@ -101,13 +103,17 @@ def admin_dashboard():
     groups = Group.query.all()
     assignments = ExamAssignment.query.all()
 
-    return render_template(
+    response = make_response(render_template(
         "admin_dashboard.html",
         exams=exams,
         students=students,
         groups=groups,
         assignments=assignments
-    )
+    ))
+
+    response.headers["Cache-Control"] = "no-store"
+
+    return response
 
 
 @app.route("/student-dashboard")
@@ -118,8 +124,54 @@ def student_dashboard():
 
     student = Student.query.get(session["student_id"])
 
-    return render_template("student_dashboard.html", student=student)
+    exams = Exam.query.all()
 
+    today = datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.now().strftime("%H:%M")
+
+    upcoming = []
+    ongoing = []
+    completed = []
+
+    for exam in exams:
+
+        assignment = ExamAssignment.query.filter(
+            (ExamAssignment.exam_id == exam.id) &
+            (
+                (ExamAssignment.student_id == student.id) |
+                (ExamAssignment.group_id == student.group_id)
+            )
+        ).first()
+
+        exam.assigned = assignment is not None
+
+        if exam.exam_date > today:
+            upcoming.append(exam)
+
+        elif exam.exam_date == today:
+
+            if current_time < exam.start_time:
+                upcoming.append(exam)
+
+            elif exam.start_time <= current_time <= exam.end_time:
+                ongoing.append(exam)
+
+            else:
+                completed.append(exam)
+
+        else:
+            completed.append(exam)
+
+    return render_template(
+        "student_dashboard.html",
+
+        student=student,
+        upcoming=upcoming,
+        ongoing=ongoing,
+        completed=completed,
+        today=today,
+        current_time=current_time
+    )
 
 @app.route("/group-management")
 def group_management():
@@ -307,6 +359,17 @@ def clear_assignment(exam_id):
 
     return redirect("/admin-dashboard")
    
+   
+@app.route("/start-exam/<int:exam_id>")
+def start_exam(exam_id):
 
+    if "student_id" not in session:
+        return redirect("/")
+
+    exam = Exam.query.get(exam_id)
+
+    return f"Exam '{exam.title}' Started Successfully!"
 if __name__ == "__main__":
+
+
     app.run(debug=True)

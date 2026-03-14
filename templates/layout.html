@@ -7,97 +7,106 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff8f0;
+            font-family: Arial;
         }
 
         /* NAVBAR */
 
         .navbar {
-            background-color: #ff7a00;
-            padding: 15px 25px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            color: white;
+            justify-content: space-between;
+            background: #f97316;
+            padding: 10px 20px;
+            border-bottom: 2px solid #ea580c;
+            margin-bottom: 30px;
         }
 
         .nav-left {
+            width: 33%;
+        }
+
+        .nav-center {
+            width: 33%;
+            text-align: center;
             display: flex;
+            justify-content: center;
             align-items: center;
+            gap: 10px;
+        }
+
+        .nav-right {
+            width: 33%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
         }
 
         .logo {
-            height: 40px;
-            margin-right: 10px;
+            width: 45px;
+            height: 45px;
         }
 
-        .navbar h2 {
-            margin: 0;
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
         }
 
         .logout-btn {
-            background-color: white;
-            color: #ff7a00;
-            padding: 8px 15px;
+            background: #e92b2b;
+            padding: 8px 16px;
             border: none;
             border-radius: 5px;
+            color: white;
             cursor: pointer;
-            font-weight: bold;
+
         }
 
         .logout-btn:hover {
-            background: #ffe0cc;
+            background: #ca2020;
         }
 
-        /* MAIN CONTAINER */
-
-        .container {
-            padding: 30px;
-            min-height: 70vh;
-        }
-
-        /* CARD DESIGN (FOR FORMS) */
-
-        .card {
-            background: white;
-            padding: 30px;
-            width: 350px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin: auto;
-        }
-
-        .card h3 {
-            text-align: center;
-            color: #ff7a00;
-        }
-
-        .card form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card input {
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .card button {
-            margin-top: 15px;
-            padding: 10px;
-            background: #ff7a00;
-            color: white;
+        .back-btn {
+            background: #e92b2b;
+            padding: 8px 16px;
             border: none;
             border-radius: 5px;
+            color: white;
             cursor: pointer;
-            font-weight: bold;
+            margin-left: 10px;
         }
 
-        .card button:hover {
-            background: #e66a00;
+        .back-btn:hover {
+            background: #b91c1c;
+        }
+
+        .student-box {
+            background: #f97316;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-align: left;
+            color: white;
+        }
+
+        .student-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .student-id {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
         }
 
         /* TABLE DESIGN */
@@ -106,7 +115,6 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 30px;
-            background: white;
         }
 
         th {
@@ -117,66 +125,61 @@
 
         td {
             padding: 10px;
-            text-align: center;
             border-bottom: 1px solid #ddd;
+            text-align: center;
         }
 
         tr:hover {
-            background: #fff0e6;
-        }
-
-        /* FOOTER */
-
-        .footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 15px;
-            margin-top: 40px;
+            background: #fff3e6;
         }
     </style>
-
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-
     <div class="navbar">
 
+        <!-- LEFT : BACK BUTTON -->
+
         <div class="nav-left">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
-            <h2>Examora</h2>
+            <button onclick="history.back()" class="back-btn">← Back</button>
         </div>
 
-        {% if session.get('user_id') %}
-        <a href="/logout">
-            <button class="logout-btn">Logout</button>
-        </a>
-        {% endif %}
+        <!-- CENTER : LOGO + TITLE -->
+
+        <div class="nav-center">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
+            <span class="title">Examora</span>
+        </div>
+
+        <!-- RIGHT : USER INFO -->
+        <div class="nav-right">
+
+            {% if student %}
+            <div class="student-box">
+                <div class="student-name">👤 {{ student.name }}</div>
+                <div class="student-id">ID: {{ student.student_id }}</div>
+            </div>
+            {% endif %}
+
+            {% if "admin" in session %}
+            <div class="student-box">
+                <div class="student-name">👨‍🏫 Admin Panel</div>
+            </div>
+            {% endif %}
+
+            {% if session.get("student_id") or session.get("admin") %}
+            <a href="/logout" class="logout-btn">Logout</a>
+            {% endif %}
+
+        </div>
 
     </div>
 
-
-    <!-- PAGE CONTENT -->
-
-    <div class="container">
-
+    <div style="padding:30px;">
         {% block body %}
-
         {% endblock %}
-
     </div>
-
-
-    <!-- FOOTER -->
-
-    <div class="footer">
-        <p>Examora</p>
-        <p>Capstone Project – Daffodil International University</p>
-        <p>© 2026 Group-4 Project</p>
-    </div>
-
 
 </body>
 
