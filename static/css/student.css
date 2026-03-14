@@ -1,0 +1,83 @@
+body {
+    margin: 0;
+    font-family: Arial;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f97316;
+    padding: 10px 20px;
+    border-bottom: 2px solid #ea580c;
+    margin-bottom: 30px;
+}
+
+.nav-left {
+    width: 33%;
+}
+
+.nav-center {
+    width: 33%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-right {
+    width: 33%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 45px;
+    height: 45px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+}
+
+.student-box {
+    background: #f97316;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+}
+
+.logout-btn {
+    background: #ef4444;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+th {
+    background: #ff7a00;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+tr:hover {
+    background: #fff3e6;
+}

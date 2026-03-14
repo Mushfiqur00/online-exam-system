@@ -1,182 +1,44 @@
-<!DOCTYPE html>
-<html>
+{% extends "admin_layout.html" %}
 
-<head>
+{% block body %}
 
-    <title>Group Management</title>
+<h2>Create Group</h2>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #fff7ed;
-            padding: 40px;
-        }
+<form action="/create-group" method="POST">
 
-        h2 {
-            color: #ea580c;
-        }
+    <input type="text" name="name" placeholder="Group Name" required>
 
-        button {
-            padding: 10px;
-            background: #f97316;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
+    <button type="submit">Create Group</button>
 
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-            background: white;
-        }
+</form>
 
-        th {
-            background: #f97316;
-            color: white;
-        }
+<h3>Groups</h3>
 
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
+<table>
 
-        input {
-            padding: 10px;
-        }
+    <tr>
+        <th>Group Name</th>
+        <th>Code</th>
+        <th>Action</th>
+    </tr>
 
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f97316;
-            padding: 10px 20px;
-            border-bottom: 2px solid #ea580c;
-            margin-bottom: 30px;
-        }
+    {% for group in groups %}
 
-        .nav-left {
-            width: 33%;
-        }
+    <tr>
 
-        .nav-center {
-            width: 33%;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
+        <td>{{ group.name }}</td>
+        <td>{{ group.code }}</td>
 
-        .nav-right {
-            width: 33%;
-            text-align: right;
-        }
-
-        .logo {
-            width: 45px;
-            height: 45px;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: white;
-        }
-
-        .logout-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-
-        }
-
-        .logout-btn:hover {
-            background: #b91c1c;
-        }
-
-        .back-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .back-btn:hover {
-            background: #b91c1c;
-        }
-    </style>
-
-</head>
-
-<body>
-    <div class="navbar">
-
-        <div class="nav-left">
-            <button class="back-btn" onclick="history.back()">Back</button>
-        </div>
-
-        <div class="nav-center">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
-            <span class="title">Examora</span>
-        </div>
-
-        <div class="nav-right">
-            <a href="/logout">
-                <button class="logout-btn">Logout</button>
+        <td>
+            <a href="/delete-group/{{group.id}}">
+                <button>Delete</button>
             </a>
-        </div>
+        </td>
 
-    </div>
+    </tr>
 
-    <h2>Create Group</h2>
-    <form action="/create-group" method="POST">
+    {% endfor %}
 
-        <input type="text" name="name" placeholder="Group Name" required>
+</table>
 
-        <button type="submit">Create Group</button>
-
-
-
-    </form>
-
-    <h3>Groups</h3>
-
-    <table>
-
-        <tr>
-            <th>Group Name</th>
-            <th>Code</th>
-            <th>Action</th>
-        </tr>
-
-        {% for group in groups %}
-
-        <tr>
-
-            <td>{{ group.name }}</td>
-            <td>{{ group.code }}</td>
-
-            <td>
-                <a href="/delete-group/{{group.id}}">
-                    <button>Delete</button>
-                </a>
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-    </table>
-</body>
-
-</html>
+{% endblock %}

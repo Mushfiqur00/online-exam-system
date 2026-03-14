@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Examora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <div class="nav-left">
+            <button onclick="history.back()" class="back-btn">← Back</button>
+        </div>
+
+        <div class="nav-center">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
+            <span class="title">Examora</span>
+        </div>
+
+        <div class="nav-right">
+
+            {% if student %}
+            <div class="student-box">
+                <div class="student-name">👤 {{ student.name }}</div>
+                <div class="student-id">ID: {{ student.student_id }}</div>
+            </div>
+            {% endif %}
+
+            {% if session.get("student_id") or session.get("admin") %}
+            <a href="/logout" class="logout-btn">Logout</a>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        {% block body %}
+        {% endblock %}
+
+    </div>
+
+</body>
+
+</html>

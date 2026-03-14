@@ -1,310 +1,143 @@
-<!DOCTYPE html>
-<html>
+{% extends "admin_layout.html" %}
 
-<head>
+{% block body %}
 
-    <title>Admin Dashboard</title>
+<a href="/group-management">
+    <button>Create Group</button>
+</a>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #fff7ed;
-            padding: 40px;
-        }
+<a href="/create-exam-page">
+    <button>Create Exam</button>
+</a>
 
-        button {
-            padding: 10px 20px;
-            background: #f97316;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+<h3>Assign Exam</h3>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-        }
+<form action="/assign-exam" method="POST">
 
-        th {
-            background: #f97316;
-            color: white;
-        }
+    <label>Select Exam</label>
 
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        select {
-            padding: 8px;
-            margin: 5px;
-        }
-
-        label {
-            margin-left: 10px;
-        }
-
-        /* NAVBAR */
-
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f97316;
-            padding: 10px 20px;
-            border-bottom: 2px solid #ea580c;
-            margin-bottom: 30px;
-        }
-
-        .nav-left {
-            width: 33%;
-        }
-
-        .nav-center {
-            width: 33%;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-right {
-            width: 33%;
-            text-align: right;
-        }
-
-        .logo {
-            width: 45px;
-            height: 45px;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: white;
-        }
-
-        .logout-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-
-        }
-
-        .logout-btn:hover {
-            background: #b91c1c;
-        }
-
-        .back-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .back-btn:hover {
-            background: #b91c1c;
-        }
-    </style>
-
-
-</head>
-
-<body>
-    <div class="navbar">
-
-        <div class="nav-left">
-
-            <button class="back-btn" onclick="history.back()">Back</button>
-
-        </div>
-
-        <div class="nav-center">
-
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
-            <span class="title">Examora</span>
-
-        </div>
-
-        <div class="nav-right">
-
-            <a href="/logout">
-                <button class="logout-btn">Logout</button>
-            </a>
-
-        </div>
-
-    </div>
-
-    <a href="/group-management">
-        <button>Create Group</button>
-    </a>
-
-    <a href="/create-exam-page">
-        <button>Create Exam</button>
-    </a>
-
-    <h3>Assign Exam</h3>
-
-    <form action="/assign-exam" method="POST">
-
-        <label>Select Exam</label>
-
-        <select name="exam_id" required>
-
-            <option value="">Select Exam</option>
-
-            {% for exam in exams %}
-            <option value="{{exam.id}}">
-                {{exam.title}}
-            </option>
-            {% endfor %}
-
-        </select>
-
-        <label>Select Student</label>
-
-        <select name="student_id">
-
-            <option value="">None</option>
-
-            {% for student in students %}
-            <option value="{{student.id}}">
-                {{student.username}}
-            </option>
-            {% endfor %}
-
-        </select>
-
-        <label>Select Group</label>
-
-        <select name="group_id">
-
-            <option value="">None</option>
-
-            {% for group in groups %}
-            <option value="{{group.id}}">
-                {{group.name}}
-            </option>
-            {% endfor %}
-
-        </select>
-
-        <button type="submit">Assign</button>
-
-    </form>
-
-
-    <h3>Scheduled Exams</h3>
-
-    <table>
-
-        <tr>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Status</th>
-            <th>Assigned To</th>
-            <th>Action</th>
-        </tr>
+    <select name="exam_id" required>
+        <option value="">Select Exam</option>
 
         {% for exam in exams %}
-
-        <tr>
-
-            <td>{{ exam.title }}</td>
-            <td>{{ exam.exam_date }}</td>
-            <td>{{ exam.start_time }}</td>
-            <td>{{ exam.end_time }}</td>
-
-            <!-- STATUS COLUMN -->
-
-            <td>
-
-                {% set assigned = [] %}
-
-                {% for a in assignments %}
-                {% if a.exam_id == exam.id %}
-                {% set _ = assigned.append(a.student_id) %}
-                {% endif %}
-                {% endfor %}
-
-                {% if assigned|length > 0 %}
-                <span style="color:green;font-weight:bold">Assigned</span>
-                {% else %}
-                <span style="color:red;font-weight:bold">Not Assigned</span>
-                {% endif %}
-
-            </td>
-
-            <!-- ASSIGNED TO COLUMN -->
-
-            <td>
-
-                {% set found = false %}
-
-                {% for a in assignments %}
-
-                {% if a.exam_id == exam.id %}
-
-                {% set found = true %}
-
-                {% if a.student_id %}
-
-                {% for student in students %}
-                {% if student.id == a.student_id %}
-                Student: {{student.username}} <br>
-                {% endif %}
-                {% endfor %}
-
-                {% endif %}
-
-                {% if a.group_id %}
-
-                {% for group in groups %}
-                {% if group.id == a.group_id %}
-                Group: {{group.name}} <br>
-                {% endif %}
-                {% endfor %}
-
-                {% endif %}
-
-                {% endif %}
-
-                {% endfor %}
-
-                {% if not found %}
-                -
-                {% endif %}
-
-            </td>
-
-            <td>
-
-                <a href="/clear-assignment/{{exam.id}}">
-                    <button style="background:#ef4444;">Clear Assigned</button>
-                </a>
-            </td>
-
-        </tr>
-
+        <option value="{{exam.id}}">
+            {{exam.title}}
+        </option>
         {% endfor %}
 
-    </table>
-</body>
+    </select>
 
-</html>
+    <label>Select Student</label>
+
+    <select name="student_id">
+
+        <option value="">None</option>
+
+        {% for student in students %}
+        <option value="{{student.id}}">
+            {{student.username}}
+        </option>
+        {% endfor %}
+
+    </select>
+
+    <label>Select Group</label>
+
+    <select name="group_id">
+
+        <option value="">None</option>
+
+        {% for group in groups %}
+        <option value="{{group.id}}">
+            {{group.name}}
+        </option>
+        {% endfor %}
+
+    </select>
+
+    <button type="submit">Assign</button>
+
+</form>
+
+<h3>Scheduled Exams</h3>
+
+<table>
+
+    <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+        <th>Assigned To</th>
+        <th>Action</th>
+    </tr>
+
+    {% for exam in exams %}
+
+    <tr>
+
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
+
+      <td>
+
+{% set assigned = [] %}
+
+{% for a in assignments %}
+    {% if a.exam_id == exam.id %}
+        {% set _ = assigned.append(a.id) %}
+    {% endif %}
+{% endfor %}
+
+{% if assigned|length > 0 %}
+<span style="color:green;font-weight:bold">Assigned</span>
+{% else %}
+<span style="color:red;font-weight:bold">Not Assigned</span>
+{% endif %}
+
+</td>
+
+        <td>
+
+            {% set found = false %}
+
+            {% for a in assignments %}
+
+            {% if a.exam_id == exam.id %}
+
+            {% if a.student %}
+            <b>Student:</b> {{ a.student.username }} <br>
+
+            {% elif a.group %}
+            <b>Group:</b> {{ a.group.name }} <br>
+
+            {% endif %}
+
+            {% set found = true %}
+
+            {% endif %}
+
+            {% endfor %}
+
+            {% if not found %}
+            -
+            {% endif %}
+
+        </td>
+
+        <td>
+            <a href="/clear-assignment/{{exam.id}}">
+                <button style="background:#ef4444;">Clear Assigned</button>
+            </a>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

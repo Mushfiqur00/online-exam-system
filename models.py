@@ -45,9 +45,11 @@ class Exam(db.Model):
     duration = db.Column(db.Integer)
 
 class ExamAssignment(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
 
-    exam_id = db.Column(db.Integer, db.ForeignKey("exam.id"))
-    student_id = db.Column(db.Integer, db.ForeignKey("student.id"))
-    group_id = db.Column(db.Integer, db.ForeignKey("group.id"), nullable=True)
+    exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
+    student = db.relationship("Student", backref="assignments")
+    group = db.relationship("Group", backref="assignments")

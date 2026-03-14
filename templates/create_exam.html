@@ -1,195 +1,56 @@
-<!DOCTYPE html>
-<html>
+{% extends "admin_layout.html" %}
 
-<head>
+{% block body %}
 
-    <title>Create Exam</title>
+<h2>Create Exam</h2>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #fff7ed;
-            padding: 40px;
-        }
+<form action="/create-exam" method="POST">
 
-        h2 {
-            color: #ea580c;
-        }
+    <input name="title" placeholder="Exam Title">
 
-        button {
-            padding: 10px;
-            background: #f97316;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
+    <input type="date" name="exam_date">
 
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-            background: white;
-        }
+    <input type="time" name="start_time">
 
-        th {
-            background: #f97316;
-            color: white;
-        }
+    <input type="time" name="end_time">
 
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
+    <input type="number" name="duration" placeholder="Duration">
 
-        input {
-            padding: 10px;
-            margin: 5px;
-        }
+    <button>Create Exam</button>
 
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f97316;
-            padding: 10px 20px;
-            border-bottom: 2px solid #ea580c;
-            margin-bottom: 30px;
-        }
+</form>
 
-        .nav-left {
-            width: 33%;
-        }
+<h3>Created Exams</h3>
 
-        .nav-center {
-            width: 33%;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
+<table>
 
-        .nav-right {
-            width: 33%;
-            text-align: right;
-        }
+    <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Action</th>
+    </tr>
 
-        .logo {
-            width: 45px;
-            height: 45px;
-        }
+    {% for exam in exams %}
 
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: white;
-        }
+    <tr>
 
-        .logout-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
 
-        }
-
-        .logout-btn:hover {
-            background: #b91c1c;
-        }
-
-        .back-btn {
-            background: #dc2626;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .back-btn:hover {
-            background: #b91c1c;
-        }
-    </style>
-
-</head>
-
-<body>
-    <div class="navbar">
-
-        <div class="nav-left">
-            <button class="back-btn" onclick="history.back()">Back</button>
-        </div>
-
-        <div class="nav-center">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
-            <span class="title">Examora</span>
-        </div>
-
-        <div class="nav-right">
-            <a href="/logout">
-                <button class="logout-btn">Logout</button>
+        <td>
+            <a href="/delete-exam/{{exam.id}}">
+                <button>Delete</button>
             </a>
-        </div>
+        </td>
 
-    </div>
+    </tr>
 
-    <h2>Create Exam</h2>
+    {% endfor %}
 
-    <form action="/create-exam" method="POST">
+</table>
 
-        <input name="title" placeholder="Exam Title">
-
-        <input type="date" name="exam_date">
-
-        <input type="time" name="start_time">
-
-        <input type="time" name="end_time">
-
-        <input type="number" name="duration" placeholder="Duration">
-
-        <button>Create Exam</button>
-
-    </form>
-
-    <h3>Created Exams</h3>
-
-    <table>
-
-        <tr>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Action</th>
-        </tr>
-
-        {% for exam in exams %}
-
-        <tr>
-
-            <td>{{ exam.title }}</td>
-            <td>{{ exam.exam_date }}</td>
-            <td>{{ exam.start_time }}</td>
-            <td>{{ exam.end_time }}</td>
-
-            <td>
-                <a href="/delete-exam/{{exam.id}}">
-                    <button>Delete</button>
-                </a>
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-    </table>
-
-</body>
-
-</html>
+{% endblock %}

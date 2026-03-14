@@ -92,6 +92,8 @@ def logout():
     return redirect("/")
 
 
+
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
 
@@ -114,7 +116,6 @@ def admin_dashboard():
     response.headers["Cache-Control"] = "no-store"
 
     return response
-
 
 @app.route("/student-dashboard")
 def student_dashboard():
