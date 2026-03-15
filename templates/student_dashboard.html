@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "student_layout.html" %}
 
 {% block body %}
 
@@ -14,11 +14,16 @@
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
+
+        {% if exam.assigned %}
         <td>Not Started</td>
+        {% else %}
+        <td style="color:red;">Not Assigned To You</td>
+        {% endif %}
+
     </tr>
     {% endfor %}
 </table>
-
 
 <h3>Ongoing Exams</h3>
 <table>
@@ -34,11 +39,15 @@
         <td>{{ exam.exam_date }}</td>
         <td>
 
-            {% if today == exam.exam_date
+            {% if exam.assigned and today == exam.exam_date
             and current_time >= exam.start_time
             and current_time <= exam.end_time %} <a href="/start-exam/{{ exam.id }}">
                 <button>Start Exam</button>
                 </a>
+
+                {% elif not exam.assigned %}
+
+                <span style="color:red;">Not Assigned To You</span>
 
                 {% else %}
 
@@ -52,7 +61,6 @@
 
 </table>
 
-
 <h3>Completed Exams</h3>
 <table>
     <tr>
@@ -65,7 +73,13 @@
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
+
+        {% if exam.assigned %}
         <td>Finished</td>
+        {% else %}
+        <td style="color:red;">Not Assigned To You</td>
+        {% endif %}
+
     </tr>
     {% endfor %}
 

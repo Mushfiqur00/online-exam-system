@@ -1,0 +1,44 @@
+{% extends "admin_layout.html" %}
+
+{% block body %}
+
+<h2>Create Group</h2>
+
+<form action="/create-group" method="POST">
+
+    <input type="text" name="name" placeholder="Group Name" required>
+
+    <button type="submit">Create Group</button>
+
+</form>
+
+<h3>Groups</h3>
+
+<table>
+
+    <tr>
+        <th>Group Name</th>
+        <th>Code</th>
+        <th>Action</th>
+    </tr>
+
+    {% for group in groups %}
+
+    <tr>
+
+        <td>{{ group.name }}</td>
+        <td>{{ group.code }}</td>
+
+        <td>
+            <a href="/delete-group/{{group.id}}">
+                <button>Delete</button>
+            </a>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

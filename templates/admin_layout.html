@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <div class="nav-left">
+            <button onclick="history.back()" class="back-btn">← Back</button>
+        </div>
+
+        <div class="nav-center">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
+            <span class="title">Examora</span>
+        </div>
+
+        <div class="nav-right">
+            <a href="/logout">
+                <button class="logout-btn">Logout</button>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        {% block body %}
+        {% endblock %}
+
+    </div>
+
+</body>
+
+</html>

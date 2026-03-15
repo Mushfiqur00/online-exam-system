@@ -1,33 +1,56 @@
-{% extends "layout.html" %}
+{% extends "admin_layout.html" %}
 
 {% block body %}
 
-<h3>Create Exam</h3>
+<h2>Create Exam</h2>
 
-<form method="POST">
+<form action="/create-exam" method="POST">
 
-    <label>Exam Title:</label><br>
-    <input type="text" name="title" placeholder="Example: Math Final Exam" required>
-    <br><br>
+    <input name="title" placeholder="Exam Title">
 
-    <label>Exam Date:</label><br>
-    <input type="date" name="exam_date" required>
-    <br><br>
+    <input type="date" name="exam_date">
 
-    <label>Start Time:</label><br>
-    <input type="time" name="start_time" required>
-    <br><br>
+    <input type="time" name="start_time">
 
-    <label>End Time:</label><br>
-    <input type="time" name="end_time" required>
-    <br><br>
+    <input type="time" name="end_time">
 
-    <label>Duration (minutes):</label><br>
-    <input type="number" name="duration" placeholder="Example: 60" required>
-    <br><br>
+    <input type="number" name="duration" placeholder="Duration">
 
-    <button type="submit">Create Exam</button>
+    <button>Create Exam</button>
 
 </form>
+
+<h3>Created Exams</h3>
+
+<table>
+
+    <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Action</th>
+    </tr>
+
+    {% for exam in exams %}
+
+    <tr>
+
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.exam_date }}</td>
+        <td>{{ exam.start_time }}</td>
+        <td>{{ exam.end_time }}</td>
+
+        <td>
+            <a href="/delete-exam/{{exam.id}}">
+                <button>Delete</button>
+            </a>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
 
 {% endblock %}
