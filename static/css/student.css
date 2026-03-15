@@ -81,3 +81,66 @@ td {
 tr:hover {
     background: #fff3e6;
 }
+
+#timer {
+    display: block;
+    width: 120px;
+    margin: 25px auto;
+
+    font-size: 30px;
+    font-weight: 700;
+
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    text-align: center;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#examForm button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 22px;
+
+    background: #16a34a;
+    color: white;
+
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#examForm button:hover {
+    background: #15803d;
+}
+
+#examForm p {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#examForm input {
+    margin-bottom: 8px;
+}
+
+
+
+#examForm {
+    max-width: 800px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.exam-title {
+    text-align: center;
+    font-size: 28px;
+    margin-top: 20px;
+    font-weight: 700;
+}

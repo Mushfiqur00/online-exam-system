@@ -2,64 +2,64 @@
 
 {% block body %}
 
-<h2>Exam</h2>
+<h2 class="exam-title">Exam</h2>
 
 <div id="timer">Loading...</div>
 
 <form id="examForm" method="POST" action="/submit-exam/{{exam_id}}">
 
-{% for q in questions %}
+    {% for q in questions %}
 
-<p>{{loop.index}}. {{q.question_text}}</p>
+    <p>{{loop.index}}. {{q.question_text}}</p>
 
-{% if q.question_type == "mcq" %}
+    {% if q.question_type == "mcq" %}
 
-<input type="radio" name="{{q.id}}" value="{{q.option1}}"> {{q.option1}}<br>
-<input type="radio" name="{{q.id}}" value="{{q.option2}}"> {{q.option2}}<br>
-<input type="radio" name="{{q.id}}" value="{{q.option3}}"> {{q.option3}}<br>
-<input type="radio" name="{{q.id}}" value="{{q.option4}}"> {{q.option4}}<br>
+    <input type="radio" name="{{q.id}}" value="{{q.option1}}"> {{q.option1}}<br>
+    <input type="radio" name="{{q.id}}" value="{{q.option2}}"> {{q.option2}}<br>
+    <input type="radio" name="{{q.id}}" value="{{q.option3}}"> {{q.option3}}<br>
+    <input type="radio" name="{{q.id}}" value="{{q.option4}}"> {{q.option4}}<br>
 
-{% else %}
+    {% else %}
 
-<input type="text" name="{{q.id}}">
+    <input type="text" name="{{q.id}}">
 
-{% endif %}
+    {% endif %}
 
-<hr>
+    <hr>
 
-{% endfor %}
+    {% endfor %}
 
-<button type="submit">Submit Exam</button>
+    <button type="submit">Submit Exam</button>
 
 </form>
 
 <script>
 
-var time = {{ duration }} * 60;
+    var time = {{ duration }} * 60;
 
-var timer = setInterval(function () {
+    var timer = setInterval(function () {
 
-var minutes = Math.floor(time / 60);
-var seconds = time % 60;
+        var minutes = Math.floor(time / 60);
+        var seconds = time % 60;
 
-if(seconds < 10){
-seconds = "0" + seconds;
-}
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
 
-document.getElementById("timer").innerHTML =
-minutes + ":" + seconds;
+        document.getElementById("timer").innerHTML =
+            minutes + ":" + seconds;
 
-time--;
+        time--;
 
-if(time < 0){
+        if (time < 0) {
 
-clearInterval(timer);
+            clearInterval(timer);
 
-document.getElementById("examForm").submit();
+            document.getElementById("examForm").submit();
 
-}
+        }
 
-},1000);
+    }, 1000);
 
 </script>
 
