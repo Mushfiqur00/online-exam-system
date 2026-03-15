@@ -370,6 +370,62 @@ def start_exam(exam_id):
     exam = Exam.query.get(exam_id)
 
     return f"Exam '{exam.title}' Started Successfully!"
+
+#shubroto add here 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#rafi add your code here 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
 
 
