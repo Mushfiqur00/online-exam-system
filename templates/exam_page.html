@@ -1,0 +1,66 @@
+{% extends "student_layout.html" %}
+
+{% block body %}
+
+<h2>Exam</h2>
+
+<div id="timer">Loading...</div>
+
+<form id="examForm" method="POST" action="/submit-exam/{{exam_id}}">
+
+{% for q in questions %}
+
+<p>{{loop.index}}. {{q.question_text}}</p>
+
+{% if q.question_type == "mcq" %}
+
+<input type="radio" name="{{q.id}}" value="{{q.option1}}"> {{q.option1}}<br>
+<input type="radio" name="{{q.id}}" value="{{q.option2}}"> {{q.option2}}<br>
+<input type="radio" name="{{q.id}}" value="{{q.option3}}"> {{q.option3}}<br>
+<input type="radio" name="{{q.id}}" value="{{q.option4}}"> {{q.option4}}<br>
+
+{% else %}
+
+<input type="text" name="{{q.id}}">
+
+{% endif %}
+
+<hr>
+
+{% endfor %}
+
+<button type="submit">Submit Exam</button>
+
+</form>
+
+<script>
+
+var time = {{ duration }} * 60;
+
+var timer = setInterval(function () {
+
+var minutes = Math.floor(time / 60);
+var seconds = time % 60;
+
+if(seconds < 10){
+seconds = "0" + seconds;
+}
+
+document.getElementById("timer").innerHTML =
+minutes + ":" + seconds;
+
+time--;
+
+if(time < 0){
+
+clearInterval(timer);
+
+document.getElementById("examForm").submit();
+
+}
+
+},1000);
+
+</script>
+
+{% endblock %}

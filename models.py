@@ -1,23 +1,20 @@
 from flask_sqlalchemy import SQLAlchemy
-import random
-import string
 
 db = SQLAlchemy()
 
-def generate_code():
-
-    return ''.join(
-        random.choices(
-            string.ascii_uppercase + string.digits,
-            k=6
-        )
-    )
+# -----------------------------
+# GROUP TABLE
+# -----------------------------
 class Group(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     code = db.Column(db.String(10), unique=True)
 
+
+# -----------------------------
+# STUDENT TABLE
+# -----------------------------
 class Student(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +30,10 @@ class Student(db.Model):
 
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
-    
+
+# -----------------------------
+# EXAM TABLE
+# -----------------------------
 class Exam(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +44,12 @@ class Exam(db.Model):
     end_time = db.Column(db.String(10))
     duration = db.Column(db.Integer)
 
+
+# -----------------------------
+# EXAM ASSIGNMENT TABLE
+# -----------------------------
 class ExamAssignment(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
 
     exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
@@ -55,25 +60,27 @@ class ExamAssignment(db.Model):
     group = db.relationship("Group", backref="assignments")
 
 
+# =====================================================
+# SHUBROTO FEATURE
+# Admin can create MCQ / Short questions and set marks
+# =====================================================
+class Question(db.Model):
 
-    #shubroto add your code below
+    id = db.Column(db.Integer, primary_key=True)
 
+    exam_id = db.Column(db.Integer, db.ForeignKey("exam.id"))
 
+    question_text = db.Column(db.String(500))
 
+    # mcq / short
+    question_type = db.Column(db.String(20))
 
+    option1 = db.Column(db.String(200))
+    option2 = db.Column(db.String(200))
+    option3 = db.Column(db.String(200))
+    option4 = db.Column(db.String(200))
 
+    correct_answer = db.Column(db.String(200))
 
-
-
-
-
-
-
-
-
-
-
-
-
-    #rafi add your code below 
-    
+    # marks for each question
+    marks = db.Column(db.Integer)

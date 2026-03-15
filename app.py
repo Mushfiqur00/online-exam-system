@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, session , make_response
-from models import db, Group, Student, Exam, ExamAssignment
+from models import db, Group, Student, Exam, ExamAssignment , Question
 import random
 import string
 
@@ -360,7 +360,6 @@ def clear_assignment(exam_id):
 
     return redirect("/admin-dashboard")
    
-   
 @app.route("/start-exam/<int:exam_id>")
 def start_exam(exam_id):
 
@@ -369,7 +368,14 @@ def start_exam(exam_id):
 
     exam = Exam.query.get(exam_id)
 
-    return f"Exam '{exam.title}' Started Successfully!"
+    questions = Question.query.filter_by(exam_id=exam_id).all()
+
+    return render_template(
+        "exam_page.html",
+        questions=questions,
+        exam_id=exam_id,
+        duration=exam.duration
+    )
 
 #shubroto add here 
 
