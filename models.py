@@ -53,3 +53,27 @@ class ExamAssignment(db.Model):
 
     student = db.relationship("Student", backref="assignments")
     group = db.relationship("Group", backref="assignments")
+
+
+
+    #shubroto add your code below
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #rafi add your code below 
+    
