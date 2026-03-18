@@ -144,3 +144,24 @@ tr:hover {
     margin-top: 20px;
     font-weight: 700;
 }
+
+.footer {
+    margin-top: 50px;
+    padding: 25px 15px;
+
+    text-align: center;
+    line-height: 1.7;
+
+    background: #7c2d12;
+    color: #f9fafb;
+
+
+    font-size: 14px;
+
+    border-top: 3px solid #c2410c;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.footer p {
+    margin: 5px 0;
+}
