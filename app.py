@@ -401,7 +401,43 @@ def start_exam(exam_id):
 
 
 #rafi add your code here 
+# =====================================================
+# RAKIBUL FEATURE
+# Admin delete question
+# =====================================================
 
+@app.route("/delete-question/<int:id>")
+def delete_question(id):
+
+    q = Question.query.get(id)
+
+    db.session.delete(q)
+    db.session.commit()
+
+    return redirect("/create-exam-page")
+
+
+# =====================================================
+# RAKIBUL FEATURE
+# Admin edit question
+# =====================================================
+
+@app.route("/edit-question/<int:id>", methods=["GET","POST"])
+def edit_question(id):
+
+    q = Question.query.get(id)
+
+    if request.method == "POST":
+
+        q.question_text = request.form.get("question_text")
+        q.correct_answer = request.form.get("correct_answer")
+        q.marks = request.form.get("marks")
+
+        db.session.commit()
+
+        return redirect("/create-exam-page")
+
+    return render_template("edit_question.html", q=q)
 
 
 

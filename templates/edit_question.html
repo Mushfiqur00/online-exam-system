@@ -1,0 +1,22 @@
+{% extends "admin_layout.html" %}
+
+{% block body %}
+
+<h2>Edit Question</h2>
+
+<form method="POST">
+
+Question<br>
+<input type="text" name="question_text" value="{{q.question_text}}"><br><br>
+
+Correct Answer<br>
+<input type="text" name="correct_answer" value="{{q.correct_answer}}"><br><br>
+
+Marks<br>
+<input type="number" name="marks" value="{{q.marks}}"><br><br>
+
+<button type="submit">Update</button>
+
+</form>
+
+{% endblock %}
