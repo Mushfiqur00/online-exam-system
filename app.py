@@ -377,27 +377,42 @@ def start_exam(exam_id):
         duration=exam.duration
     )
 
-#shubroto add here 
 
+@app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
+def add_question(exam_id):
 
+    if request.method == "POST":
 
+        question_text = request.form.get("question_text")
+        question_type = request.form.get("question_type")
 
+        option1 = request.form.get("option1")
+        option2 = request.form.get("option2")
+        option3 = request.form.get("option3")
+        option4 = request.form.get("option4")
 
+        correct_answer = request.form.get("correct_answer")
 
+        marks = request.form.get("marks")
 
+        question = Question(
+            exam_id=exam_id,
+            question_text=question_text,
+            question_type=question_type,
+            option1=option1,
+            option2=option2,
+            option3=option3,
+            option4=option4,
+            correct_answer=correct_answer,
+            marks=marks
+        )
 
+        db.session.add(question)
+        db.session.commit()
 
+        return redirect("/create-exam-page")
 
-
-
-
-
-
-
-
-
-
-
+    return render_template("add_question.html", exam_id=exam_id)
 
 
 #rafi add your code here 
