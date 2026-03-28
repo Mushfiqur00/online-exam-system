@@ -2,81 +2,128 @@
 
 {% block body %}
 
-<div style="max-width:700px;margin:auto;">
-
-    <div style="
-        background:white;
-        padding:30px;
-        border-radius:12px;
-        box-shadow:0 4px 15px rgba(0,0,0,0.1);
-        text-align:center;
-    ">
-
-        <h2 style="margin-bottom:20px;">📊 Exam Result</h2>
-
-        <!-- SCORE -->
-        <div style="
-    max-width:500px;
-    margin:auto;
-    margin-top:50px;
+<div style="
+    max-width:700px;
+    margin:60px auto;
     background:white;
     padding:30px;
-    border-radius:10px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
     text-align:center;
 ">
 
-            <h2>📊 Result</h2>
+    {% if has_short %}
 
-            <p>Total Marks: {{total}}</p>
-            <p>Obtained: {{obtained}}</p>
-            <p style="color:green;">Correct: {{correct}}</p>
-            <p style="color:red;">Wrong: {{wrong}}</p>
+    <!-- 🟡 PENDING BOX -->
+    <div style="
+        background:#fef3c7;
+        padding:20px;
+        border-radius:10px;
+        text-align:center;
+    ">
 
+        <h2 style="color:#f59e0b;">⏳ Result Pending</h2>
+
+        <p style="margin-top:10px;color:#555;">
+            Short answer questions need teacher evaluation.
+        </p>
+
+        <p style="color:#777;">
+            Your result will be published after review.
+        </p>
+
+    </div>
+
+    {% else %}
+
+    <!-- ✅ NORMAL RESULT UI -->
+
+    <h2 style="margin-bottom:10px;">🎉 Exam Result</h2>
+
+    <p style="color:#555;margin-bottom:25px;">
+        Here is your performance summary
+    </p>
+
+    <!-- SCORE CARD -->
+    <div style="
+        background:#f1f5f9;
+        padding:20px;
+        border-radius:10px;
+        margin-bottom:25px;
+    ">
+
+        <h1 style="color:#2563eb;">
+            {{ obtained }} / {{ total }}
+        </h1>
+
+        <p style="color:#666;">Total Score</p>
+
+    </div>
+
+    <!-- DETAILS -->
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:25px;
+    ">
+
+        <div style="
+            flex:1;
+            margin:5px;
+            padding:15px;
+            background:#dcfce7;
+            border-radius:8px;
+        ">
+            <h3 style="color:#16a34a;">✔ {{ correct }}</h3>
+            <p>Correct</p>
         </div>
 
-        <!-- PROGRESS BAR -->
-        <div style="margin-top:25px;">
-
-            {% set percent = (obtained / total * 100) if total > 0 else 0 %}
-
-            <div style="
-                width:100%;
-                background:#e5e7eb;
-                border-radius:10px;
-                overflow:hidden;
-            ">
-
-                <div style="
-                    width:{{percent}}%;
-                    background:#2563eb;
-                    padding:10px;
-                    color:white;
-                    font-weight:bold;
-                ">
-                    {{percent|round(0)}}%
-                </div>
-
-            </div>
-
+        <div style="
+            flex:1;
+            margin:5px;
+            padding:15px;
+            background:#fee2e2;
+            border-radius:8px;
+        ">
+            <h3 style="color:#dc2626;">✖ {{ wrong }}</h3>
+            <p>Wrong</p>
         </div>
 
-        <!-- BUTTON -->
-        <div style="margin-top:30px;">
-            <a href="/student-dashboard">
-                <button style="
-                    background:#2563eb;
-                    color:white;
-                    padding:10px 20px;
-                    border:none;
-                    border-radius:8px;
-                    cursor:pointer;
-                ">
-                    Back to Dashboard
-                </button>
-            </a>
-        </div>
+    </div>
 
+    <!-- PERCENTAGE -->
+    {% set percent = (obtained / total * 100) | round(2) %}
+
+    <div style="margin-bottom:25px;">
+        <h3>📊 Percentage: {{ percent }}%</h3>
+    </div>
+
+    <!-- PERFORMANCE MESSAGE -->
+    {% if percent >= 80 %}
+    <p style="color:#16a34a;font-weight:bold;">🔥 Excellent Work!</p>
+    {% elif percent >= 50 %}
+    <p style="color:#f59e0b;font-weight:bold;">👍 Good Job!</p>
+    {% else %}
+    <p style="color:#dc2626;font-weight:bold;">⚠️ Need Improvement</p>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- BUTTON (common for both) -->
+    <div style="margin-top:30px;">
+        <a href="/student-dashboard">
+            <button style="
+            background:#2563eb;
+            color:white;
+            padding:12px 25px;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+            cursor:pointer;
+        ">
+                🔙 Back to Dashboard
+            </button>
+        </a>
     </div>
 
 </div>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, session , make_response
-from models import db, Group, Student, Exam, ExamAssignment , Question
+from models import db, Group, Student, Exam, ExamAssignment , Question , Result
 import random
 import string
 
@@ -129,7 +129,7 @@ def student_dashboard():
         return redirect("/")
 
     student = Student.query.get(session["student_id"])
-
+    results = db.session.query(Result, Exam).join(Exam, Result.exam_id == Exam.id).filter(Result.student_id == student.id).all()
     exams = Exam.query.all()
 
     today = datetime.now().strftime("%Y-%m-%d")
@@ -176,7 +176,8 @@ def student_dashboard():
         ongoing=ongoing,
         completed=completed,
         today=today,
-        current_time=current_time
+        current_time=current_time,
+        results=results
     )
 
 @app.route("/group-management")
@@ -355,15 +356,25 @@ def clear_assignment(exam_id):
     flash("Assignments cleared")
 
     return redirect("/admin-dashboard")
-   
 @app.route("/start-exam/<int:exam_id>")
 def start_exam(exam_id):
 
     if "student_id" not in session:
         return redirect("/")
 
-    exam = Exam.query.get(exam_id)
+    student_id = session["student_id"]
 
+    # 🔒 check already submitted
+    existing = Result.query.filter_by(
+        student_id=student_id,
+        exam_id=exam_id
+    ).first()
+
+    if existing:
+        flash("You already submitted this exam!")
+        return redirect("/student-dashboard")
+
+    exam = Exam.query.get(exam_id)
     questions = Question.query.filter_by(exam_id=exam_id).all()
 
     return render_template(
@@ -372,8 +383,6 @@ def start_exam(exam_id):
         exam_id=exam_id,
         duration=exam.duration
     )
-
-
 #add question
 
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
@@ -434,9 +443,22 @@ def add_question(exam_id):
 
 
 
-
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
+
+    if "student_id" not in session:
+        return redirect("/")
+
+    student_id = session["student_id"]
+
+    # 🔒 prevent double submit
+    existing = Result.query.filter_by(
+        student_id=student_id,
+        exam_id=exam_id
+    ).first()
+
+    if existing:
+        return redirect("/student-dashboard")
 
     questions = Question.query.filter_by(exam_id=exam_id).all()
 
@@ -444,28 +466,39 @@ def submit_exam(exam_id):
     obtained = 0
     correct = 0
     wrong = 0
+    has_short = False
 
     for q in questions:
-
         user_ans = request.form.get(f"q{q.id}")
-
         total += int(q.marks)
 
         if q.question_type == "mcq":
-
             if user_ans == q.correct_answer:
                 obtained += int(q.marks)
                 correct += 1
             else:
                 wrong += 1
+        else:
+            has_short = True
+
+    # ✅ 🔥 EXACTLY HERE boshao
+    result = Result(
+        student_id=student_id,
+        exam_id=exam_id,
+        score=obtained
+    )
+    db.session.add(result)
+    db.session.commit()
 
     return render_template(
         "result.html",
         total=total,
         obtained=obtained,
         correct=correct,
-        wrong=wrong
+        wrong=wrong,
+        has_short=has_short
     )
+
 
 # =====================================================
 # RAKIBUL FEATURE
@@ -508,7 +541,49 @@ def edit_question(id):
 
 
 
+
+
+
+
+
+@app.route("/exam-instruction/<int:exam_id>")
+def exam_instruction(exam_id):
+
+    exam = Exam.query.get(exam_id)
+
+    return render_template(
+        "exam_instruction.html",
+        exam=exam
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#feture work 
+
+@app.route("/admin-results")
+def admin_results():
+    results = Result.query.all()
+    return render_template("admin_results.html", results=results) @app.route("/profile")
+def profile():
+    student = Student.query.get(session["student_id"])
+    return render_template("profile.html", student=student)
+
+
 if __name__ == "__main__":
 
 
     app.run(debug=True)
+

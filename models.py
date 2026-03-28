@@ -44,7 +44,13 @@ class Exam(db.Model):
     end_time = db.Column(db.String(10))
     duration = db.Column(db.Integer)
 
+class Result(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
 
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
+
+    score = db.Column(db.Integer)
 # -----------------------------
 # EXAM ASSIGNMENT TABLE
 # -----------------------------
@@ -84,3 +90,11 @@ class Question(db.Model):
 
     # marks for each question
     marks = db.Column(db.Integer)
+
+
+
+
+
+
+
+ 

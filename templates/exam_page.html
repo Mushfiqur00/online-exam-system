@@ -143,13 +143,30 @@
     var time = {{ duration }} * 60;
 
     var timer = setInterval(function () {
+
         var minutes = Math.floor(time / 60);
         var seconds = time % 60;
 
         if (seconds < 10) seconds = "0" + seconds;
 
-        document.getElementById("timer").innerHTML =
-            "⏱ Time Left: " + minutes + ":" + seconds;
+        var timerDiv = document.getElementById("timer");
+
+        timerDiv.innerHTML = "⏱ " + minutes + ":" + seconds;
+
+        // 🔴 last 1 minute warning + blinking
+        if (time <= 60) {
+
+            // blinking effect
+            if (time % 2 == 0) {
+                timerDiv.style.background = "#dc2626";
+                timerDiv.style.color = "white";
+            } else {
+                timerDiv.style.background = "white";
+                timerDiv.style.color = "#dc2626";
+            }
+
+
+        }
 
         time--;
 
@@ -161,5 +178,4 @@
 
     }, 1000);
 </script>
-
 {% endblock %}

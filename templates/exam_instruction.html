@@ -1,0 +1,58 @@
+{% extends "student_layout.html" %}
+{% block body %}
+
+<div style="
+    max-width:600px;
+    margin:60px auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    text-align:center;
+">
+
+    <h2 style="margin-bottom:10px;">📋 Exam Instructions</h2>
+
+    <p style="color:#555;margin-bottom:20px;">
+        Please read carefully before starting the exam
+    </p>
+
+    <div style="
+        background:#f1f5f9;
+        padding:15px;
+        border-radius:8px;
+        margin-bottom:20px;
+    ">
+        <p><b>📘 Exam:</b> {{exam.title}}</p>
+        <p><b>⏱ Duration:</b> {{exam.duration}} minutes</p>
+        <p><b>📅 Date:</b> {{exam.exam_date}}</p>
+    </div>
+
+    <div style="text-align:left;margin-bottom:20px;">
+        <h4>📌 Rules:</h4>
+        <ul style="line-height:1.8;color:#444;">
+            <li>Do not refresh the page</li>
+            <li>Timer will auto submit</li>
+            <li>No multiple attempts allowed</li>
+            <li>Each MCQ has only one correct answer</li>
+        </ul>
+    </div>
+
+    <a href="/start-exam/{{exam.id}}">
+        <button style="
+            background:#2563eb;
+            color:white;
+            padding:12px 25px;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+            cursor:pointer;
+            transition:0.3s;
+        " onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            🚀 Start Exam
+        </button>
+    </a>
+
+</div>
+
+{% endblock %}

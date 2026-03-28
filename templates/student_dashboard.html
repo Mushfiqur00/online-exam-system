@@ -25,39 +25,47 @@
     {% endfor %}
 </table>
 
-<h3>Ongoing Exams</h3>
+
 <table>
-    <tr>
-        <th>Title</th>
-        <th>Date</th>
-        <th>Action</th>
-    </tr>
+    <div class="section">
+        <h3>Ongoing Exams</h3>
 
-    {% for exam in ongoing %}
-    <tr>
-        <td>{{ exam.title }}</td>
-        <td>{{ exam.exam_date }}</td>
-        <td>
+        <div class="card-container">
+            {% for exam in ongoing %}
+            <div class="card">
 
-            {% if exam.assigned and today == exam.exam_date
-            and current_time >= exam.start_time
-            and current_time <= exam.end_time %} <a href="/start-exam/{{ exam.id }}">
-                <button>Start Exam</button>
-                </a>
+                <h4>{{ exam.title }}</h4>
+                <p>📅 {{ exam.exam_date }}</p>
 
-                {% elif not exam.assigned %}
+                {% if exam.assigned %}
 
-                <span style="color:red;">Not Assigned To You</span>
-
-                {% else %}
-
-                <button disabled>Not Available</button>
-
+                {% set submitted = false %}
+                {% for r in results %}
+                {% if r.exam_id == exam.id %}
+                {% set submitted = true %}
                 {% endif %}
+                {% endfor %}
 
-        </td>
-    </tr>
-    {% endfor %}
+                {% if submitted %}
+                <span class="badge gray">Submitted</span>
+
+                {% elif current_time >= exam.start_time and current_time <= exam.end_time %} <a
+                    href="/exam-instruction/{{exam.id}}">
+                    <button class="btn green">Start Exam</button>
+                    </a>
+
+                    {% else %}
+                    <span class="badge yellow">Not Available</span>
+                    {% endif %}
+
+                    {% else %}
+                    <span class="badge red">Not Assigned</span>
+                    {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
 </table>
 
@@ -84,5 +92,23 @@
     {% endfor %}
 
 </table>
+
+<h3 style="margin-top:30px;">📊 Your Results</h3>
+
+<div class="card-container">
+    {% for r in results %}
+    <div class="card result-card">
+
+        <h4>{{ r[1].title }}</h4>
+
+        <p class="score">
+            Score: {{ r[0].score }}
+        </p>
+
+        <span class="badge green">Completed</span>
+
+    </div>
+    {% endfor %}
+</div>
 
 {% endblock %}
