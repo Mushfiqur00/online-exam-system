@@ -2,12 +2,85 @@
 
 {% block body %}
 
-<h2>Result</h2>
+<div style="max-width:700px;margin:auto;">
 
-<p>Total Marks: {{total}}</p>
-<p>Obtained Marks: {{obtained}}</p>
+    <div style="
+        background:white;
+        padding:30px;
+        border-radius:12px;
+        box-shadow:0 4px 15px rgba(0,0,0,0.1);
+        text-align:center;
+    ">
 
-<p style="color:green;">Correct: {{correct}}</p>
-<p style="color:red;">Wrong: {{wrong}}</p>
+        <h2 style="margin-bottom:20px;">📊 Exam Result</h2>
+
+        <!-- SCORE -->
+        <div style="
+            font-size:40px;
+            font-weight:bold;
+            color:#2563eb;
+            margin-bottom:20px;
+        ">
+            {{ obtained }} / {{ total }}
+        </div>
+
+        <!-- DETAILS -->
+        <div style="margin-top:20px; text-align:left;">
+
+            <p>✅ Correct Answers: <b style="color:#16a34a;">{{ correct }}</b></p>
+
+            <p>❌ Wrong Answers: <b style="color:#dc2626;">{{ wrong }}</b></p>
+
+            <p>📌 Total Marks: <b>{{ total }}</b></p>
+
+            <p>🎯 Obtained Marks: <b>{{ obtained }}</b></p>
+
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div style="margin-top:25px;">
+
+            {% set percent = (obtained / total * 100) if total > 0 else 0 %}
+
+            <div style="
+                width:100%;
+                background:#e5e7eb;
+                border-radius:10px;
+                overflow:hidden;
+            ">
+
+                <div style="
+                    width:{{percent}}%;
+                    background:#2563eb;
+                    padding:10px;
+                    color:white;
+                    font-weight:bold;
+                ">
+                    {{percent|round(0)}}%
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+        <div style="margin-top:30px;">
+            <a href="/student-dashboard">
+                <button style="
+                    background:#2563eb;
+                    color:white;
+                    padding:10px 20px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;
+                ">
+                    Back to Dashboard
+                </button>
+            </a>
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}
