@@ -1,8 +1,9 @@
 body {
-    font-family: Arial;
+
     background: #fff7ed;
     margin: 0;
     padding: 40px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .navbar {

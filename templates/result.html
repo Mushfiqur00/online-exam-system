@@ -16,24 +16,22 @@
 
         <!-- SCORE -->
         <div style="
-            font-size:40px;
-            font-weight:bold;
-            color:#2563eb;
-            margin-bottom:20px;
-        ">
-            {{ obtained }} / {{ total }}
-        </div>
+    max-width:500px;
+    margin:auto;
+    margin-top:50px;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    text-align:center;
+">
 
-        <!-- DETAILS -->
-        <div style="margin-top:20px; text-align:left;">
+            <h2>📊 Result</h2>
 
-            <p>✅ Correct Answers: <b style="color:#16a34a;">{{ correct }}</b></p>
-
-            <p>❌ Wrong Answers: <b style="color:#dc2626;">{{ wrong }}</b></p>
-
-            <p>📌 Total Marks: <b>{{ total }}</b></p>
-
-            <p>🎯 Obtained Marks: <b>{{ obtained }}</b></p>
+            <p>Total Marks: {{total}}</p>
+            <p>Obtained: {{obtained}}</p>
+            <p style="color:green;">Correct: {{correct}}</p>
+            <p style="color:red;">Wrong: {{wrong}}</p>
 
         </div>
 
