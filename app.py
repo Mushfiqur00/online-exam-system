@@ -415,7 +415,7 @@ def add_question(exam_id):
     return render_template("add_question.html", exam_id=exam_id)
 
 
-#rafi add your code here 
+
 # =====================================================
 # RAKIBUL FEATURE
 # Admin delete question
