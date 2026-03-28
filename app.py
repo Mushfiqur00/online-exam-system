@@ -378,6 +378,8 @@ def start_exam(exam_id):
     )
 
 
+#add question
+
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
 def add_question(exam_id):
 
@@ -453,33 +455,6 @@ def edit_question(id):
         return redirect("/create-exam-page")
 
     return render_template("edit_question.html", q=q)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

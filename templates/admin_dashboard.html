@@ -10,6 +10,10 @@
     <button>Create Exam</button>
 </a>
 
+<a href="/add-question/{{exam.id}}">
+    <button>Add Question</button>
+</a>
+
 <h3>Assign Exam</h3>
 
 <form action="/assign-exam" method="POST">
@@ -82,23 +86,23 @@
         <td>{{ exam.start_time }}</td>
         <td>{{ exam.end_time }}</td>
 
-      <td>
+        <td>
 
-{% set assigned = [] %}
+            {% set assigned = [] %}
 
-{% for a in assignments %}
-    {% if a.exam_id == exam.id %}
-        {% set _ = assigned.append(a.id) %}
-    {% endif %}
-{% endfor %}
+            {% for a in assignments %}
+            {% if a.exam_id == exam.id %}
+            {% set _ = assigned.append(a.id) %}
+            {% endif %}
+            {% endfor %}
 
-{% if assigned|length > 0 %}
-<span style="color:green;font-weight:bold">Assigned</span>
-{% else %}
-<span style="color:red;font-weight:bold">Not Assigned</span>
-{% endif %}
+            {% if assigned|length > 0 %}
+            <span style="color:green;font-weight:bold">Assigned</span>
+            {% else %}
+            <span style="color:red;font-weight:bold">Not Assigned</span>
+            {% endif %}
 
-</td>
+        </td>
 
         <td>
 
