@@ -105,6 +105,10 @@ def admin_dashboard():
     groups = Group.query.all()
     assignments = ExamAssignment.query.all()
 
+    # ✅ ADD THIS PART
+    for exam in exams:
+        exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
+
     response = make_response(render_template(
         "admin_dashboard.html",
         exams=exams,
@@ -116,6 +120,7 @@ def admin_dashboard():
     response.headers["Cache-Control"] = "no-store"
 
     return response
+
 
 @app.route("/student-dashboard")
 def student_dashboard():
@@ -299,53 +304,44 @@ def assign_exam():
 
     # student assign
     if student_id:
-
         existing = ExamAssignment.query.filter_by(
             exam_id=exam_id,
             student_id=student_id
         ).first()
 
-        if existing:
-            flash("Already assigned to this student")
-            return redirect("/admin-dashboard")
-
-        assign = ExamAssignment(
-            exam_id=exam_id,
-            student_id=student_id
-        )
-
-        db.session.add(assign)
-
+        if not existing:
+            assign = ExamAssignment(
+                exam_id=exam_id,
+                student_id=student_id
+            )
+            db.session.add(assign)
 
     # group assign
-    elif group_id:
-
+    if group_id:
         existing = ExamAssignment.query.filter_by(
             exam_id=exam_id,
             group_id=group_id
         ).first()
 
-        if existing:
-            flash("Already assigned to this group")
-            return redirect("/admin-dashboard")
+        if not existing:
+            assign = ExamAssignment(
+                exam_id=exam_id,
+                group_id=group_id
+            )
+            db.session.add(assign)
 
-        assign = ExamAssignment(
-            exam_id=exam_id,
-            group_id=group_id
-        )
-
-        db.session.add(assign)
-
-    else:
+    # nothing selected
+    if not student_id and not group_id:
         flash("Please select student or group")
         return redirect("/admin-dashboard")
 
     db.session.commit()
 
     flash("Exam assigned successfully")
-
     return redirect("/admin-dashboard")
-    
+
+
+
 @app.route("/clear-assignment/<int:exam_id>")
 def clear_assignment(exam_id):
 
@@ -383,20 +379,35 @@ def start_exam(exam_id):
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
 def add_question(exam_id):
 
+    # 🔹 existing question gula anar jonno
+    questions = Question.query.filter_by(exam_id=exam_id).all()
+
     if request.method == "POST":
 
         question_text = request.form.get("question_text")
         question_type = request.form.get("question_type")
-
         option1 = request.form.get("option1")
         option2 = request.form.get("option2")
         option3 = request.form.get("option3")
         option4 = request.form.get("option4")
-
         correct_answer = request.form.get("correct_answer")
-
         marks = request.form.get("marks")
 
+        # ✅ validation
+        if not question_text or not question_type or not marks:
+            flash("সব field fill korte hobe")
+            return redirect(f"/add-question/{exam_id}")
+
+        if question_type == "mcq":
+            if not option1 or not option2 or not option3 or not option4:
+                flash("MCQ হলে সব option dite hobe")
+                return redirect(f"/add-question/{exam_id}")
+
+            if not correct_answer:
+                flash("Correct answer dite hobe")
+                return redirect(f"/add-question/{exam_id}")
+
+        # ✅ save
         question = Question(
             exam_id=exam_id,
             question_text=question_text,
@@ -412,27 +423,66 @@ def add_question(exam_id):
         db.session.add(question)
         db.session.commit()
 
-        return redirect("/create-exam-page")
+        # 🔥 same page e thakbe (multiple add possible)
+        return redirect(f"/add-question/{exam_id}")
 
-    return render_template("add_question.html", exam_id=exam_id)
+    return render_template(
+        "add_question.html",
+        exam_id=exam_id,
+        questions=questions
+    )
 
 
+
+
+@app.route("/submit-exam/<int:exam_id>", methods=["POST"])
+def submit_exam(exam_id):
+
+    questions = Question.query.filter_by(exam_id=exam_id).all()
+
+    total = 0
+    obtained = 0
+    correct = 0
+    wrong = 0
+
+    for q in questions:
+
+        user_ans = request.form.get(f"q{q.id}")
+
+        total += int(q.marks)
+
+        if q.question_type == "mcq":
+
+            if user_ans == q.correct_answer:
+                obtained += int(q.marks)
+                correct += 1
+            else:
+                wrong += 1
+
+    return render_template(
+        "result.html",
+        total=total,
+        obtained=obtained,
+        correct=correct,
+        wrong=wrong
+    )
 
 # =====================================================
 # RAKIBUL FEATURE
 # Admin delete question
 # =====================================================
 
-@app.route("/delete-question/<int:id>")
-def delete_question(id):
+
+@app.route("/delete-question/<int:id>/<int:exam_id>")
+def delete_question(id, exam_id):
 
     q = Question.query.get(id)
 
     db.session.delete(q)
     db.session.commit()
 
-    return redirect("/create-exam-page")
-
+    # 🔥 same page e fire ashbe
+    return redirect(f"/add-question/{exam_id}")
 
 # =====================================================
 # RAKIBUL FEATURE

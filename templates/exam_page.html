@@ -4,26 +4,42 @@
 
 <h2 class="exam-title">Exam</h2>
 
+<!-- TIMER -->
 <div id="timer">Loading...</div>
 
 <form id="examForm" method="POST" action="/submit-exam/{{exam_id}}">
 
     {% for q in questions %}
 
-    <p>{{loop.index}}. {{q.question_text}}</p>
+    <div style="margin-bottom:20px;">
 
-    {% if q.question_type == "mcq" %}
+        <p><b>{{loop.index}}. {{q.question_text}}</b></p>
 
-    <input type="radio" name="{{q.id}}" value="{{q.option1}}"> {{q.option1}}<br>
-    <input type="radio" name="{{q.id}}" value="{{q.option2}}"> {{q.option2}}<br>
-    <input type="radio" name="{{q.id}}" value="{{q.option3}}"> {{q.option3}}<br>
-    <input type="radio" name="{{q.id}}" value="{{q.option4}}"> {{q.option4}}<br>
+        {% if q.question_type == "mcq" %}
 
-    {% else %}
+        <label>
+            <input type="radio" name="q{{q.id}}" value="{{q.option1}}" required>{{q.option1}}
+        </label><br>
 
-    <input type="text" name="{{q.id}}">
+        <label>
+            <input type="radio" name="q{{q.id}}" value="{{q.option2}}">{{q.option2}}
+        </label><br>
 
-    {% endif %}
+        <label>
+            <input type="radio" name="q{{q.id}}" value="{{q.option3}}">{{q.option3}}
+        </label><br>
+
+        <label>
+            <input type="radio" name="q{{q.id}}" value="{{q.option4}}"> {{q.option4}}
+        </label><br>
+
+        {% else %}
+
+        <input type="text" name="q{{q.id}}" placeholder="Write your answer..." required style="width:300px; padding:6px;">
+
+        {% endif %}
+
+    </div>
 
     <hr>
 
@@ -33,6 +49,7 @@
 
 </form>
 
+<!-- TIMER SCRIPT -->
 <script>
 
     var time = {{ duration }} * 60;
@@ -55,8 +72,9 @@
 
             clearInterval(timer);
 
-            document.getElementById("examForm").submit();
+            alert("Time is up! Auto submitting...");
 
+            document.getElementById("examForm").submit();
         }
 
     }, 1000);
