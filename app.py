@@ -395,8 +395,9 @@ def clear_assignment(exam_id):
     return redirect("/admin-dashboard")
 
 
- ✅ shubto
 
+
+# ✅ shubroto
 #add question
 
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
@@ -457,6 +458,7 @@ def add_question(exam_id):
 
 
 # ✅ mushfiq
+
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
 
