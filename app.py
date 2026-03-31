@@ -105,7 +105,7 @@ def admin_dashboard():
     groups = Group.query.all()
     assignments = ExamAssignment.query.all()
 
-    # ✅ ADD THIS PART
+    
     for exam in exams:
         exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
 
@@ -278,6 +278,35 @@ def create_exam():
     return redirect("/create-exam-page")
 
 
+# ✅ mushfiq
+@app.route("/start-exam/<int:exam_id>")
+def start_exam(exam_id):
+
+    if "student_id" not in session:
+        return redirect("/")
+
+    student_id = session["student_id"]
+
+    # 🔒 check already submitted
+    existing = Result.query.filter_by(
+        student_id=student_id,
+        exam_id=exam_id
+    ).first()
+
+    if existing:
+        flash("You already submitted this exam!")
+        return redirect("/student-dashboard")
+
+    exam = Exam.query.get(exam_id)
+    questions = Question.query.filter_by(exam_id=exam_id).all()
+
+    return render_template(
+        "exam_page.html",
+        questions=questions,
+        exam_id=exam_id,
+        duration=exam.duration
+    )
+
 @app.route("/delete-exam/<int:id>")
 def delete_exam(id):
 
@@ -364,33 +393,10 @@ def clear_assignment(exam_id):
     flash("Assignments cleared")
 
     return redirect("/admin-dashboard")
-@app.route("/start-exam/<int:exam_id>")
-def start_exam(exam_id):
 
-    if "student_id" not in session:
-        return redirect("/")
 
-    student_id = session["student_id"]
 
-    # 🔒 check already submitted
-    existing = Result.query.filter_by(
-        student_id=student_id,
-        exam_id=exam_id
-    ).first()
 
-    if existing:
-        flash("You already submitted this exam!")
-        return redirect("/student-dashboard")
-
-    exam = Exam.query.get(exam_id)
-    questions = Question.query.filter_by(exam_id=exam_id).all()
-
-    return render_template(
-        "exam_page.html",
-        questions=questions,
-        exam_id=exam_id,
-        duration=exam.duration
-    )
 #add question
 
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
@@ -450,7 +456,7 @@ def add_question(exam_id):
     )
 
 
-
+# ✅ mushfiq
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
 
@@ -489,7 +495,7 @@ def submit_exam(exam_id):
         else:
             has_short = True
 
-    # ✅ 🔥 EXACTLY HERE boshao
+    
     result = Result(
         student_id=student_id,
         exam_id=exam_id,
@@ -553,7 +559,7 @@ def edit_question(id):
 
 
 
-
+# ✅ mushfiq
 @app.route("/exam-instruction/<int:exam_id>")
 def exam_instruction(exam_id):
 
