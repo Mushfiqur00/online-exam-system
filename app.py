@@ -141,32 +141,40 @@ def student_dashboard():
 
     for exam in exams:
 
-        assignment = ExamAssignment.query.filter(
-            (ExamAssignment.exam_id == exam.id) &
-            (
-                (ExamAssignment.student_id == student.id) |
-                (ExamAssignment.group_id == student.group_id)
-            )
-        ).first()
+     assignment = ExamAssignment.query.filter(
+        (ExamAssignment.exam_id == exam.id) &
+        (
+            (ExamAssignment.student_id == student.id) |
+            (ExamAssignment.group_id == student.group_id)
+        )
+    ).first()
 
-        exam.assigned = assignment is not None
+    exam.assigned = assignment is not None
 
-        if exam.exam_date > today:
+   
+    existing_result = Result.query.filter_by(
+        student_id=student.id,
+        exam_id=exam.id
+    ).first()
+
+    exam.submitted = existing_result is not None
+
+    if exam.exam_date > today:
+        upcoming.append(exam)
+
+    elif exam.exam_date == today:
+
+        if current_time < exam.start_time:
             upcoming.append(exam)
 
-        elif exam.exam_date == today:
-
-            if current_time < exam.start_time:
-                upcoming.append(exam)
-
-            elif exam.start_time <= current_time <= exam.end_time:
-                ongoing.append(exam)
-
-            else:
-                completed.append(exam)
+        elif exam.start_time <= current_time <= exam.end_time:
+            ongoing.append(exam)
 
         else:
             completed.append(exam)
+
+    else:
+        completed.append(exam)
 
     return render_template(
         "student_dashboard.html",
@@ -576,7 +584,10 @@ def exam_instruction(exam_id):
 @app.route("/admin-results")
 def admin_results():
     results = Result.query.all()
-    return render_template("admin_results.html", results=results) @app.route("/profile")
+    return render_template("admin_results.html", results=results) 
+
+
+@app.route("/profile")
 def profile():
     student = Student.query.get(session["student_id"])
     return render_template("profile.html", student=student)
