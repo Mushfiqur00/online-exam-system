@@ -45,6 +45,12 @@ class Result(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
     score = db.Column(db.Integer)
+    
+    # নতুন ফিল্ড: পরীক্ষার রেজাল্ট পাবলিশ হয়েছে কি না (Feature 4 এর জন্য)
+    is_published = db.Column(db.Boolean, default=False)
+    
+    # নতুন ফিল্ড: শর্ট কোশ্চেন থাকলে স্ট্যাটাস 'Pending' হবে, না হলে 'Evaluated'
+    status = db.Column(db.String(20), default="Evaluated")
 
 # -----------------------------
 # EXAM ASSIGNMENT TABLE
@@ -76,3 +82,46 @@ class Question(db.Model):
 
     correct_answer = db.Column(db.String(200))
     marks = db.Column(db.Integer)
+
+    # -----------------------------
+# STUDENT ANSWER TABLE (New)
+# -----------------------------
+class StudentAnswer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    
+    # স্টুডেন্টের দেওয়া উত্তর (MCQ এর ক্ষেত্রে অপশন, Short এর ক্ষেত্রে টেক্সট)
+    user_answer = db.Column(db.String(1000))
+    
+    # এই নির্দিষ্ট প্রশ্নে কত মার্কস পেল (MCQ হলে অটো, Short হলে পরে অ্যাডমিন দিবে)
+    marks_obtained = db.Column(db.Integer, default=0)
+    
+    # উত্তরটি সঠিক কি না (MCQ এর জন্য)
+    is_correct = db.Column(db.Boolean, default=False)
+
+    question = db.relationship("Question", backref="student_answers")
+
+    # --- Rakibul's Code: Feature 1 & 4 (Models) ---
+class Result(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
+    score = db.Column(db.Integer)
+    # Feature 4: Admin can publish/hide
+    is_published = db.Column(db.Boolean, default=False) 
+    # Feature 1: Evaluation Status
+    status = db.Column(db.String(20), default="Evaluated") 
+
+# Feature 1: Saving detailed answers for evaluation
+class StudentAnswer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    user_answer = db.Column(db.String(1000))
+    marks_obtained = db.Column(db.Integer, default=0)
+    is_correct = db.Column(db.Boolean, default=False)
+    question = db.relationship("Question", backref="student_answers")
+# --- End Rakibul's Models ---

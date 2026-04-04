@@ -461,61 +461,7 @@ def add_question(exam_id):
 
 # ✅ mushfiq
 
-@app.route("/submit-exam/<int:exam_id>", methods=["POST"])
-def submit_exam(exam_id):
-
-    if "student_id" not in session:
-        return redirect("/")
-
-    student_id = session["student_id"]
-
-    # 🔒 prevent double submit
-    existing = Result.query.filter_by(
-        student_id=student_id,
-        exam_id=exam_id
-    ).first()
-
-    if existing:
-        return redirect("/student-dashboard")
-
-    questions = Question.query.filter_by(exam_id=exam_id).all()
-
-    total = 0
-    obtained = 0
-    correct = 0
-    wrong = 0
-    has_short = False
-
-    for q in questions:
-        user_ans = request.form.get(f"q{q.id}")
-        total += int(q.marks)
-
-        if q.question_type == "mcq":
-            if user_ans == q.correct_answer:
-                obtained += int(q.marks)
-                correct += 1
-            else:
-                wrong += 1
-        else:
-            has_short = True
-
-    
-    result = Result(
-        student_id=student_id,
-        exam_id=exam_id,
-        score=obtained
-    )
-    db.session.add(result)
-    db.session.commit()
-
-    return render_template(
-        "result.html",
-        total=total,
-        obtained=obtained,
-        correct=correct,
-        wrong=wrong,
-        has_short=has_short
-    )
+from models import StudentAnswer # ফাইলের উপরে যেখানে ইমপোর্টগুলো আছে সেখানে এটি যোগ করবেন
 
 
 # =====================================================
@@ -634,6 +580,34 @@ def update_student_group(id):
     
     db.session.commit()
     return redirect('/students')
+
+
+
+
+
+
+
+
+
+#aitar niche add kor 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

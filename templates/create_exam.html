@@ -2,28 +2,45 @@
 
 {% block body %}
 
-<h2>Create Exam</h2>
+<div class="create-exam-card">
+    <h3>📝 Create New Exam</h3>
+    <form action="/create-exam" method="POST" class="exam-grid-form">
 
-<form action="/create-exam" method="POST">
+        <div class="form-group full-width">
+            <label>Exam Title</label>
+            <input type="text" name="title" placeholder="e.g., Midterm Exam" required>
+        </div>
 
-    <input name="title" placeholder="Exam Title">
+        <div class="form-group">
+            <label>Exam Date</label>
+            <input type="date" name="exam_date" required>
+        </div>
 
-    <input type="date" name="exam_date">
+        <div class="form-group">
+            <label>Duration (Minutes)</label>
+            <input type="number" name="duration" placeholder="e.g., 60 (Exam Time Limit)" required>
+        </div>
 
-    <input type="time" name="start_time">
+        <div class="form-group">
+            <label>Start Time (Exam Opens At)</label>
+            <input type="time" name="start_time" required>
+        </div>
 
-    <input type="time" name="end_time">
+        <div class="form-group">
+            <label>End Time (Exam Closes At)</label>
+            <input type="time" name="end_time" required>
+        </div>
 
-    <input type="number" name="duration" placeholder="Duration">
+        <div class="form-group full-width" style="margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">🚀 Create Exam</button>
+        </div>
 
-    <button>Create Exam</button>
+    </form>
+</div>
 
-</form>
-
-<h3>Created Exams</h3>
+<h3 style="margin-top: 40px; color: var(--dark-brown);">Created Exams</h3>
 
 <table>
-
     <tr>
         <th>Title</th>
         <th>Date</th>
@@ -33,24 +50,26 @@
     </tr>
 
     {% for exam in exams %}
-
     <tr>
-
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
         <td>{{ exam.start_time }}</td>
         <td>{{ exam.end_time }}</td>
-
         <td>
             <a href="/delete-exam/{{exam.id}}">
-                <button>Delete</button>
+                <button
+                    style="background-color: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Delete</button>
             </a>
+
+            <a href="/admin/exam-results/{{exam.id}}"><button class="btn btn-primary" style="padding: 6px 12px;">Stats &
+                    Results</button></a>
+
+            <a href="/toggle-publish/{{exam.id}}"><button
+                    style="background-color: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Toggle
+                    Publish</button></a>
         </td>
-
     </tr>
-
     {% endfor %}
-
 </table>
 
 {% endblock %}
