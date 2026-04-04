@@ -590,8 +590,8 @@ def update_student_group(id):
 
 
 #aitar niche add kor 
-[12:52 pm, 04/04/2026] Rafi: ok
-[12:59 pm, 04/04/2026] Mushfiq Diu: @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
+
+@app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
 
     if "student_id" not in session:
