@@ -151,7 +151,7 @@ def student_dashboard():
 
     exam.assigned = assignment is not None
 
-   
+   # ✅ mushfiq
     existing_result = Result.query.filter_by(
         student_id=student.id,
         exam_id=exam.id
@@ -306,6 +306,8 @@ def start_exam(exam_id):
         exam_id=exam_id,
         duration=exam.duration
     )
+
+
 
 @app.route("/delete-exam/<int:id>")
 def delete_exam(id):
