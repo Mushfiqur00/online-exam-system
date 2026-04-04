@@ -1,0 +1,43 @@
+{% extends "admin_layout.html" %}
+
+{% block body %}
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Question Bank</h2>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 40%;">Question Text</th>
+            <th>Type</th>
+            <th>Marks</th>
+            <th>Exam Ref</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for q in questions %}
+        <tr>
+            <td style="text-align: left;">{{ q.question_text }}</td>
+            <td><b style="color: #f97316;">{{ q.question_type|upper }}</b></td>
+            <td>{{ q.marks }}</td>
+            <td>Exam ID: {{ q.exam_id }}</td>
+            <td>
+                <a href="/edit-question/{{ q.id }}">
+                    <button style="background: #fb923c; padding: 5px 10px;">Edit</button>
+                </a>
+                <a href="/delete-question/{{ q.id }}/{{ q.exam_id }}" onclick="return confirm('Delete this question?')">
+                    <button style="background: #ef4444; padding: 5px 10px;">Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if not questions %}
+<p style="text-align: center; margin-top: 20px; color: #6b7280;">No questions found in the bank.</p>
+{% endif %}
+
+{% endblock %}

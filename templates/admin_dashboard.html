@@ -2,150 +2,116 @@
 
 {% block body %}
 
-<a href="/group-management">
-    <button>Create Group</button>
-</a>
+<div style="margin-bottom: 25px; display: flex; gap: 15px;">
+    <a href="/group-management"><button>Create Group</button></a>
+    <a href="/create-exam-page"><button>Create Exam</button></a>
+    <a href="/students"><button style="background: #7c2d12;">View Students</button></a>
+</div>
 
-<a href="/create-exam-page">
-    <button>Create Exam</button>
-</a>
+<div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #fed7aa; margin-bottom: 30px;">
+    <h3 style="color: #7c2d12; margin-top: 0;">Assign Exam</h3>
+    <form action="/assign-exam" method="POST" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+        <div>
+            <label style="display:block; font-weight:bold; color:#7c2d12;">Select Exam</label>
+            <select name="exam_id" required style="padding: 8px; border-radius: 5px; border: 1px solid #fdba74;">
+                <option value="">-- Select Exam --</option>
+                {% for exam in exams %}
+                <option value="{{exam.id}}">{{exam.title}}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-<h3>Assign Exam</h3>
+        <div>
+            <label style="display:block; font-weight:bold; color:#7c2d12;">Select Student</label>
+            <select name="student_id" style="padding: 8px; border-radius: 5px; border: 1px solid #fdba74;">
+                <option value="">None</option>
+                {% for student in students %}
+                <option value="{{student.id}}">{{student.username}}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-<form action="/assign-exam" method="POST">
+        <div>
+            <label style="display:block; font-weight:bold; color:#7c2d12;">Select Group</label>
+            <select name="group_id" style="padding: 8px; border-radius: 5px; border: 1px solid #fdba74;">
+                <option value="">None</option>
+                {% for group in groups %}
+                <option value="{{group.id}}">{{group.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <label>Select Exam</label>
-
-    <select name="exam_id" required>
-        <option value="">Select Exam</option>
-
-        {% for exam in exams %}
-        <option value="{{exam.id}}">
-            {{exam.title}}
-        </option>
-        {% endfor %}
-    </select>
-
-    <label>Select Student</label>
-
-    <select name="student_id">
-        <option value="">None</option>
-
-        {% for student in students %}
-        <option value="{{student.id}}">
-            {{student.username}}
-        </option>
-        {% endfor %}
-    </select>
-
-    <label>Select Group</label>
-
-    <select name="group_id">
-        <option value="">None</option>
-
-        {% for group in groups %}
-        <option value="{{group.id}}">
-            {{group.name}}
-        </option>
-        {% endfor %}
-    </select>
-
-    <button type="submit">Assign</button>
-
-</form>
+        <button type="submit" style="height: 38px;">Assign Now</button>
+    </form>
+</div>
 
 <h3>Scheduled Exams</h3>
 
 <table>
-
     <tr>
         <th>Title</th>
-        <th>Date</th>
-        <th>Start</th>
-        <th>End</th>
+        <th>Date / Time</th>
         <th>Status</th>
         <th>Assigned To</th>
         <th>Action</th>
     </tr>
 
     {% for exam in exams %}
-
     <tr>
-
-        <td>{{ exam.title }}</td>
-        <td>{{ exam.exam_date }}</td>
-        <td>{{ exam.start_time }}</td>
-        <td>{{ exam.end_time }}</td>
-
-        <!-- ✅ STATUS COLUMN FIX -->
+        <td><strong>{{ exam.title }}</strong></td>
         <td>
+            {{ exam.exam_date }} <br>
+            <small>{{ exam.start_time }} - {{ exam.end_time }}</small>
+        </td>
 
-            {% set assigned = [] %}
+        <td>
+            {% set ns = namespace(found=false) %}
 
             {% for a in assignments %}
-            {% if a.exam_id == exam.id %}
-            {% set _ = assigned.append(a.id) %}
+            {% if a.exam_id|int == exam.id|int %}
+            {% set ns.found = true %}
             {% endif %}
             {% endfor %}
 
-            {% if assigned|length > 0 %}
-            <button style="background:#16a34a;color:white;border:none;padding:5px 10px;border-radius:5px;">
-                Assigned
-            </button>
+            {% if ns.found %}
+            <span style="color: #16a34a; font-weight: bold; background: #dcfce7; padding: 4px 8px; border-radius: 4px;">
+                ● Assigned
+            </span>
             {% else %}
-            <button style="background:#ef4444;color:white;border:none;padding:5px 10px;border-radius:5px;">
-                Not Assigned
-            </button>
+            <span style="color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px;">
+                ○ Not Assigned
+            </span>
             {% endif %}
-
         </td>
 
-        <!-- ASSIGNED TO -->
         <td>
-
-            {% set found = false %}
-
             {% for a in assignments %}
-
             {% if a.exam_id == exam.id %}
-
             {% if a.student %}
-            <b>Student:</b> {{ a.student.username }} <br>
-
+            <small>👤 {{ a.student.username }}</small><br>
             {% elif a.group %}
-            <b>Group:</b> {{ a.group.name }} <br>
-
+            <small>👥 {{ a.group.name }}</small><br>
             {% endif %}
-
-            {% set found = true %}
-
             {% endif %}
-
             {% endfor %}
-
-            {% if not found %}
-            -
-            {% endif %}
-
         </td>
 
-        <!-- ACTION -->
         <td>
-            {% if exam.question_count > 0 %}
-            <a href="/add-question/{{ exam.id }}">
-                <button style="background:#16a34a;">Manage Questions</button>
-            </a>
-            {% else %}
-            <a href="/add-question/{{ exam.id }}">
-                <button>Add Question</button>
-            </a>
-            {% endif %}
+            <div style="display: flex; gap: 5px; justify-content: center;">
+                <a href="/add-question/{{ exam.id }}">
+                    <button style="background: #16a34a; padding: 5px 10px; font-size: 12px;">Questions ({{
+                        exam.question_count }})</button>
+                </a>
+                <a href="/clear-assignment/{{ exam.id }}" onclick="return confirm('Clear all assignments?')">
+                    <button style="background: #dc2626; padding: 5px 10px; font-size: 12px;">Reset</button>
+                </a>
+                <a href="/delete-exam/{{ exam.id }}" onclick="return confirm('Delete Exam?')">
+                    <button style="background: #444; padding: 5px 10px; font-size: 12px;">Delete</button>
+                </a>
+            </div>
         </td>
-
     </tr>
-
     {% endfor %}
-
 </table>
 
 {% endblock %}

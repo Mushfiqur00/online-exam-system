@@ -140,45 +140,40 @@ def student_dashboard():
     completed = []
 
     for exam in exams:
+        # Check if the exam is assigned to this student or their group
+        assignment = ExamAssignment.query.filter(
+            (ExamAssignment.exam_id == exam.id) &
+            (
+                (ExamAssignment.student_id == student.id) |
+                (ExamAssignment.group_id == student.group_id)
+            )
+        ).first()
 
-     assignment = ExamAssignment.query.filter(
-        (ExamAssignment.exam_id == exam.id) &
-        (
-            (ExamAssignment.student_id == student.id) |
-            (ExamAssignment.group_id == student.group_id)
-        )
-    ).first()
+        exam.assigned = assignment is not None
 
-    exam.assigned = assignment is not None
+        # Check if the student has already submitted this exam
+        existing_result = Result.query.filter_by(
+            student_id=student.id,
+            exam_id=exam.id
+        ).first()
 
-   
-    existing_result = Result.query.filter_by(
-        student_id=student.id,
-        exam_id=exam.id
-    ).first()
+        exam.submitted = existing_result is not None
 
-    exam.submitted = existing_result is not None
-
-    if exam.exam_date > today:
-        upcoming.append(exam)
-
-    elif exam.exam_date == today:
-
-        if current_time < exam.start_time:
+        # Logic for categorizing exams based on date and time
+        if exam.exam_date > today:
             upcoming.append(exam)
-
-        elif exam.start_time <= current_time <= exam.end_time:
-            ongoing.append(exam)
-
+        elif exam.exam_date == today:
+            if current_time < exam.start_time:
+                upcoming.append(exam)
+            elif exam.start_time <= current_time <= exam.end_time:
+                ongoing.append(exam)
+            else:
+                completed.append(exam)
         else:
             completed.append(exam)
 
-    else:
-        completed.append(exam)
-
     return render_template(
         "student_dashboard.html",
-
         student=student,
         upcoming=upcoming,
         ongoing=ongoing,
@@ -187,7 +182,6 @@ def student_dashboard():
         current_time=current_time,
         results=results
     )
-
 @app.route("/group-management")
 def group_management():
 
@@ -279,33 +273,40 @@ def create_exam():
 
 
 # ✅ mushfiq
-@app.route("/start-exam/<int:exam_id>")
+@app.route("/start-exam/<int:exam_id>", methods=["GET", "POST"])
 def start_exam(exam_id):
-
     if "student_id" not in session:
         return redirect("/")
+    
+    exam = Exam.query.get_or_404(exam_id)
+    student = Student.query.get(session["student_id"])
+    
+    # প্রশ্নগুলো আনা (models.py অনুযায়ী)
+    questions = Question.query.filter_by(exam_id=exam.id).all()
 
-    student_id = session["student_id"]
-
-    # 🔒 check already submitted
-    existing = Result.query.filter_by(
-        student_id=student_id,
-        exam_id=exam_id
-    ).first()
-
-    if existing:
-        flash("You already submitted this exam!")
+    # যখন স্টুডেন্ট ফর্ম সাবমিট করবে (পরীক্ষা শেষ করবে)
+    if request.method == "POST":
+        total_score = 0
+        
+        for q in questions:
+            # HTML ফর্মে name="q_{{q.id}}" থাকবে
+            selected_option = request.form.get(f"q_{q.id}")
+            
+            # MCQ এর ক্ষেত্রে সঠিক উত্তর চেক করা
+            if q.question_type == "mcq":
+                if selected_option and selected_option.strip().lower() == q.correct_answer.strip().lower():
+                    total_score += q.marks
+        
+        # রেজাল্ট ডাটাবেজে সেভ করা
+        new_result = Result(student_id=student.id, exam_id=exam.id, score=total_score)
+        db.session.add(new_result)
+        db.session.commit()
+        
+        flash("Exam submitted successfully!")
         return redirect("/student-dashboard")
 
-    exam = Exam.query.get(exam_id)
-    questions = Question.query.filter_by(exam_id=exam_id).all()
+    return render_template("start_exam.html", exam=exam, questions=questions, student=student)
 
-    return render_template(
-        "exam_page.html",
-        questions=questions,
-        exam_id=exam_id,
-        duration=exam.duration
-    )
 
 @app.route("/delete-exam/<int:id>")
 def delete_exam(id):
@@ -318,7 +319,7 @@ def delete_exam(id):
 
     flash("Exam deleted")
 
-    return redirect("/create-exam-page")
+    return redirect("/admin-dashboard")
 
 @app.route("/create-exam-page")
 def create_exam_page():
@@ -399,7 +400,6 @@ def clear_assignment(exam_id):
 
 # ✅ shubroto
 #add question
-
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
 def add_question(exam_id):
 
@@ -410,10 +410,13 @@ def add_question(exam_id):
 
         question_text = request.form.get("question_text")
         question_type = request.form.get("question_type")
-        option1 = request.form.get("option1")
-        option2 = request.form.get("option2")
-        option3 = request.form.get("option3")
-        option4 = request.form.get("option4")
+        
+        # HTML ফর্মের name অনুযায়ী ডাটা নেওয়া (নিশ্চিত করুন HTML এ name="option_a" আছে)
+        option_a = request.form.get("option_a") 
+        option_b = request.form.get("option_b")
+        option_c = request.form.get("option_c")
+        option_d = request.form.get("option_d")
+        
         correct_answer = request.form.get("correct_answer")
         marks = request.form.get("marks")
 
@@ -423,7 +426,7 @@ def add_question(exam_id):
             return redirect(f"/add-question/{exam_id}")
 
         if question_type == "mcq":
-            if not option1 or not option2 or not option3 or not option4:
+            if not option_a or not option_b or not option_c or not option_d:
                 flash("MCQ হলে সব option dite hobe")
                 return redirect(f"/add-question/{exam_id}")
 
@@ -431,15 +434,15 @@ def add_question(exam_id):
                 flash("Correct answer dite hobe")
                 return redirect(f"/add-question/{exam_id}")
 
-        # ✅ save
+        # ✅ save (এখানেই ভুল ছিল, কলামের নামগুলো মডেলে যা আছে তা দিতে হবে)
         question = Question(
             exam_id=exam_id,
             question_text=question_text,
             question_type=question_type,
-            option1=option1,
-            option2=option2,
-            option3=option3,
-            option4=option4,
+            option_a=option_a,   # model.py এর সাথে মিল রেখে
+            option_b=option_b,
+            option_c=option_c,
+            option_d=option_d,
             correct_answer=correct_answer,
             marks=marks
         )
@@ -455,7 +458,6 @@ def add_question(exam_id):
         exam_id=exam_id,
         questions=questions
     )
-
 
 # ✅ mushfiq
 
@@ -522,15 +524,14 @@ def submit_exam(exam_id):
 # =====================================================
 
 
-@app.route("/delete-question/<int:id>/<int:exam_id>")
+@app.route("/delete-question/<int:id>/<int:exam_id>", methods=["POST"])
 def delete_question(id, exam_id):
-
     q = Question.query.get(id)
-
-    db.session.delete(q)
-    db.session.commit()
-
-    # 🔥 same page e fire ashbe
+    if q:
+        db.session.delete(q)
+        db.session.commit()
+        flash("Question deleted!")
+    
     return redirect(f"/add-question/{exam_id}")
 
 # =====================================================
@@ -538,25 +539,25 @@ def delete_question(id, exam_id):
 # Admin edit question
 # =====================================================
 
-@app.route("/edit-question/<int:id>", methods=["GET","POST"])
-def edit_question(id):
-
-    q = Question.query.get(id)
-
+@app.route("/edit-question/<int:question_id>", methods=["GET", "POST"])
+def edit_question(question_id):
+    question = Question.query.get_or_404(question_id)
+    
     if request.method == "POST":
-
-        q.question_text = request.form.get("question_text")
-        q.correct_answer = request.form.get("correct_answer")
-        q.marks = request.form.get("marks")
-
+        question.question_text = request.form.get("question_text")
+        question.question_type = request.form.get("question_type")
+        question.option_a = request.form.get("option_a")
+        question.option_b = request.form.get("option_b")
+        question.option_c = request.form.get("option_c")
+        question.option_d = request.form.get("option_d")
+        question.correct_answer = request.form.get("correct_answer")
+        question.marks = request.form.get("marks")
+        
         db.session.commit()
+        flash("Question updated successfully!")
+        return redirect(f"/add-question/{question.exam_id}")
 
-        return redirect("/create-exam-page")
-
-    return render_template("edit_question.html", q=q)
-
-
-
+    return render_template("edit_question.html", q=question)
 
 
 
@@ -564,21 +565,19 @@ def edit_question(id):
 # ✅ mushfiq
 @app.route("/exam-instruction/<int:exam_id>")
 def exam_instruction(exam_id):
+    if "student_id" not in session:
+        return redirect("/")
+    
+    exam = Exam.query.get_or_404(exam_id)
+    student = Student.query.get(session["student_id"])
+    
+    # পরীক্ষা সাবমিট করা থাকলে আবার শুরু করতে দেওয়া হবে না
+    has_submitted = Result.query.filter_by(student_id=student.id, exam_id=exam.id).first()
+    if has_submitted:
+        flash("You have already submitted this exam!")
+        return redirect("/student-dashboard")
 
-    exam = Exam.query.get(exam_id)
-
-    return render_template(
-        "exam_instruction.html",
-        exam=exam
-    )
-
-
-
-
-
-
-
-
+    return render_template("exam_instruction.html", exam=exam, student=student)
 
 
 
@@ -587,18 +586,55 @@ def exam_instruction(exam_id):
 
 
 
-#feture work 
+
+
+
+
+# =====================================================
+# FEATURE WORK - Corrected & Linked
+# =====================================================
 
 @app.route("/admin-results")
-def admin_results():
+def admin_results_view(): # নাম পরিবর্তন করা হয়েছে ডুপ্লিকেট এড়াতে
     results = Result.query.all()
     return render_template("admin_results.html", results=results) 
 
-
 @app.route("/profile")
-def profile():
+def student_profile():
+    if "student_id" not in session:
+        return redirect("/")
     student = Student.query.get(session["student_id"])
     return render_template("profile.html", student=student)
+
+@app.route("/question-bank")
+def view_question_bank():
+    # ডাটাবেজ থেকে সব প্রশ্ন নিয়ে টেম্পলেটে পাঠানো হচ্ছে
+    all_questions = Question.query.all()
+    return render_template("question_bank.html", questions=all_questions)
+
+@app.route('/students')
+def view_students():
+    all_students = Student.query.all()
+    all_groups = Group.query.all() # এটি অবশ্যই ডাটাবেজ থেকে আনতে হবে
+    return render_template('students.html', students=all_students, groups=all_groups)
+
+
+@app.route("/settings")
+def admin_settings_page():
+    # নিশ্চিত করুন আপনার ফাইলে অন্য কোথাও 'def settings():' নেই
+    return render_template("settings.html")
+
+@app.route('/update-student-group/<int:id>', methods=['POST'])
+def update_student_group(id):
+    student = Student.query.get_or_404(id)
+    new_group_id = request.form.get('group_id')
+    
+    # ড্রপডাউনে কিছু না থাকলে (Select Group) গ্রুপ রিমুভ হবে
+    student.group_id = new_group_id if new_group_id else None
+    
+    db.session.commit()
+    return redirect('/students')
+
 
 
 if __name__ == "__main__":

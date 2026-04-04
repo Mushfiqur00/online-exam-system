@@ -1,0 +1,32 @@
+{% extends "admin_layout.html" %}
+
+{% block body %}
+
+<h2>System Settings</h2>
+
+<div
+    style="background: white; padding: 30px; border-radius: 12px; border: 1px solid #fed7aa; max-width: 600px; margin: 0 auto;">
+    <h3 style="color: #7c2d12; border-bottom: 2px solid #ffedd5; padding-bottom: 10px;">Admin Information</h3>
+
+    <div style="margin-top: 20px;">
+        <p><strong>Username:</strong> teacher</p>
+        <p><strong>Role:</strong> Super Admin</p>
+        <p><strong>System Version:</strong> v1.1.0 (Capstone)</p>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <h3 style="color: #7c2d12;">Security</h3>
+    <p style="font-size: 14px; color: #6b7280;">Password change feature is currently managed by database administrator.
+    </p>
+
+    <button onclick="alert('Contact Group-4 Lead for password reset')" style="margin-top: 10px;">
+        Request Password Change
+    </button>
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <p style="color: #9a3412;">Project: Online Exam System (Examora)</p>
+</div>
+
+{% endblock %}

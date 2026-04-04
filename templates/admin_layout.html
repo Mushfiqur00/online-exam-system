@@ -1,64 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Admin Panel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examora Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 
 <body>
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" class="sidebar-logo">
+                <span class="brand-name">Examora</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin-dashboard"
+                    class="nav-link {{ 'active' if request.path == '/admin-dashboard' else '' }}">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/create-exam-page"
+                    class="nav-link {{ 'active' if request.path == '/create-exam-page' or '/add-question' in request.path else '' }}">
+                    <span>📝</span> Manage Exams
+                </a>
+                <a href="/group-management"
+                    class="nav-link {{ 'active' if request.path == '/group-management' else '' }}">
+                    <span>👥</span> Student Groups
+                </a>
+                <a href="/question-bank" class="nav-link {{ 'active' if request.path == '/question-bank' else '' }}">
+                    <span>📚</span> Question Bank
+                </a>
+                <a href="/students" class="nav-link {{ 'active' if request.path == '/students' else '' }}">
+                    <span>👨‍🎓</span> Students
+                </a>
+                <a href="/settings" class="nav-link {{ 'active' if request.path == '/settings' else '' }}">
+                    <span>⚙️</span> Settings
+                </a>
+                <div class="nav-divider"></div>
+                <a href="/logout" class="nav-link logout-link">
+                    <span>🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
 
-    <div class="navbar">
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="welcome-text">
+                    Welcome back, <strong>Admin</strong>
+                </div>
 
-        <div class="nav-left">
-            <button onclick="history.back()" class="back-btn">← Back</button>
-        </div>
 
-        <div class="nav-center">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo">
-            <span class="title">Examora</span>
-        </div>
+            </header>
+            <div style="margin-bottom: 15px;">
+                <button onclick="history.back()"
+                    style="background: #7c2d12; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                    ⬅️ Back
+                </button>
+            </div>
+            <div class="content-container">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="flash-alert">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
 
-        <div class="nav-right">
-            <a href="/logout">
-                <button class="logout-btn">Logout</button>
-            </a>
-        </div>
-
+                {% block body %}{% endblock %}
+            </div>
+        </main>
     </div>
-
-    <div class="container">
-
-        {% block body %}
-        {% endblock %}
-
-
-        <footer class="footer">
-
-            <p><strong>Examora</strong> | Online Exam System</p>
-
-            <p>Course: Capstone Project | Group-4</p>
-
-            <p>
-                Developed by:
-                Mushfiq (1405) |
-                Shubroto (0000) |
-                Rafi (0000)
-            </p>
-
-            <p>
-                SWE Department, Daffodil International University
-            </p>
-
-            <p>
-                📧 group4@gmail.com | Version: v1.1.0
-            </p>
-
-            <p>© 2026 All Rights Reserved</p>
-
-        </footer>
-    </div>
-
 </body>
 
 </html>

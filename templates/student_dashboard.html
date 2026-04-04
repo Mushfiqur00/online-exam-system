@@ -2,107 +2,112 @@
 
 {% block body %}
 
-<h3>Upcoming Exams</h3>
+<h3>📅 Upcoming Exams</h3>
+
+{% if upcoming %}
 <table>
     <tr>
         <th>Title</th>
         <th>Date</th>
         <th>Status</th>
     </tr>
-
     {% for exam in upcoming %}
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
-
         {% if exam.assigned %}
-        <td>Not Started</td>
+        <td><span class="badge yellow">Not Started</span></td>
         {% else %}
-        <td style="color:red;">Not Assigned To You</td>
+        <td><span class="badge red">Not Assigned To You</span></td>
         {% endif %}
-
     </tr>
     {% endfor %}
 </table>
+{% else %}
+<p
+    style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    No upcoming exams at the moment.</p>
+{% endif %}
 
-<!-- ================= Ongoing ================= -->
 
-<div class="section">
-    <h3>Ongoing Exams</h3>
+<div class="section" style="margin-top: 30px;">
+    <h3>🔥 Ongoing Exams</h3>
 
+    {% if ongoing %}
     <div class="card-container">
         {% for exam in ongoing %}
         <div class="card">
-
             <h4>{{ exam.title }}</h4>
             <p>📅 {{ exam.exam_date }}</p>
 
             {% if exam.assigned %}
-
             {% if exam.submitted %}
             <span class="badge gray">Submitted</span>
-
             {% elif current_time >= exam.start_time and current_time <= exam.end_time %} <a
                 href="/exam-instruction/{{exam.id}}">
-                <button class="btn green">Start Exam</button>
+                <button class="btn green" style="width: 100%; margin-top: 10px;">Start Exam</button>
                 </a>
-
                 {% else %}
                 <span class="badge yellow">Not Available</span>
                 {% endif %}
-
                 {% else %}
                 <span class="badge red">Not Assigned</span>
                 {% endif %}
-
         </div>
         {% endfor %}
     </div>
+    {% else %}
+    <p
+        style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        There are no ongoing exams right now.</p>
+    {% endif %}
 </div>
 
-<!-- ================= Completed ================= -->
 
-<h3>Completed Exams</h3>
+<h3 style="margin-top: 30px;">✅ Completed Exams</h3>
+
+{% if completed %}
 <table>
     <tr>
         <th>Title</th>
         <th>Date</th>
         <th>Status</th>
     </tr>
-
     {% for exam in completed %}
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
-
         {% if exam.assigned %}
-        <td>Finished</td>
+        <td><span class="badge gray">Finished</span></td>
         {% else %}
-        <td style="color:red;">Not Assigned To You</td>
+        <td><span class="badge red">Not Assigned To You</span></td>
         {% endif %}
-
     </tr>
     {% endfor %}
 </table>
+{% else %}
+<p
+    style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    You haven't completed any exams yet.</p>
+{% endif %}
 
-<!-- ================= Results ================= -->
 
 <h3 style="margin-top:30px;">📊 Your Results</h3>
 
+{% if results %}
 <div class="card-container">
     {% for r in results %}
     <div class="card result-card">
-
         <h4>{{ r[1].title }}</h4>
-
-        <p class="score">
-            Score: {{ r[0].score }}
-        </p>
-
+        <p class="score">Score: {{ r[0].score }}</p>
         <span class="badge green">Completed</span>
-
     </div>
     {% endfor %}
 </div>
+{% else %}
+<p
+    style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    No results published yet.</p>
+{% endif %}
 
 {% endblock %}

@@ -10,28 +10,40 @@
 
 {% for q in questions %}
 
-<div style="background:white;padding:10px;margin-bottom:10px;border-radius:8px;">
+<div
+    style="background:white;padding:15px;margin-bottom:15px;border-radius:12px; border: 1px solid #fed7aa; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
 
-    <b>{{loop.index}}. {{q.question_text}}</b><br>
+    <b style="font-size: 1.1rem;">{{loop.index}}. {{q.question_text}}</b><br>
 
     {% if q.question_type == "mcq" %}
-    <small style="color:gray;">[MCQ]</small><br>
+    <small style="color:#f97316;">[MCQ]</small><br>
 
-    • {{q.option1}} <br>
-    • {{q.option2}} <br>
-    • {{q.option3}} <br>
-    • {{q.option4}} <br>
+    <ul style="list-style-type: circle; margin-left: 20px; padding: 5px 0;">
+        <li>{{q.option_a}}</li>
+        <li>{{q.option_b}}</li>
+        <li>{{q.option_c}}</li>
+        <li>{{q.option_d}}</li>
+    </ul>
 
-    <b>Correct:</b> {{q.correct_answer}} <br>
+    <b style="color: green;">Correct:</b> {{q.correct_answer}} <br>
     {% else %}
-    <small style="color:gray;">[Short Question]</small><br>
+    <small style="color:#6b7280;">[Short Question]</small><br>
     {% endif %}
 
     <b>Marks:</b> {{q.marks}} <br><br>
 
-    <a href="/delete-question/{{q.id}}/{{exam_id}}">
-        <button style="background:#ef4444;">Delete</button>
-    </a>
+    <div style="display: flex; gap: 10px;">
+        <a href="/edit-question/{{q.id}}">
+            <button
+                style="background:#f59e0b; color:white; border:none; padding: 5px 15px; border-radius: 5px; cursor:pointer;">Edit</button>
+        </a>
+
+        <form action="/delete-question/{{q.id}}/{{exam_id}}" method="POST" style="display:inline;">
+            <button type="submit"
+                style="background:#ef4444; color:white; border:none; padding: 5px 15px; border-radius: 5px; cursor:pointer;"
+                onclick="return confirm('Delete this question?')">Delete</button>
+        </form>
+    </div>
 
 </div>
 
@@ -39,58 +51,66 @@
 
 {% endif %}
 
-<hr>
+<hr style="border: 0; height: 1px; background: #fed7aa; margin: 30px 0;">
 
-<h2>➕ Add New Question</h2>
+<div style="background: #fff7ed; padding: 20px; border-radius: 12px; border: 1px solid #fdba74;">
+    <h2 style="color: #7c2d12;">➕ Add New Question</h2>
 
-<form method="POST">
+    <form method="POST">
+        <label><b>Question</b></label><br>
+        <input type="text" name="question_text"
+            style="width: 100%; padding: 8px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc;"
+            required><br><br>
 
-    Question <br>
-    <input type="text" name="question_text" required><br><br>
+        <label><b>Type</b></label><br>
+        <select name="question_type" id="type" onchange="toggleOptions()"
+            style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+            <option value="mcq">MCQ</option>
+            <option value="short">Short Answer</option>
+        </select><br><br>
 
-    Type<br>
-    <select name="question_type" id="type" onchange="toggleOptions()">
-        <option value="mcq">MCQ</option>
-        <option value="short">Short Answer</option>
-    </select><br><br>
+        <div id="mcqOptions">
+            <label>Option A</label> <input type="text" name="option_a"
+                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
+            <label>Option B</label> <input type="text" name="option_b"
+                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
+            <label>Option C</label> <input type="text" name="option_c"
+                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
+            <label>Option D</label> <input type="text" name="option_d"
+                style="width: 100%; padding: 6px; margin: 4px 0;"><br><br>
 
-    <!-- MCQ OPTIONS -->
-    <div id="mcqOptions">
+            <label><b>Correct Answer</b></label><br>
+            <input type="text" name="correct_answer" placeholder="Enter exactly as written in options"
+                style="width: 100%; padding: 8px; margin-top: 5px;"><br><br>
+        </div>
 
-        Option1 <input type="text" name="option1"><br>
-        Option2 <input type="text" name="option2"><br>
-        Option3 <input type="text" name="option3"><br>
-        Option4 <input type="text" name="option4"><br><br>
+        <label><b>Marks</b></label><br>
+        <input type="number" name="marks" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;"
+            required><br><br>
 
-        Correct Answer<br>
-        <input type="text" name="correct_answer"><br><br>
-
-    </div>
-
-    Marks<br>
-    <input type="number" name="marks" required><br><br>
-
-    <button type="submit">Save Question</button>
-
-</form>
+        <button type="submit"
+            style="background: #f97316; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">Save
+            Question</button>
+    </form>
+</div>
 
 <script>
-
     function toggleOptions() {
-
         var type = document.getElementById("type").value;
         var mcq = document.getElementById("mcqOptions");
 
         if (type === "mcq") {
             mcq.style.display = "block";
+            // Make options required if MCQ is selected
+            document.getElementsByName("option_a")[0].required = true;
+            document.getElementsByName("option_b")[0].required = true;
         } else {
             mcq.style.display = "none";
+            document.getElementsByName("option_a")[0].required = false;
+            document.getElementsByName("option_b")[0].required = false;
         }
     }
-
-    // page load e check
     toggleOptions();
-
 </script>
 
 {% endblock %}

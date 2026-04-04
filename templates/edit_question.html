@@ -1,22 +1,45 @@
 {% extends "admin_layout.html" %}
-
 {% block body %}
-
-<h2>Edit Question</h2>
-
+<h2>📝 Edit Question</h2>
 <form method="POST">
+    <label>Question</label><br>
+    <input type="text" name="question_text" value="{{ q.question_text }}" style="width:100%; padding:8px;"
+        required><br><br>
 
-Question<br>
-<input type="text" name="question_text" value="{{q.question_text}}"><br><br>
+    <label>Type</label><br>
+    <select name="question_type" id="type" onchange="toggleOptions()">
+        <option value="mcq" {{ 'selected' if q.question_type=='mcq' }}>MCQ</option>
+        <option value="short" {{ 'selected' if q.question_type=='short' }}>Short Answer</option>
+    </select><br><br>
 
-Correct Answer<br>
-<input type="text" name="correct_answer" value="{{q.correct_answer}}"><br><br>
+    <div id="mcqOptions">
+        <label>Option A</label> <input type="text" name="option_a" value="{{ q.option_a }}"
+            style="width:100%; padding:6px;"><br>
+        <label>Option B</label> <input type="text" name="option_b" value="{{ q.option_b }}"
+            style="width:100%; padding:6px;"><br>
+        <label>Option C</label> <input type="text" name="option_c" value="{{ q.option_c }}"
+            style="width:100%; padding:6px;"><br>
+        <label>Option D</label> <input type="text" name="option_d" value="{{ q.option_d }}"
+            style="width:100%; padding:6px;"><br><br>
 
-Marks<br>
-<input type="number" name="marks" value="{{q.marks}}"><br><br>
+        <label>Correct Answer</label><br>
+        <input type="text" name="correct_answer" value="{{ q.correct_answer }}"
+            style="width:100%; padding:8px;"><br><br>
+    </div>
 
-<button type="submit">Update</button>
+    <label>Marks</label><br>
+    <input type="number" name="marks" value="{{ q.marks }}" required><br><br>
 
+    <button type="submit"
+        style="background: #f97316; color: white; padding: 10px 20px; border: none; border-radius: 8px;">Update
+        Question</button>
 </form>
 
+<script>
+    function toggleOptions() {
+        var type = document.getElementById("type").value;
+        document.getElementById("mcqOptions").style.display = (type === "mcq") ? "block" : "none";
+    }
+    toggleOptions();
+</script>
 {% endblock %}

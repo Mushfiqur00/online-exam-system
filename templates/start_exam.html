@@ -1,0 +1,84 @@
+{% extends "student_layout.html" %}
+
+{% block body %}
+
+<div
+    style="background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center;">
+    <h2>{{ exam.title }}</h2>
+    <p>Total Duration: <b>{{ exam.duration }} mins</b></p>
+
+    <div id="timer"
+        style="background:#dc2626; color:white; padding:10px 20px; border-radius:8px; display:inline-block; font-size:24px; font-weight:bold; margin-top:10px;">
+        Loading Timer...
+    </div>
+</div>
+
+<form id="examForm" method="POST"
+    style="background:white; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+    {% for q in questions %}
+    <div style="margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid #eee;">
+
+        <p style="font-size:18px; font-weight:600; color:#333;">
+            {{ loop.index }}. {{ q.question_text }}
+            <span style="color:#f97316; font-size:14px; margin-left:10px;">[Marks: {{ q.marks }}]</span>
+        </p>
+
+        {% if q.question_type == 'mcq' %}
+        <div style="margin-left: 20px; display:flex; flex-direction:column; gap:8px;">
+            <label>
+                <input type="radio" name="q_{{ q.id }}" value="{{ q.option_a }}"> {{ q.option_a }}
+            </label>
+            <label>
+                <input type="radio" name="q_{{ q.id }}" value="{{ q.option_b }}"> {{ q.option_b }}
+            </label>
+            <label>
+                <input type="radio" name="q_{{ q.id }}" value="{{ q.option_c }}"> {{ q.option_c }}
+            </label>
+            <label>
+                <input type="radio" name="q_{{ q.id }}" value="{{ q.option_d }}"> {{ q.option_d }}
+            </label>
+        </div>
+        {% else %}
+        <textarea name="q_{{ q.id }}" rows="3"
+            style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; margin-top:10px;"
+            placeholder="Write your answer here..."></textarea>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+
+    <button type="submit"
+        style="background:#16a34a; color:white; padding:12px 30px; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; width:100%;">
+        Submit Exam
+    </button>
+</form>
+
+<script>
+    // সার্ভার থেকে পাওয়া duration (মিনিটে) সেকেন্ডে রূপান্তর
+    let totalSeconds = parseInt("{{ exam.duration }}") * 60;
+
+    function updateTimer() {
+        if (totalSeconds <= 0) {
+            document.getElementById("timer").innerHTML = "Time's Up!";
+            document.getElementById("examForm").submit(); // Auto submit
+            return;
+        }
+
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+
+        // 00:00 ফরম্যাট মেইনটেইন করা
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        document.getElementById("timer").innerHTML = minutes + " : " + seconds;
+        totalSeconds--;
+    }
+
+    // প্রতি ১ সেকেন্ড পরপর টাইমার আপডেট
+    setInterval(updateTimer, 1000);
+    updateTimer(); // পেজ লোড হওয়ার সাথে সাথে একবার কল করা
+</script>
+
+{% endblock %}
