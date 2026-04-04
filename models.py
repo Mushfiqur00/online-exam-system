@@ -104,6 +104,8 @@ class StudentAnswer(db.Model):
     question = db.relationship("Question", backref="student_answers")
 
     # --- Rakibul's Code: Feature 1 & 4 (Models) ---
+# --- Rakibul's Code: Feature 1 & 4 (Models) ---
+
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
@@ -114,7 +116,6 @@ class Result(db.Model):
     # Feature 1: Evaluation Status
     status = db.Column(db.String(20), default="Evaluated") 
 
-# Feature 1: Saving detailed answers for evaluation
 class StudentAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
@@ -124,4 +125,3 @@ class StudentAnswer(db.Model):
     marks_obtained = db.Column(db.Integer, default=0)
     is_correct = db.Column(db.Boolean, default=False)
     question = db.relationship("Question", backref="student_answers")
-# --- End Rakibul's Models ---
