@@ -5,7 +5,7 @@
 <div style="margin-bottom: 25px; display: flex; gap: 15px;">
     <a href="/group-management"><button>Create Group</button></a>
     <a href="/create-exam-page"><button>Create Exam</button></a>
-    <a href="/students"><button style="background: #7c2d12;">View Students</button></a>
+    <a href="/students"><button style="background: #7c2d12; color: wheat;">View Students</button></a>
 </div>
 
 <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #fed7aa; margin-bottom: 30px;">
@@ -99,14 +99,18 @@
         <td>
             <div style="display: flex; gap: 5px; justify-content: center;">
                 <a href="/add-question/{{ exam.id }}">
-                    <button style="background: #16a34a; padding: 5px 10px; font-size: 12px;">Questions ({{
+                    <button
+                        style="background: #16a34a; color: whitesmoke; padding: 5px 10px; font-size: 12px;">Questions
+                        ({{
                         exam.question_count }})</button>
                 </a>
                 <a href="/clear-assignment/{{ exam.id }}" onclick="return confirm('Clear all assignments?')">
-                    <button style="background: #dc2626; padding: 5px 10px; font-size: 12px;">Reset</button>
+                    <button
+                        style="background: #dc2626;color: whitesmoke; padding: 5px 10px; font-size: 12px;">Reset</button>
                 </a>
                 <a href="/delete-exam/{{ exam.id }}" onclick="return confirm('Delete Exam?')">
-                    <button style="background: #444; padding: 5px 10px; font-size: 12px;">Delete</button>
+                    <button
+                        style="background: #444;color: whitesmoke; padding: 5px 10px; font-size: 12px;">Delete</button>
                 </a>
             </div>
         </td>
