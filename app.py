@@ -671,7 +671,17 @@ def submit_exam(exam_id):
      )
 
 
-
+# --- Rakibul's Code: Feature 4 (Publish/Hide) ---
+@app.route("/toggle-publish/<int:exam_id>")
+def toggle_publish(exam_id):
+    results = Result.query.filter_by(exam_id=exam_id).all()
+    if results:
+        # Toggle current state based on the first result's state
+        new_state = not results[0].is_published 
+        for r in results: r.is_published = new_state
+        db.session.commit()
+    return redirect("/create-exam") 
+    # Redirect back to admin exam list
 
 
 
