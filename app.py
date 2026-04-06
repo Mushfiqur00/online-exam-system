@@ -668,6 +668,34 @@ def submit_exam(exam_id):
         status=final_status
     )
 
+
+# --- Mushfiqur's Code: Feature 2 (Student Results View) ---
+@app.route("/my-results")
+def my_results():
+    if "student_id" not in session: return redirect("/")
+    student_id = session["student_id"]
+    results = Result.query.filter_by(student_id=student_id).all()
+    
+    exams_data = []
+    for r in results:
+        exam = Exam.query.get(r.exam_id)
+        exams_data.append({"result": r, "exam": exam})
+    return render_template("my_results.html", exams_data=exams_data)
+
+@app.route("/result-details/<int:exam_id>")
+def result_details(exam_id):
+    if "student_id" not in session: return redirect("/")
+    student_id = session["student_id"]
+    
+    result = Result.query.filter_by(student_id=student_id, exam_id=exam_id).first()
+    # Check if admin published it (Rakibul's feature logic)
+    if not result or not result.is_published:
+        return "<h3 style='text-align:center; margin-top:50px;'>Result not published yet by Admin.</h3>"
+        
+    answers = StudentAnswer.query.filter_by(student_id=student_id, exam_id=exam_id).all()
+    exam = Exam.query.get(exam_id)
+    return render_template("result_details.html", answers=answers, result=result, exam=exam)
+
 if __name__ == "__main__":
 
 

@@ -1,0 +1,23 @@
+{% extends "student_layout.html" %}
+{% block body %}
+<h2>Detailed Performance: {{ exam.title }}</h2>
+<div class="flash-alert">
+    <strong>Total Score:</strong> {{ result.score }} | <strong>Status:</strong> {{ result.status }}
+</div>
+
+{% for ans in answers %}
+<div class="answer-card {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
+    <div class="answer-question">
+        Q: {{ ans.question.question_text }}
+        <span class="marks-badge">{{ ans.marks_obtained }} / {{ ans.question.marks }} Marks</span>
+    </div>
+    <div class="answer-details">
+        <p>Your Answer: <span class="{% if ans.is_correct %}text-success{% else %}text-danger{% endif %}">{{
+                ans.user_answer }}</span></p>
+        {% if ans.question.question_type == 'mcq' %}
+        <p>Correct Answer: <span class="text-success">{{ ans.question.correct_answer }}</span></p>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
