@@ -1,0 +1,42 @@
+{% extends "student_layout.html" %}
+{% block body %}
+<div class="profile-container">
+    <h2>👤 My Profile</h2>
+    <div class="answer-card">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div
+                style="width: 100px; height: 100px; background: #3498db; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold;">
+                {{ student.name[0] }}
+            </div>
+            <h3>{{ student.name }}</h3>
+            <p class="text-muted">Student ID: {{ student.student_id }}</p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #eee;">Email:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ student.email }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #eee;">Phone:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ student.phone }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #eee;">Group:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ student.group.name if student.group else
+                    'No Group' }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold;">Exams Taken:</td>
+                <td style="padding: 10px;">{{ total_exams }}</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <button class="btn btn-primary" style="color: black;"
+                onclick="alert('Password reset feature coming soon!')">
+                Change Password
+            </button>
+        </div>
+    </div>
+</div> {% endblock %}

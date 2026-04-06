@@ -1,22 +1,35 @@
-/* ================= বেসিক স্ট্রাকচার ================= */
+/* ================= বেসিক স্ট্রাকচার (পরিবর্তিত) ================= */
 body {
     background: #fff7ed;
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    display: flex;
-    height: 100vh;
+    display: block;
+    /* flex কেটে দিন */
+    height: auto;
+    /* 100vh কেটে দিন */
 }
 
-/* ================= সাইডবার ================= */
+/* সাইডবার এবং কন্টেন্টকে পাশাপাশি রাখার জন্য নতুন র‍্যাপার */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================= সাইডবার (একই থাকবে শুধু height পরিবর্তন) ================= */
 .sidebar {
     width: 260px;
     background: #7c2d12;
     color: white;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+    position: sticky;
+    /* স্ক্রল করলে সাইডবার আটকে থাকবে */
+    top: 0;
+    height: 100vh;
 }
+
+
+
+/* ================= ফুটার (১ম ছবির মতো ফুল উইডথ) ================= */
 
 .sidebar-header {
     padding: 25px 20px;
@@ -68,13 +81,14 @@ body {
     border-color: #D32F2F;
 }
 
-/* ================= মেইন কন্টেন্ট ================= */
+/* ================= মেইন কন্টেন্ট (পরিবর্তিত) ================= */
 .main-content {
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    background: #fff7ed;
 }
+
 
 .top-bar {
     background: white;
@@ -111,7 +125,8 @@ body {
 
 .content-body {
     padding: 30px;
-    flex: 1;
+    flex-grow: 1;
+    /* এটি কন্টেন্টকে বড় করবে যাতে ফুটার নিচে থাকে */
 }
 
 /* ================= কার্ড ও ড্যাশবোর্ড ================= */
@@ -249,15 +264,15 @@ tr:hover {
 
 /* ================= ফুটার ================= */
 .footer {
-    margin-top: auto;
-    padding: 25px 15px;
+    padding: 25px 0;
     text-align: center;
-    line-height: 1.7;
     background: #7c2d12;
     color: #f9fafb;
-    font-size: 14px;
-    border-top: 3px solid #c2410c;
+    width: 100%;
+    border-top: 5px solid #c2410c;
+    clear: both;
 }
+
 
 .footer p {
     margin: 5px 0;

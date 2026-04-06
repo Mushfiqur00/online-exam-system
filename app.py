@@ -696,6 +696,20 @@ def result_details(exam_id):
     exam = Exam.query.get(exam_id)
     return render_template("result_details.html", answers=answers, result=result, exam=exam)
 
+
+
+# --- Student Profile ---
+@app.route("/profile")
+def profile():
+    if "student_id" not in session:
+        return redirect("/")
+    
+    student = Student.query.get(session["student_id"])
+    # স্টুডেন্ট কয়টা পরীক্ষা দিয়েছে তার একটা হিসাব (অপশনাল কিন্তু দেখতে ভালো লাগে)
+    total_exams = Result.query.filter_by(student_id=student.id).count()
+    
+    return render_template("profile.html", student=student, total_exams=total_exams)
+
 if __name__ == "__main__":
 
 

@@ -7,54 +7,56 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
 </head>
 
-<body>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
 
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo" alt="Examora Logo">
-            <h2>Examora</h2>
-            <small style="color:#fdba74;">Student Portal</small>
-        </div>
+    <div style="display: flex; flex: 1;">
 
-        <a href="/student-dashboard">📊 Dashboard</a>
-        <a href="#">👤 My Profile</a>
-        <a href="/my-results" class="nav-link">🏆 My Results</a>
-
-        <a href="/logout" class="logout-btn-sidebar">🚪 Logout</a>
-    </div>
-
-    <div class="main-content">
-
-        <div class="top-bar">
-            <div>
-                <button onclick="history.back()" class="back-btn">← Back</button>
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" class="logo" alt="Examora Logo">
+                <h2>Examora</h2>
+                <small style="color:#fdba74;">Student Portal</small>
             </div>
 
-            <div class="top-bar-right">
-                {% if student %}
-                <div class="student-box">
-                    <div style="font-weight: bold;">👤 {{ student.name }}</div>
-                    <div style="font-size: 12px;">ID: {{ student.student_id }}</div>
+            <a href="/student-dashboard">📊 Dashboard</a>
+            <a href="/profile" class="nav-link">👤 My Profile</a>
+            <a href="/my-results" class="nav-link">🏆 My Results</a>
+
+            <a href="/logout" class="logout-btn-sidebar">🚪 Logout</a>
+        </div>
+
+        <div class="main-content" style="flex: 1; display: flex; flex-direction: column;">
+
+            <div class="top-bar">
+                <div>
+                    <button onclick="history.back()" class="back-btn">← Back</button>
                 </div>
-                {% endif %}
+
+                <div class="top-bar-right">
+                    {% if student %}
+                    <div class="student-box">
+                        <div style="font-weight: bold;">👤 {{ student.name }}</div>
+                        <div style="font-size: 12px;">ID: {{ student.student_id }}</div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
+
+            <div class="content-body" style="flex: 1;">
+                {% block body %}
+                {% endblock %}
+            </div>
+
         </div>
-
-        <div class="content-body">
-            {% block body %}
-            {% endblock %}
-        </div>
-
-        <footer class="footer">
-            <p><strong>Examora</strong> | Online Exam System</p>
-            <p>Course: Capstone Project | Group-4</p>
-            <p>Developed by: Mushfiq (1405) | Shubroto (0000) | Rafi (0000)</p>
-            <p>SWE Department, Daffodil International University</p>
-            <p>📧 group4@gmail.com | Version: v1.1.0</p>
-            <p>© 2026 All Rights Reserved</p>
-        </footer>
-
     </div>
+    <footer class="footer">
+        <p><strong>Examora</strong> | Online Exam System</p>
+        <p>Course: Capstone Project | Group-4</p>
+        <p>Developed by: Mushfiq (1405) | Shubroto (0000) | Rafi (0000)</p>
+        <p>SWE Department, Daffodil International University</p>
+        <p>📧 group4@gmail.com | Version: v1.1.0</p>
+        <p>© 2026 All Rights Reserved</p>
+    </footer>
 
 </body>
 
