@@ -1,0 +1,22 @@
+{% extends "admin_layout.html" %}
+{% block body %}
+<h2>Submission: {{ student.name }} (ID: {{ student.student_id }})</h2>
+<div class="flash-alert">
+    <strong>Exam:</strong> {{ exam.title }} | <strong>Total Score:</strong> {{ result.score }}
+</div>
+
+{% for ans in answers %}
+    <div class="answer-card {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
+        <div class="answer-question">
+            Q: {{ ans.question.question_text }}
+            <span class="marks-badge">{{ ans.marks_obtained }} / {{ ans.question.marks }} Marks</span>
+        </div>
+        <div class="answer-details">
+            <p><strong>Student Answer:</strong> <span class="{% if ans.is_correct %}text-success{% else %}text-danger{% endif %}">{{ ans.user_answer }}</span></p>
+            {% if ans.question.question_type == 'mcq' %}
+                <p><strong>Correct Answer:</strong> <span class="text-success">{{ ans.question.correct_answer }}</span></p>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

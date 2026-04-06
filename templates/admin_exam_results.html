@@ -1,0 +1,61 @@
+{% extends "admin_layout.html" %}
+{% block body %}
+<h2>Exam Statistics: {{ exam.title }}</h2>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h4>Total Submissions</h4>
+        <h2>{{ stats.total }}</h2>
+    </div>
+    <div class="stat-card">
+        <h4>Average Score</h4>
+        <h2>{{ stats.avg }}</h2>
+    </div>
+</div>
+
+<table>
+    <tr><th>ID</th><th>Name</th><th>Score</th><th>Status</th><th>Published?</th><th>Action</th></tr>
+    {% for data in student_data %}
+    <tr>
+        <td>{{ data.student.student_id }}</td>
+        <td>{{ data.student.name }}</td>
+        <td><strong>{{ data.result.score }}</strong></td>
+        <td><span class="badge-group">{{ data.result.status }}</span></td>
+        <td>{% if data.result.is_published %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+        <td>
+            <a href="/admin/student-submission/{{ data.result.id }}"><button class="btn btn-primary">View Paper</button></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}{% extends "admin_layout.html" %}
+{% block body %}
+<h2>Exam Statistics: {{ exam.title }}</h2>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h4>Total Submissions</h4>
+        <h2>{{ stats.total }}</h2>
+    </div>
+    <div class="stat-card">
+        <h4>Average Score</h4>
+        <h2>{{ stats.avg }}</h2>
+    </div>
+</div>
+
+<table>
+    <tr><th>ID</th><th>Name</th><th>Score</th><th>Status</th><th>Published?</th><th>Action</th></tr>
+    {% for data in student_data %}
+    <tr>
+        <td>{{ data.student.student_id }}</td>
+        <td>{{ data.student.name }}</td>
+        <td><strong>{{ data.result.score }}</strong></td>
+        <td><span class="badge-group">{{ data.result.status }}</span></td>
+        <td>{% if data.result.is_published %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+        <td>
+            <a href="/admin/student-submission/{{ data.result.id }}"><button class="btn btn-primary">View Paper</button></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

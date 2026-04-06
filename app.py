@@ -710,6 +710,30 @@ def profile():
     
     return render_template("profile.html", student=student, total_exams=total_exams)
 
+#Feature 3 (Admin View Stats & Submissions) ---
+@app.route("/admin/exam-results/<int:exam_id>")
+def admin_exam_results(exam_id):
+    exam = Exam.query.get_or_404(exam_id)
+    results = Result.query.filter_by(exam_id=exam_id).all()
+    
+    total_students = len(results)
+    avg_score = sum([r.score for r in results]) / total_students if total_students > 0 else 0
+    
+    student_data = []
+    for r in results:
+        student = Student.query.get(r.student_id)
+        student_data.append({"result": r, "student": student})
+        
+    return render_template("admin_exam_results.html", exam=exam, stats={"total": total_students, "avg": round(avg_score, 2)}, student_data=student_data)
+
+@app.route("/admin/student-submission/<int:result_id>")
+def admin_student_submission(result_id):
+    result = Result.query.get_or_404(result_id)
+    student = Student.query.get(result.student_id)
+    exam = Exam.query.get(result.exam_id)
+    answers = StudentAnswer.query.filter_by(student_id=student.id, exam_id=exam.id).all()
+    return render_template("admin_student_submission.html", result=result, student=student, exam=exam, answers=answers)
+
 if __name__ == "__main__":
 
 
