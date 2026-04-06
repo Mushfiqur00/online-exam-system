@@ -581,96 +581,6 @@ def update_student_group(id):
     db.session.commit()
     return redirect('/students')
 
-
-
-
-
-
-
-
-
-#aitar niche add kor 
-
-@app.route("/submit-exam/<int:exam_id>", methods=["POST"])
-def submit_exam(exam_id):
-
-    if "student_id" not in session:
-        return redirect("/")
-
-    student_id = session["student_id"]
-
-    # 🔒 prevent double submit
-    existing = Result.query.filter_by(
-        student_id=student_id,
-        exam_id=exam_id
-    ).first()
-
-    if existing:
-        return redirect("/student-dashboard")
-
-    questions = Question.query.filter_by(exam_id=exam_id).all()
-
-    total_marks = 0
-    obtained_marks = 0
-    correct_count = 0
-    wrong_count = 0
-    has_short = False
-
-    for q in questions:
-        user_ans = request.form.get(f"q{q.id}")
-        total_marks += int(q.marks)
-
-        is_correct = False
-        marks_for_this_q = 0
-
-        if q.question_type == "mcq":
-            if user_ans == q.correct_answer:
-                obtained_marks += int(q.marks)
-                marks_for_this_q = int(q.marks)
-                correct_count += 1
-                is_correct = True
-            else:
-                wrong_count += 1
-        else:
-            has_short = True
-            # শর্ট কোশ্চেনের মার্কস আপাতত 0 থাকবে, এডমিন পরে খাতা দেখে মার্কস দিবে
-        
-        # 📌 স্টুডেন্টের প্রতিটি উত্তর ডাটাবেসে সেভ করা হচ্ছে
-        student_answer = StudentAnswer(
-            student_id=student_id,
-            exam_id=exam_id,
-            question_id=q.id,
-            user_answer=user_ans,
-            marks_obtained=marks_for_this_q,
-            is_correct=is_correct
-        )
-        db.session.add(student_answer)
-
-    
-    # 📌 মেইন রেজাল্ট সেভ করা হচ্ছে
-    # যদি শর্ট কোশ্চেন থাকে, তাহলে স্ট্যাটাস Pending হবে।
-    final_status = "Pending" if has_short else "Evaluated"
-
-    result = Result(
-        student_id=student_id,
-        exam_id=exam_id,
-        score=obtained_marks,
-        status=final_status
-    )
-    db.session.add(result)
-    db.session.commit()
-
-    return render_template(
-        "result.html",
-        total=total_marks,
-        obtained=obtained_marks,
-        correct=correct_count,
-        wrong=wrong_count,
-        has_short=has_short,
-        status=final_status
-     )
-
-
 # --- Rakibul's Code: Feature 4 (Publish/Hide) ---
 @app.route("/toggle-publish/<int:exam_id>")
 def toggle_publish(exam_id):
@@ -680,26 +590,83 @@ def toggle_publish(exam_id):
         new_state = not results[0].is_published 
         for r in results: r.is_published = new_state
         db.session.commit()
-    return redirect("/create-exam") 
-    # Redirect back to admin exam list
+    return redirect("/create-exam") # Redirect back to admin exam list
 
 
 
 
+@app.route("/submit-exam/<int:exam_id>", methods=["POST"])
+def submit_exam(exam_id):
+    if "student_id" not in session:
+        return redirect("/")
 
+    student_id = session["student_id"]
 
+    # 🔒 prevent double submit
+    existing = Result.query.filter_by(
+        student_id=student_id,
+        exam_id=exam_id
+    ).first()
 
+    if existing:
+        return redirect("/student-dashboard")
 
+    questions = Question.query.filter_by(exam_id=exam_id).all()
 
+    total_marks = 0
+    obtained_marks = 0
+    correct_count = 0
+    wrong_count = 0
+    has_short = False
 
+    for q in questions:
+        user_ans = request.form.get(f"q{q.id}")
+        total_marks += int(q.marks)
 
+        is_correct = False
+        marks_for_this_q = 0
 
+        if q.question_type == "mcq":
+            if user_ans == q.correct_answer:
+                obtained_marks += int(q.marks)
+                marks_for_this_q = int(q.marks)
+                correct_count += 1
+                is_correct = True
+            else:
+                wrong_count += 1
+        else:
+            has_short = True
+        
+        student_answer = StudentAnswer(
+            student_id=student_id,
+            exam_id=exam_id,
+            question_id=q.id,
+            user_answer=user_ans,
+            marks_obtained=marks_for_this_q,
+            is_correct=is_correct
+        )
+        db.session.add(student_answer)
 
+    final_status = "Pending" if has_short else "Evaluated"
 
+    result = Result(
+        student_id=student_id,
+        exam_id=exam_id,
+        score=obtained_marks,
+        status=final_status
+    )
+    db.session.add(result)
+    db.session.commit()
 
-
-
-
+    return render_template(
+        "result.html",
+        total=total_marks,
+        obtained=obtained_marks,
+        correct=correct_count,
+        wrong=wrong_count,
+        has_short=has_short,
+        status=final_status
+    )
 
 if __name__ == "__main__":
 
