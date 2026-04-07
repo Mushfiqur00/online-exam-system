@@ -34,6 +34,8 @@ class Exam(db.Model):
     start_time = db.Column(db.String(10))
     end_time = db.Column(db.String(10))
     duration = db.Column(db.Integer)
+    is_published = db.Column(db.Boolean, default=False) 
+    
     questions = db.relationship('Question', backref='exam', cascade="all, delete-orphan", lazy=True)
 
 # -----------------------------

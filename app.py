@@ -273,6 +273,7 @@ def create_exam():
 
 
 # ✅ mushfiq
+# ✅ mushfiq
 @app.route("/start-exam/<int:exam_id>", methods=["GET", "POST"])
 def start_exam(exam_id):
     if "student_id" not in session:
@@ -281,24 +282,56 @@ def start_exam(exam_id):
     exam = Exam.query.get_or_404(exam_id)
     student = Student.query.get(session["student_id"])
     
-    # প্রশ্নগুলো আনা (models.py অনুযায়ী)
+    # প্রশ্নগুলো আনা
     questions = Question.query.filter_by(exam_id=exam.id).all()
+
+    # পরীক্ষা সাবমিট করা থাকলে আবার শুরু করতে দেওয়া হবে না
+    existing = Result.query.filter_by(student_id=student.id, exam_id=exam.id).first()
+    if existing:
+        flash("You have already submitted this exam!")
+        return redirect("/student-dashboard")
 
     # যখন স্টুডেন্ট ফর্ম সাবমিট করবে (পরীক্ষা শেষ করবে)
     if request.method == "POST":
-        total_score = 0
+        obtained_marks = 0
+        has_short = False
         
         for q in questions:
-            # HTML ফর্মে name="q_{{q.id}}" থাকবে
-            selected_option = request.form.get(f"q_{q.id}")
+            # HTML ফর্মে name="q_{{q.id}}" থাকতে হবে
+            user_ans = request.form.get(f"q_{q.id}")
+            
+            is_correct = False
+            marks_for_this_q = 0
             
             # MCQ এর ক্ষেত্রে সঠিক উত্তর চেক করা
             if q.question_type == "mcq":
-                if selected_option and selected_option.strip().lower() == q.correct_answer.strip().lower():
-                    total_score += q.marks
-        
-        # রেজাল্ট ডাটাবেজে সেভ করা
-        new_result = Result(student_id=student.id, exam_id=exam.id, score=total_score)
+                if user_ans and user_ans.strip().lower() == q.correct_answer.strip().lower():
+                    obtained_marks += int(q.marks)
+                    marks_for_this_q = int(q.marks)
+                    is_correct = True
+            else:
+                has_short = True
+
+            # 🔥 ১. StudentAnswer টেবিলে প্রতিটি প্রশ্নের উত্তর সেভ করা হচ্ছে
+            student_answer = StudentAnswer(
+                student_id=student.id,
+                exam_id=exam.id,
+                question_id=q.id,
+                user_answer=user_ans,
+                marks_obtained=marks_for_this_q,
+                is_correct=is_correct
+            )
+            db.session.add(student_answer)
+
+        final_status = "Pending" if has_short else "Evaluated"
+
+        # 🔥 ২. Result টেবিলে টোটাল স্কোর সেভ করা হচ্ছে
+        new_result = Result(
+            student_id=student.id, 
+            exam_id=exam.id, 
+            score=obtained_marks,
+            status=final_status
+        )
         db.session.add(new_result)
         db.session.commit()
         
@@ -306,7 +339,6 @@ def start_exam(exam_id):
         return redirect("/student-dashboard")
 
     return render_template("start_exam.html", exam=exam, questions=questions, student=student)
-
 
 @app.route("/delete-exam/<int:id>")
 def delete_exam(id):
@@ -582,18 +614,18 @@ def update_student_group(id):
     return redirect('/students')
 
 # --- Rakibul's Code: Feature 4 (Publish/Hide) ---
-@app.route("/toggle-publish/<int:exam_id>")
+# ১. এখানে methods=["GET", "POST"] যোগ করা হয়েছে যাতে বাটন ক্লিক করলে এরর না আসে।
+@app.route("/toggle-publish/<int:exam_id>", methods=["GET", "POST"])
 def toggle_publish(exam_id):
-    results = Result.query.filter_by(exam_id=exam_id).all()
-    if results:
-        # Toggle current state based on the first result's state
-        new_state = not results[0].is_published 
-        for r in results: r.is_published = new_state
-        db.session.commit()
-    return redirect("/create-exam") # Redirect back to admin exam list
-
-
-
+    exam = Exam.query.get_or_404(exam_id)
+    
+    # এক্সামের পাবলিশ স্ট্যাটাস উল্টে দেওয়া (True থাকলে False, False থাকলে True)
+    exam.is_published = not exam.is_published
+    
+    db.session.commit()
+    
+    # কাজ শেষে আবার আগের পেজেই ফেরত পাঠাবে
+    return redirect(request.referrer or "/admin-dashboard")
 
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
@@ -602,7 +634,7 @@ def submit_exam(exam_id):
 
     student_id = session["student_id"]
 
-    # 🔒 prevent double submit
+    # 🔒 ডাবল সাবমিট রোধ
     existing = Result.query.filter_by(
         student_id=student_id,
         exam_id=exam_id
@@ -612,6 +644,7 @@ def submit_exam(exam_id):
         return redirect("/student-dashboard")
 
     questions = Question.query.filter_by(exam_id=exam_id).all()
+    exam = Exam.query.get(exam_id) # এক্সাম অবজেক্ট নেওয়া হলো
 
     total_marks = 0
     obtained_marks = 0
@@ -668,7 +701,6 @@ def submit_exam(exam_id):
         status=final_status
     )
 
-
 # --- Mushfiqur's Code: Feature 2 (Student Results View) ---
 @app.route("/my-results")
 def my_results():
@@ -688,15 +720,28 @@ def result_details(exam_id):
     student_id = session["student_id"]
     
     result = Result.query.filter_by(student_id=student_id, exam_id=exam_id).first()
-    # Check if admin published it (Rakibul's feature logic)
-    if not result or not result.is_published:
-        return "<h3 style='text-align:center; margin-top:50px;'>Result not published yet by Admin.</h3>"
-        
-    answers = StudentAnswer.query.filter_by(student_id=student_id, exam_id=exam_id).all()
     exam = Exam.query.get(exam_id)
-    return render_template("result_details.html", answers=answers, result=result, exam=exam)
-
-
+    
+    if not result or not exam.is_published:
+        return "<h3 style='text-align:center; margin-top:50px; color:red;'>Result not published yet by Admin. Please wait!</h3>"
+        
+    answers = db.session.query(StudentAnswer, Question).join(Question, StudentAnswer.question_id == Question.id).filter(
+        StudentAnswer.student_id == student_id, 
+        StudentAnswer.exam_id == exam_id
+    ).all()
+    
+    # 🔥 সঠিক এবং ভুল উত্তরের হিসাব বের করা হচ্ছে
+    total_questions = len(answers)
+    correct_count = sum(1 for ans, q in answers if ans.is_correct)
+    wrong_count = total_questions - correct_count
+    
+    return render_template("result_details.html", 
+                           answers=answers, 
+                           result=result, 
+                           exam=exam,
+                           total_questions=total_questions,
+                           correct_count=correct_count,
+                           wrong_count=wrong_count)
 
 # --- Student Profile ---
 @app.route("/profile")
