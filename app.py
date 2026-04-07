@@ -729,11 +729,25 @@ def admin_exam_results(exam_id):
 @app.route("/admin/student-submission/<int:result_id>")
 def admin_student_submission(result_id):
     result = Result.query.get_or_404(result_id)
+    
+    # Sora-sori result table-er foreign keys use korun match korar jonno
     student = Student.query.get(result.student_id)
     exam = Exam.query.get(result.exam_id)
-    answers = StudentAnswer.query.filter_by(student_id=student.id, exam_id=exam.id).all()
-    return render_template("admin_student_submission.html", result=result, student=student, exam=exam, answers=answers)
-
+    
+    # Filter korar somoy result table-e thaka exact foreign keys pathan
+    answers = StudentAnswer.query.filter_by(
+        student_id=result.student_id, 
+        exam_id=result.exam_id
+    ).all()
+    
+    # terminal-e check korun koto dekhay (eta fix korte khub help korbe)
+    print(f"--- DEBUG INFO ---")
+    print(f"Exam ID: {result.exam_id}, Student ID: {result.student_id}")
+    print(f"Answers Found: {len(answers)}")
+    
+    return render_template("admin_student_submission.html", 
+                           result=result, student=student, 
+                           exam=exam, answers=answers)
 if __name__ == "__main__":
 
 
