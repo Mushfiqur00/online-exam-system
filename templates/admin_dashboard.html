@@ -53,6 +53,7 @@
         <th>Date / Time</th>
         <th>Status</th>
         <th>Assigned To</th>
+        <th>Published?</th>
         <th>Action</th>
     </tr>
 
@@ -66,7 +67,6 @@
 
         <td>
             {% set ns = namespace(found=false) %}
-
             {% for a in assignments %}
             {% if a.exam_id|int == exam.id|int %}
             {% set ns.found = true %}
@@ -74,13 +74,13 @@
             {% endfor %}
 
             {% if ns.found %}
-            <span style="color: #16a34a; font-weight: bold; background: #dcfce7; padding: 4px 8px; border-radius: 4px;">
-                ● Assigned
-            </span>
+            <span
+                style="color: #16a34a; font-weight: bold; background: #dcfce7; padding: 4px 8px; border-radius: 4px;">●
+                Assigned</span>
             {% else %}
-            <span style="color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px;">
-                ○ Not Assigned
-            </span>
+            <span
+                style="color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px;">○
+                Not Assigned</span>
             {% endif %}
         </td>
 
@@ -96,26 +96,52 @@
             {% endfor %}
         </td>
 
+        <td style="text-align: center;">
+            {% if exam.is_published %}
+            <span
+                style="color: white; font-weight: bold; background: #16a34a; padding: 4px 8px; border-radius: 4px;">Yes</span>
+            {% else %}
+            <span
+                style="color: white; font-weight: bold; background: #6b7280; padding: 4px 8px; border-radius: 4px;">No</span>
+            {% endif %}
+        </td>
+
         <td>
-            <div style="display: flex; gap: 5px; justify-content: center;">
+            <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+
+                <form action="/toggle-publish/{{ exam.id }}" method="POST" style="margin: 0;">
+                    <button type="submit"
+                        style="background: {% if exam.is_published %}#d97706{% else %}#0284c7{% endif %}; color: whitesmoke; padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Toggle Publish
+                    </button>
+                </form>
+
+                <a href="/admin/exam-results/{{ exam.id }}">
+                    <button
+                        style="background: #8b5cf6; color: whitesmoke; padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Stats & Results
+                    </button>
+                </a>
+
                 <a href="/add-question/{{ exam.id }}">
                     <button
-                        style="background: #16a34a; color: whitesmoke; padding: 5px 10px; font-size: 12px;">Questions
-                        ({{
-                        exam.question_count }})</button>
+                        style="background: #16a34a; color: whitesmoke; padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Questions ({{ exam.question_count }})
+                    </button>
                 </a>
+
                 <a href="/clear-assignment/{{ exam.id }}" onclick="return confirm('Clear all assignments?')">
                     <button
-                        style="background: #dc2626;color: whitesmoke; padding: 5px 10px; font-size: 12px;">Reset</button>
+                        style="background: #dc2626; color: whitesmoke; padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;">Reset</button>
                 </a>
+
                 <a href="/delete-exam/{{ exam.id }}" onclick="return confirm('Delete Exam?')">
                     <button
-                        style="background: #444;color: whitesmoke; padding: 5px 10px; font-size: 12px;">Delete</button>
+                        style="background: #444; color: whitesmoke; padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
                 </a>
             </div>
         </td>
     </tr>
     {% endfor %}
 </table>
-
 {% endblock %}

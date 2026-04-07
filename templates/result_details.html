@@ -1,23 +1,83 @@
 {% extends "student_layout.html" %}
 {% block body %}
-<h2>Detailed Performance: {{ exam.title }}</h2>
-<div class="flash-alert">
-    <strong>Total Score:</strong> {{ result.score }} | <strong>Status:</strong> {{ result.status }}
-</div>
+<div class="container mt-4">
+    <a href="/student-dashboard" class="btn btn-secondary mb-3">&larr; Back to Dashboard</a>
 
-{% for ans in answers %}
-<div class="answer-card {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
-    <div class="answer-question">
-        Q: {{ ans.question.question_text }}
-        <span class="marks-badge">{{ ans.marks_obtained }} / {{ ans.question.marks }} Marks</span>
+    <div class="card mb-4 shadow-sm" style="border-left: 5px solid #ff7b00;">
+        <div class="card-body">
+            <h3 class="mb-4">Performance Summary: {{ exam.title }}</h3>
+
+            <div class="row text-center">
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-primary mb-1">Total Marks</h6>
+                        <h3 class="mb-0"><strong>{{ result.score }}</strong></h3>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-info mb-1">Total Questions</h6>
+                        <h3 class="mb-0"><strong>{{ total_questions }}</strong></h3>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-success mb-1">Correct Answers</h6>
+                        <h3 class="mb-0"><strong>{{ correct_count }}</strong></h3>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-danger mb-1">Wrong Answers</h6>
+                        <h3 class="mb-0"><strong>{{ wrong_count }}</strong></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="answer-details">
-        <p>Your Answer: <span class="{% if ans.is_correct %}text-success{% else %}text-danger{% endif %}">{{
-                ans.user_answer }}</span></p>
-        {% if ans.question.question_type == 'mcq' %}
-        <p>Correct Answer: <span class="text-success">{{ ans.question.correct_answer }}</span></p>
-        {% endif %}
+
+    <h4 class="mb-3">Review Your Answers</h4>
+    <hr>
+
+    {% for ans, q in answers %}
+    <div class="card mb-3" style="border: 1px solid {% if ans.is_correct %}#28a745{% else %}#dc3545{% endif %};">
+
+        <div class="card-header" style="background-color: #f8f9fa;">
+            <strong>Q{{ loop.index }}:</strong> {{ q.question_text }}
+            <span style="float: right; font-weight: bold; color: gray;">
+                Marks: {{ ans.marks_obtained }} / {{ q.marks }}
+            </span>
+        </div>
+
+        <div class="card-body">
+            <p style="font-size: 16px;">
+                <strong>Your Answer:</strong>
+                <span style="color: {% if ans.is_correct %}#28a745{% else %}#dc3545{% endif %}; font-weight: bold;">
+                    {{ ans.user_answer if ans.user_answer else 'Not Answered' }}
+                </span>
+
+                {% if ans.is_correct %}
+                <span style="color: #28a745; margin-left: 10px;">&#10004; Correct</span>
+                {% else %}
+                <span style="color: #dc3545; margin-left: 10px;">&#10008; Incorrect</span>
+                {% endif %}
+            </p>
+
+            {% if not ans.is_correct %}
+            <p class="mb-0" style="font-size: 16px;">
+                <strong>Correct Answer:</strong>
+                <span style="color: #28a745; font-weight: bold;">{{ q.correct_answer }}</span>
+            </p>
+            {% endif %}
+        </div>
+
     </div>
+    {% else %}
+    <div class="alert alert-warning text-center">
+        No answers found. (Note: Only exams submitted <strong>after</strong> the recent update will display detailed
+        answers here).
+    </div>
+    {% endfor %}
+
 </div>
-{% endfor %}
 {% endblock %}

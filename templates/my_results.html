@@ -11,11 +11,19 @@
     {% for data in exams_data %}
     <tr>
         <td>{{ data.exam.title }}</td>
-        <td>{% if data.result.is_published %} <span class="text-success">{{ data.result.score }}</span> {% else %}
-            Hidden {% endif %}</td>
-        <td><span class="badge-group">{{ data.result.status }}</span></td>
+
         <td>
-            {% if data.result.is_published %}
+            {% if data.exam.is_published %}
+            <span class="text-success">{{ data.result.score }}</span>
+            {% else %}
+            <span style="color: gray; font-style: italic;">Hidden</span>
+            {% endif %}
+        </td>
+
+        <td><span class="badge-group">{{ data.result.status }}</span></td>
+
+        <td>
+            {% if data.exam.is_published %}
             <a href="/result-details/{{ data.exam.id }}"><button class="btn btn-primary">View Paper</button></a>
             {% else %}
             <button class="btn" style="background:#ccc;" disabled>Not Published</button>
