@@ -706,13 +706,47 @@ def submit_exam(exam_id):
 def my_results():
     if "student_id" not in session: return redirect("/")
     student_id = session["student_id"]
+    
+    # 🟢 ফিক্স ১: ডাটাবেস থেকে বর্তমান স্টুডেন্টের ডাটা বের করা
+    student = Student.query.get(student_id) 
+    
     results = Result.query.filter_by(student_id=student_id).all()
     
     exams_data = []
+    
+    # Chart-এর জন্য লিস্ট তৈরি
+    chart_labels = []
+    chart_scores = []
+    
+    # স্ট্যাটাস কাউন্ট করার জন্য
+    evaluated_count = 0
+    pending_count = 0
+
     for r in results:
         exam = Exam.query.get(r.exam_id)
         exams_data.append({"result": r, "exam": exam})
-    return render_template("my_results.html", exams_data=exams_data)
+        
+        # Bar Chart এর ডাটা
+        chart_labels.append(exam.title)
+        if exam.is_published and r.score is not None:
+            chart_scores.append(r.score)
+        else:
+            chart_scores.append(0) 
+            
+        # Pie Chart এর ডাটা
+        if r.status == "Evaluated":
+            evaluated_count += 1
+        else:
+            pending_count += 1
+
+    return render_template("my_results.html", 
+                           student=student,  # 🟢 ফিক্স ২: স্টুডেন্টের ডাটা HTML এ পাস করা হলো
+                           exams_data=exams_data,
+                           chart_labels=chart_labels,
+                           chart_scores=chart_scores,
+                           evaluated_count=evaluated_count,
+                           pending_count=pending_count)
+
 
 @app.route("/result-details/<int:exam_id>")
 def result_details(exam_id):

@@ -92,22 +92,6 @@
 {% endif %}
 
 
-<h3 style="margin-top:30px;">📊 Your Results</h3>
 
-{% if results %}
-<div class="card-container">
-    {% for r in results %}
-    <div class="card result-card">
-        <h4>{{ r[1].title }}</h4>
-        <p class="score">Score: {{ r[0].score }}</p>
-        <span class="badge green">Completed</span>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-<p
-    style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    No results published yet.</p>
-{% endif %}
 
 {% endblock %}

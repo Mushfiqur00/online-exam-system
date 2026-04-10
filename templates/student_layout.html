@@ -5,6 +5,162 @@
     <title>Examora - Student Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+
+    <style>
+        /* ব্রাউজারকে ডার্ক মোড চিনিয়ে দেওয়া */
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        /* 🟢 মেইন বডি (ডিপ ব্ল্যাক) */
+        [data-theme="dark"] body,
+        [data-theme="dark"] .main-content,
+        [data-theme="dark"] .content-body {
+            background-color: #121212 !important;
+        }
+
+        /* 🟢 সাইডবার, টপবার, ফুটার */
+        [data-theme="dark"] .sidebar,
+        [data-theme="dark"] .top-bar,
+        [data-theme="dark"] .footer {
+            background-color: #1a1a1a !important;
+            border-color: #333333 !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .sidebar a,
+        [data-theme="dark"] .footer p,
+        [data-theme="dark"] .top-bar div {
+            color: #ffffff !important;
+        }
+
+        /* 🔴 মেইন ফিক্স ১: Ongoing Exams কার্ড ডার্ক মোডে কার্ড সিস্টেম বোঝানোর জন্য */
+        /* আমি ড্যাশবোর্ড বা রেজাল্ট পেজের সব জেদি সাদা বক্স এবং .box/card ক্লাস টার্গেট করে সুন্দর ডার্ক গ্রে শ্যাডো সহ বক্স করব */
+        [data-theme="dark"] .content-body div,
+        [data-theme="dark"] .content-body li,
+        [data-theme="dark"] .content-body ul,
+        [data-theme="dark"] .content-body .card,
+        [data-theme="dark"] .content-body .box {
+            background-color: #1e1e1e !important;
+            /* হালকা ডার্ক গ্রে কার্ড ব্যাকগ্রাউন্ড */
+            border: 1px solid #333333 !important;
+            /* উজ্জ্বল বর্ডার */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+            /* উজ্জ্বল শ্যাডো */
+        }
+
+        /* "No ongoing exams" মেসেজের কার্ড ডিজাইন (Italic বা text-muted প্যারাগ্রাফ) */
+        [data-theme="dark"] .content-body p:has(i),
+        [data-theme="dark"] .content-body p:has(em),
+        [data-theme="dark"] .content-body p.text-muted {
+            background-color: #1e1e1e !important;
+            /* হালকা ডার্ক গ্রে কার্ড ব্যাকগ্রাউন্ড */
+            padding: 15px !important;
+            border-radius: 8px !important;
+            border: 1px solid #333333 !important;
+            /* উজ্জ্বল বর্ডার */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+            /* উজ্জ্বল শ্যাডো */
+            margin-top: 10px !important;
+            display: block !important;
+        }
+
+        /* ইনলাইন স্টাইলে সাদা ব্যাকগ্রাউন্ড দেওয়া থাকলে সেটাকেও ফোর্স করে ডার্ক করা */
+        /* 🔴 মেইন ফিক্স ২: রেজাল্ট ডিটেইলস পেজে মার্কস ব্যাজের ব্যাকগ্রাউন্ড ডার্ক করা */
+        [data-theme="dark"] [style*="background: white"],
+        [data-theme="dark"] [style*="background-color: white"],
+        [data-theme="dark"] [style*="background-color: #fff"],
+        [data-theme="dark"] [style*="background-color: #ffffff"] {
+            background-color: #374151 !important;
+            /* সুন্দর ডার্ক গ্রে ব্যাজ/কার্ড */
+            color: #ffffff !important;
+            /* সাদা টেক্সট */
+            border: 1px solid #4b5563 !important;
+            /* উজ্জ্বল বর্ডার */
+            padding: 5px 10px !important;
+            /* ব্যাজের মতো প্যাডিং */
+            border-radius: 6px !important;
+            /* ব্যাজের মতো রেডিয়াস */
+        }
+
+        /* কন্টেইনারগুলোর ব্যাকগ্রাউন্ড ট্রান্সপারেন্ট রাখা */
+        [data-theme="dark"] .content-body>div>div[style*="display: flex"] {
+            background-color: transparent !important;
+        }
+
+        /* 🟢 সব ধরনের টেক্সট ১০০% ব্রাইট (সাদা) করা */
+        [data-theme="dark"] .content-body *,
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] h3,
+        [data-theme="dark"] h4,
+        [data-theme="dark"] p,
+        [data-theme="dark"] span,
+        [data-theme="dark"] label,
+        [data-theme="dark"] strong,
+        [data-theme="dark"] b,
+        [data-theme="dark"] li,
+        [data-theme="dark"] a {
+            color: #ffffff !important;
+        }
+
+        /* 🟢 ইনপুট ফিল্ড ও প্রোফাইল পেজ */
+        [data-theme="dark"] input,
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background-color: #2d3748 !important;
+            color: #ffffff !important;
+            border: 1px solid #4a5568 !important;
+        }
+
+        [data-theme="dark"] input::placeholder {
+            color: #a0aec0 !important;
+        }
+
+        /* 🟢 টেবিল ডিজাইন */
+        [data-theme="dark"] table {
+            background-color: #1e1e1e !important;
+            border-collapse: collapse !important;
+        }
+
+        [data-theme="dark"] table th {
+            background-color: #ea580c !important;
+            color: #ffffff !important;
+            border-color: #333333 !important;
+        }
+
+        [data-theme="dark"] table td {
+            background-color: #1e1e1e !important;
+            border-bottom: 1px solid #333333 !important;
+        }
+
+        [data-theme="dark"] table tr:hover td {
+            background-color: #2d3748 !important;
+        }
+
+        /* 🟢 থিম বাটনের ডিজাইন */
+        .theme-btn {
+            background: #4b5563;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: 0.3s;
+        }
+
+        .theme-btn:hover {
+            background: #374151;
+        }
+    </style>
+    <script>
+        // পেজ রিলোড করলেও থিম সেভ রাখার জন্য
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+        }
+    </script>
 </head>
 
 <body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
@@ -17,8 +173,9 @@
                 <h2>Examora</h2>
                 <small style="color:#fdba74;">Student Portal</small>
             </div>
-
-            <a href="/student-dashboard">📊 Dashboard</a>
+            <a href="/student-dashboard" style="text-decoration: none; color: inherit;">
+                🏠 Home
+            </a>
             <a href="/profile" class="nav-link">👤 My Profile</a>
             <a href="/my-results" class="nav-link">🏆 My Results</a>
 
@@ -27,19 +184,24 @@
 
         <div class="main-content" style="flex: 1; display: flex; flex-direction: column;">
 
-            <div class="top-bar">
-                <div>
+            <div class="top-bar"
+                style="position: relative; display: flex; justify-content: space-between; align-items: center;">
+
+                <div style="display: flex; align-items: center;">
+                    <button class="theme-btn" onclick="toggleGlobalTheme()">🌓 Theme</button>
                     <button onclick="history.back()" class="back-btn">← Back</button>
                 </div>
 
-                <div class="top-bar-right">
+                <div
+                    style="position: absolute; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold;">
                     {% if student %}
-                    <div class="student-box">
-                        <div style="font-weight: bold;">👤 {{ student.name }}</div>
-                        <div style="font-size: 12px;">ID: {{ student.student_id }}</div>
-                    </div>
+                    👋 Hey, {{ student.name.split(' ')[0] }}
                     {% endif %}
                 </div>
+
+                <div class="top-bar-right">
+                </div>
+
             </div>
 
             <div class="content-body" style="flex: 1;">
@@ -49,6 +211,7 @@
 
         </div>
     </div>
+
     <footer class="footer">
         <p><strong>Examora</strong> | Online Exam System</p>
         <p>Course: Capstone Project | Group-4</p>
@@ -57,6 +220,22 @@
         <p>📧 group4@gmail.com | Version: v1.1.0</p>
         <p>© 2026 All Rights Reserved</p>
     </footer>
+
+    <script>
+        function toggleGlobalTheme() {
+            let currentTheme = document.documentElement.getAttribute("data-theme");
+            let newTheme = currentTheme === "dark" ? "light" : "dark";
+
+            if (newTheme === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+                localStorage.setItem("theme", "dark");
+            } else {
+                // লাইট মোডে সব ডার্ক মোডের ট্যাগ সরিয়ে দেবে, ফলে তোমার student.css কাজ করবে
+                document.documentElement.removeAttribute("data-theme");
+                localStorage.setItem("theme", "light");
+            }
+        }
+    </script>
 
 </body>
 
