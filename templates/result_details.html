@@ -1,81 +1,82 @@
 {% extends "student_layout.html" %}
 {% block body %}
-<div class="container mt-4">
-    <a href="/student-dashboard" class="btn btn-secondary mb-3">&larr; Back to Dashboard</a>
 
-    <div class="card mb-4 shadow-sm" style="border-left: 5px solid #ff7b00;">
-        <div class="card-body">
-            <h3 class="mb-4">Performance Summary: {{ exam.title }}</h3>
+<div class="result-container">
 
-            <div class="row text-center">
-                <div class="col-md-3 col-6 mb-2">
-                    <div class="p-3 bg-light border rounded">
-                        <h6 class="text-primary mb-1">Total Marks</h6>
-                        <h3 class="mb-0"><strong>{{ result.score }}</strong></h3>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6 mb-2">
-                    <div class="p-3 bg-light border rounded">
-                        <h6 class="text-info mb-1">Total Questions</h6>
-                        <h3 class="mb-0"><strong>{{ total_questions }}</strong></h3>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6 mb-2">
-                    <div class="p-3 bg-light border rounded">
-                        <h6 class="text-success mb-1">Correct Answers</h6>
-                        <h3 class="mb-0"><strong>{{ correct_count }}</strong></h3>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6 mb-2">
-                    <div class="p-3 bg-light border rounded">
-                        <h6 class="text-danger mb-1">Wrong Answers</h6>
-                        <h3 class="mb-0"><strong>{{ wrong_count }}</strong></h3>
-                    </div>
-                </div>
-            </div>
+    <div class="result-header">
+        <h3>Performance Summary: {{ exam.title }}</h3>
+        <a href="/my-results" class="btn-back">&larr; Back</a>
+    </div>
+
+    <div class="student-info-bar">
+        <span><strong>Student:</strong> {{ student.name }}</span>
+        <span><strong>ID:</strong> {{ student.student_id }}</span>
+        <span>
+            <strong>Exam Date:</strong>
+            {% if result.date_submitted %}
+            {{ result.date_submitted.strftime('%d %b, %Y') }}
+            {% else %}
+            N/A
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card border-orange">
+            <h6>Total Marks</h6>
+            <h2>{{ result.score }}</h2>
+        </div>
+        <div class="summary-card border-blue">
+            <h6>Total Questions</h6>
+            <h2>{{ total_questions }}</h2>
+        </div>
+        <div class="summary-card border-green">
+            <h6>Correct Answers</h6>
+            <h2>{{ correct_count }}</h2>
+        </div>
+        <div class="summary-card border-red">
+            <h6>Wrong Answers</h6>
+            <h2>{{ wrong_count }}</h2>
         </div>
     </div>
 
-    <h4 class="mb-3">Review Your Answers</h4>
-    <hr>
+    <h4 class="section-title">Review Your Answers</h4>
+    <hr class="divider">
 
     {% for ans, q in answers %}
-    <div class="card mb-3" style="border: 1px solid {% if ans.is_correct %}#28a745{% else %}#dc3545{% endif %};">
+    <div class="review-card {% if ans.is_correct %}correct-border{% else %}incorrect-border{% endif %}">
 
-        <div class="card-header" style="background-color: #f8f9fa;">
-            <strong>Q{{ loop.index }}:</strong> {{ q.question_text }}
-            <span style="float: right; font-weight: bold; color: gray;">
-                Marks: {{ ans.marks_obtained }} / {{ q.marks }}
-            </span>
+        <div class="review-card-header">
+            <h5><strong>Q{{ loop.index }}:</strong> {{ q.question_text }}</h5>
+            <span class="marks-badge">Marks: {{ ans.marks_obtained }} / {{ q.marks }}</span>
         </div>
 
-        <div class="card-body">
-            <p style="font-size: 16px;">
+        <div class="review-content">
+            <p>
                 <strong>Your Answer:</strong>
-                <span style="color: {% if ans.is_correct %}#28a745{% else %}#dc3545{% endif %}; font-weight: bold;">
+                <span class="{% if ans.is_correct %}text-correct{% else %}text-incorrect{% endif %}">
                     {{ ans.user_answer if ans.user_answer else 'Not Answered' }}
                 </span>
 
                 {% if ans.is_correct %}
-                <span style="color: #28a745; margin-left: 10px;">&#10004; Correct</span>
+                <span class="status-icon text-correct">✔ Correct</span>
                 {% else %}
-                <span style="color: #dc3545; margin-left: 10px;">&#10008; Incorrect</span>
+                <span class="status-icon text-incorrect">✘ Incorrect</span>
                 {% endif %}
             </p>
 
             {% if not ans.is_correct %}
-            <p class="mb-0" style="font-size: 16px;">
+            <p class="correct-ans-row">
                 <strong>Correct Answer:</strong>
-                <span style="color: #28a745; font-weight: bold;">{{ q.correct_answer }}</span>
+                <span class="text-correct">{{ q.correct_answer }}</span>
             </p>
             {% endif %}
         </div>
-
     </div>
     {% else %}
-    <div class="alert alert-warning text-center">
-        No answers found. (Note: Only exams submitted <strong>after</strong> the recent update will display detailed
-        answers here).
+    <div
+        style="background: #fef3c7; color: #92400e; padding: 20px; border-radius: 8px; text-align: center; font-weight: bold;">
+        No answers found for this exam.
     </div>
     {% endfor %}
 

@@ -41,14 +41,16 @@ class Exam(db.Model):
 # -----------------------------
 # RESULT TABLE (Combined Feature 1 & 4)
 # -----------------------------
+from datetime import datetime
+
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
     score = db.Column(db.Integer)
-    is_published = db.Column(db.Boolean, default=False) # Feature 4
-    status = db.Column(db.String(20), default="Evaluated") # Feature 1
-
+    is_published = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(20), default="Evaluated")
+    date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
 # -----------------------------
 # EXAM ASSIGNMENT TABLE
 # -----------------------------

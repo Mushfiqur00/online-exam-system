@@ -716,21 +716,26 @@ def my_results():
 
 @app.route("/result-details/<int:exam_id>")
 def result_details(exam_id):
-    if "student_id" not in session: return redirect("/")
+    if "student_id" not in session: 
+        return redirect("/")
+        
     student_id = session["student_id"]
+    student = Student.query.get(student_id) # লেআউটের জন্য স্টুডেন্ট ডাটা
     
     result = Result.query.filter_by(student_id=student_id, exam_id=exam_id).first()
-    exam = Exam.query.get(exam_id)
+    exam = Exam.query.get_or_404(exam_id)
     
-    if not result or not exam.is_published:
-        return "<h3 style='text-align:center; margin-top:50px; color:red;'>Result not published yet by Admin. Please wait!</h3>"
+    if not result:
+        flash("Result not found!")
+        return redirect("/student-dashboard")
         
-    answers = db.session.query(StudentAnswer, Question).join(Question, StudentAnswer.question_id == Question.id).filter(
+    answers = db.session.query(StudentAnswer, Question).join(
+        Question, StudentAnswer.question_id == Question.id
+    ).filter(
         StudentAnswer.student_id == student_id, 
         StudentAnswer.exam_id == exam_id
     ).all()
     
-    # 🔥 সঠিক এবং ভুল উত্তরের হিসাব বের করা হচ্ছে
     total_questions = len(answers)
     correct_count = sum(1 for ans, q in answers if ans.is_correct)
     wrong_count = total_questions - correct_count
@@ -739,6 +744,7 @@ def result_details(exam_id):
                            answers=answers, 
                            result=result, 
                            exam=exam,
+                           student=student,
                            total_questions=total_questions,
                            correct_count=correct_count,
                            wrong_count=wrong_count)
