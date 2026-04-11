@@ -154,7 +154,8 @@ def student_register():
 
         group = Group.query.filter_by(code=group_code).first()
         if not group:
-            flash("Invalid Group Code! Please contact your teacher.")
+            # 🔴 এখানে "danger" অ্যাড করা হয়েছে (লাল মেসেজ দেখাবে)
+            flash("Invalid Group Code! Please contact your teacher.", "danger")
             return redirect("/student-register")
 
         # পাসওয়ার্ড হ্যাস করে সেভ করুন
@@ -174,11 +175,13 @@ def student_register():
         try:
             db.session.add(student)
             db.session.commit()
-            flash("Registration Successful! Please Login.")
+            # 🟢 এখানে "success" অ্যাড করা হয়েছে (সবুজ মেসেজ দেখাবে)
+            flash("Registration Successful! Please Login.", "success")
             return redirect("/login")
         except Exception as e:
-            db.session.rollback() # ডাটাবেস আটকে গেলে ছাড়িয়ে দিবে
-            flash("Registration Failed! Username or Student ID already exists.")
+            db.session.rollback() # ডাটাবেস আটকে গেলে ছাড়িয়ে দিবে
+            # 🔴 এখানে "danger" অ্যাড করা হয়েছে (লাল মেসেজ দেখাবে)
+            flash("Registration Failed! Username or Student ID already exists.", "danger")
             return redirect("/student-register")
 
     return render_template("register.html")
