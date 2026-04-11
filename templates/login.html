@@ -202,12 +202,19 @@
             <p style="opacity: 0.7; font-size: 0.9rem; color: var(--text-main); margin: 0;">Sign in to continue</p>
         </div>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div class="error-msg">{{ messages[0] }}</div>
+        {% for category, message in messages %}
+        {% if category == 'success' %}
+        <div style="color: #16a34a; text-align: center; margin-bottom: 15px; font-size: 0.9rem; font-weight: 500;">
+            {{ message }}
+        </div>
+        {% else %}
+        <div class="error-msg">{{ message }}</div>
+        {% endif %}
+        {% endfor %}
         {% endif %}
         {% endwith %}
-
         <div class="tabs">
             <button type="button" class="tab-btn active" id="student-tab"
                 onclick="switchTab('student')">Student</button>
