@@ -919,9 +919,11 @@ def evaluate_submission(result_id):
     flash("Evaluation saved successfully!", "success")
     return redirect(f"/admin/exam-results/{result.exam_id}")
 
-# --- ডাটাবেস এবং অ্যাডমিন সেটআপ (Render এবং Local উভয়ের জন্য) ---
+# --- ডাটাবেস এবং অ্যাডমিন সেটআপ ---
 with app.app_context():
-    db.create_all() 
+    db.drop_all()  # ⚠️ এই লাইনটা ডাটাবেসের আগের সব টেবিল মুছে দিবে
+    db.create_all() # এবার নতুন সাইজ (255) অনুযায়ী ফ্রেশ টেবিল বানাবে
+    
     admin = Admin.query.filter_by(username='teacher').first()
     if not admin:
         from werkzeug.security import generate_password_hash
