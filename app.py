@@ -833,6 +833,41 @@ def admin_student_submission(result_id):
     return render_template("admin_student_submission.html", 
                            result=result, student=student, 
                            exam=exam, answers=answers)
+
+
+
+#for short question 
+
+from flask import request, flash, redirect
+
+@app.route("/admin/evaluate-submission/<int:result_id>", methods=["POST"])
+def evaluate_submission(result_id):
+    if "admin" not in session: # সিকিউরিটির জন্য (যদি তোমার অ্যাডমিন সেশন অন্য নামে থাকে, তবে সেটা দিও)
+        return redirect("/admin-login")
+
+    result = Result.query.get_or_404(result_id)
+    answers = StudentAnswer.query.filter_by(student_id=result.student_id, exam_id=result.exam_id).all()
+    
+    for ans in answers:
+        if ans.question.question_type == "short":
+            # ফর্ম থেকে মার্কস নেওয়া হচ্ছে
+            mark_input = request.form.get(f"mark_{ans.id}")
+            if mark_input is not None and mark_input.strip() != "":
+                ans.marks_obtained = float(mark_input)
+                # মার্কস 0 এর বেশি হলে সঠিক ধরা যেতে পারে, তবে শর্ট প্রশ্নের জন্য marks টাই আসল
+                ans.is_correct = True if float(mark_input) > 0 else False
+
+    # নতুন করে টোটাল স্কোর ক্যালকুলেট করা
+    total_score = sum(ans.marks_obtained for ans in answers if ans.marks_obtained is not None)
+    
+    # রেজাল্ট আপডেট
+    result.score = total_score
+    result.status = "Evaluated"
+    db.session.commit()
+    
+    flash("Evaluation saved successfully!", "success")
+    return redirect(f"/admin/exam-results/{result.exam_id}")
+
 if __name__ == "__main__":
 
 

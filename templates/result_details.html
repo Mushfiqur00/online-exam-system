@@ -2,10 +2,8 @@
 {% block body %}
 
 <div class="result-container">
-
     <div class="result-header">
         <h3>Performance Summary: {{ exam.title }}</h3>
-
     </div>
 
     <div class="student-info-bar">
@@ -19,12 +17,26 @@
             N/A
             {% endif %}
         </span>
+        <span>
+            <strong>Status:</strong>
+            {% if result.status == 'Pending' %}
+            <span style="color: #b45309; background: #fef3c7; padding: 2px 6px; border-radius: 4px;">⏳ Pending</span>
+            {% else %}
+            <span style="color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">✔ Evaluated</span>
+            {% endif %}
+        </span>
     </div>
 
     <div class="summary-grid">
         <div class="summary-card border-orange">
             <h6>Total Marks</h6>
-            <h2>{{ result.score }}</h2>
+            <h2>
+                {% if result.status == 'Pending' %}
+                <span style="font-size: 20px; color: #d97706;">Pending</span>
+                {% else %}
+                {{ result.score }}
+                {% endif %}
+            </h2>
         </div>
         <div class="summary-card border-blue">
             <h6>Total Questions</h6>
@@ -44,33 +56,58 @@
     <hr class="divider">
 
     {% for ans, q in answers %}
-    <div class="review-card {% if ans.is_correct %}correct-border{% else %}incorrect-border{% endif %}">
+    <div
+        class="review-card {% if q.question_type == 'short' and result.status == 'Pending' %}border-warning{% elif ans.is_correct %}correct-border{% else %}incorrect-border{% endif %}">
 
         <div class="review-card-header">
             <h5><strong>Q{{ loop.index }}:</strong> {{ q.question_text }}</h5>
+
+            {% if q.question_type == 'short' and result.status == 'Pending' %}
+            <span class="marks-badge" style="background: #f59e0b; color: white;">⏳ Pending Evaluation</span>
+            {% else %}
             <span class="marks-badge">Marks: {{ ans.marks_obtained }} / {{ q.marks }}</span>
+            {% endif %}
         </div>
 
         <div class="review-content">
             <p>
                 <strong>Your Answer:</strong>
-                <span class="{% if ans.is_correct %}text-correct{% else %}text-incorrect{% endif %}">
+                <span
+                    class="{% if q.question_type == 'short' %}text-primary{% elif ans.is_correct %}text-correct{% else %}text-incorrect{% endif %}">
                     {{ ans.user_answer if ans.user_answer else 'Not Answered' }}
                 </span>
 
+                {% if q.question_type == 'mcq' %}
                 {% if ans.is_correct %}
                 <span class="status-icon text-correct">✔ Correct</span>
                 {% else %}
                 <span class="status-icon text-incorrect">✘ Incorrect</span>
                 {% endif %}
+                {% endif %}
             </p>
 
-            {% if not ans.is_correct %}
+            {% if q.question_type == 'mcq' and not ans.is_correct %}
             <p class="correct-ans-row">
                 <strong>Correct Answer:</strong>
                 <span class="text-correct">{{ q.correct_answer }}</span>
             </p>
             {% endif %}
+
+            {% if q.question_type == 'short' %}
+            {% if result.status == 'Pending' %}
+            <p
+                style="background: #fef3c7; color: #b45309; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #f59e0b;">
+                <strong>Note:</strong> Your written answer is waiting for the instructor to evaluate and assign marks.
+            </p>
+            {% else %}
+            <p
+                style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #22c55e;">
+                <strong>Evaluated:</strong> Instructor has reviewed this answer and assigned <strong>{{
+                    ans.marks_obtained }}</strong> out of {{ q.marks }} marks.
+            </p>
+            {% endif %}
+            {% endif %}
+
         </div>
     </div>
     {% else %}
