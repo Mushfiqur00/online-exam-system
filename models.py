@@ -21,7 +21,7 @@ class Student(db.Model):
     email = db.Column(db.String(100))
     phone = db.Column(db.String(20))
     username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(100))
+    password = db.Column(db.String(255))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
     #admin
