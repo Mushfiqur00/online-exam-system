@@ -143,20 +143,21 @@ def admin_dashboard():
 @app.route("/student-register", methods=["GET","POST"])
 def student_register():
     if request.method == "POST":
-        name = request.form["name"]
-        student_id = request.form["student_id"]
-        email = request.form["email"]
-        phone = request.form["phone"]
-        username = request.form["username"]
-        password = request.form["password"]
-        group_code = request.form["group_code"]
+        # .get() ব্যবহার করলে ডাটা না থাকলেও সার্ভার ক্র্যাশ করবে না
+        name = request.form.get("name")
+        student_id = request.form.get("student_id")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        group_code = request.form.get("group_code")
 
         group = Group.query.filter_by(code=group_code).first()
         if not group:
-            flash("Invalid Group Code")
+            flash("Invalid Group Code! Please contact your teacher.")
             return redirect("/student-register")
 
-        # ✅ সমাধান: পাসওয়ার্ড হ্যাস করে সেভ করুন
+        # পাসওয়ার্ড হ্যাস করে সেভ করুন
         hashed_pw = generate_password_hash(password)
 
         student = Student(
@@ -165,18 +166,22 @@ def student_register():
             email=email,
             phone=phone,
             username=username,
-            password=hashed_pw, # <--- এখন হ্যাস করা পাসওয়ার্ড সেভ হবে
+            password=hashed_pw,
             group_id=group.id
         )
 
-        db.session.add(student)
-        db.session.commit()
-        
-        flash("Registration Successful! Please Login.")
-        return redirect("/login")
+        # সার্ভার ক্র্যাশ রোধ করার জন্য try-except ব্লক
+        try:
+            db.session.add(student)
+            db.session.commit()
+            flash("Registration Successful! Please Login.")
+            return redirect("/login")
+        except Exception as e:
+            db.session.rollback() # ডাটাবেস আটকে গেলে ছাড়িয়ে দিবে
+            flash("Registration Failed! Username or Student ID already exists.")
+            return redirect("/student-register")
 
     return render_template("register.html")
-
 
 @app.route("/student-dashboard")
 def student_dashboard():
