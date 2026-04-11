@@ -38,16 +38,18 @@ def support():
 
 from werkzeug.security import check_password_hash # ফাইলের উপরে ইমপোর্ট করো
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        role = request.form.get('role')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role') # Hidden input থেকে role নিচ্ছি
 
         if role == 'student':
             student = Student.query.filter_by(username=username).first()
-            # স্টুডেন্টের জন্য এনক্রিপ্টেড পাসওয়ার্ড চেক
+            # স্টুডেন্টের পাসওয়ার্ড রেজিস্ট্রেশনের সময় অটো হ্যাস হয়
             if student and check_password_hash(student.password, password):
                 session['student_id'] = student.id
                 flash("Login successful as Student!")
@@ -58,8 +60,8 @@ def login():
                 
         elif role == 'admin':
             admin = Admin.query.filter_by(username=username).first()
-            # অ্যাডমিনের জন্য সরাসরি পাসওয়ার্ড চেক (Plain Text)
-            if admin and admin.password == password: 
+            # আমরা এখন অ্যাডমিনকেও হ্যাস পাসওয়ার্ড দিয়ে তৈরি করবো
+            if admin and check_password_hash(admin.password, password):
                 session['admin_id'] = admin.id 
                 flash("Login successful as Admin!")
                 return redirect(url_for('admin_dashboard'))
