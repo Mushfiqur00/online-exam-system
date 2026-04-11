@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, redirect, flash, session , make_response
 from models import db, Group, Student, Exam, ExamAssignment , Question , Result
+from models import Student, Admin
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import random
 import string
 
@@ -22,6 +25,86 @@ def generate_code():
     numbers = string.digits
 
     return ''.join(random.choice(letters+numbers) for i in range(6))
+
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/support")
+def support():
+    return render_template("support.html")
+
+from werkzeug.security import check_password_hash # ফাইলের উপরে ইমপোর্ট করো
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        role = request.form.get('role')
+
+        if role == 'student':
+            student = Student.query.filter_by(username=username).first()
+            # স্টুডেন্টের জন্য এনক্রিপ্টেড পাসওয়ার্ড চেক
+            if student and check_password_hash(student.password, password):
+                session['student_id'] = student.id
+                flash("Login successful as Student!")
+                return redirect(url_for('student_dashboard'))
+            else:
+                flash("Invalid Student credentials!")
+                return redirect(url_for('login'))
+                
+        elif role == 'admin':
+            admin = Admin.query.filter_by(username=username).first()
+            # অ্যাডমিনের জন্য সরাসরি পাসওয়ার্ড চেক (Plain Text)
+            if admin and admin.password == password: 
+                session['admin_id'] = admin.id 
+                flash("Login successful as Admin!")
+                return redirect(url_for('admin_dashboard'))
+            else:
+                flash("Invalid Admin credentials!")
+                return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/login")
+
+
+
+
+@app.route("/admin-dashboard")
+def admin_dashboard():
+
+    if "admin" not in session:
+        redirect("/login")
+
+    exams = Exam.query.all()
+    students = Student.query.all()
+    groups = Group.query.all()
+    assignments = ExamAssignment.query.all()
+
+    
+    for exam in exams:
+        exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
+
+    response = make_response(render_template(
+        "admin_dashboard.html",
+        exams=exams,
+        students=students,
+        groups=groups,
+        assignments=assignments
+    ))
+
+    response.headers["Cache-Control"] = "no-store"
+
+    return response
 
 @app.route("/student-register", methods=["GET","POST"])
 def student_register():
@@ -54,79 +137,16 @@ def student_register():
         db.session.add(student)
         db.session.commit()
 
-        return redirect("/")
+        return redirect("/login")
 
     return render_template("register.html")
-
-
-@app.route("/", methods=["GET","POST"])
-def login():
-
-    if request.method == "POST":
-
-        username = request.form["username"]
-        password = request.form["password"]
-
-        if username == "teacher" and password == "1234":
-            session["admin"] = True
-            return redirect("/admin-dashboard")
-
-        student = Student.query.filter_by(
-            username=username,
-            password=password
-        ).first()
-
-        if student:
-            session["student_id"] = student.id
-            return redirect("/student-dashboard")
-
-        return "Invalid Login"
-
-    return render_template("login.html")
-
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/")
-
-
-
-
-@app.route("/admin-dashboard")
-def admin_dashboard():
-
-    if "admin" not in session:
-        return redirect("/")
-
-    exams = Exam.query.all()
-    students = Student.query.all()
-    groups = Group.query.all()
-    assignments = ExamAssignment.query.all()
-
-    
-    for exam in exams:
-        exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
-
-    response = make_response(render_template(
-        "admin_dashboard.html",
-        exams=exams,
-        students=students,
-        groups=groups,
-        assignments=assignments
-    ))
-
-    response.headers["Cache-Control"] = "no-store"
-
-    return response
 
 
 @app.route("/student-dashboard")
 def student_dashboard():
 
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     student = Student.query.get(session["student_id"])
     results = db.session.query(Result, Exam).join(Exam, Result.exam_id == Exam.id).filter(Result.student_id == student.id).all()
@@ -277,7 +297,7 @@ def create_exam():
 @app.route("/start-exam/<int:exam_id>", methods=["GET", "POST"])
 def start_exam(exam_id):
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
     
     exam = Exam.query.get_or_404(exam_id)
     student = Student.query.get(session["student_id"])
@@ -544,7 +564,7 @@ def edit_question(question_id):
 @app.route("/exam-instruction/<int:exam_id>")
 def exam_instruction(exam_id):
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
     
     exam = Exam.query.get_or_404(exam_id)
     student = Student.query.get(session["student_id"])
@@ -630,7 +650,7 @@ def toggle_publish(exam_id):
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
 def submit_exam(exam_id):
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     student_id = session["student_id"]
 
@@ -704,7 +724,7 @@ def submit_exam(exam_id):
 # --- Mushfiqur's Code: Feature 2 (Student Results View) ---
 @app.route("/my-results")
 def my_results():
-    if "student_id" not in session: return redirect("/")
+    if "student_id" not in session: return redirect("/login")
     student_id = session["student_id"]
     
     # 🟢 ডাটাবেস থেকে বর্তমান স্টুডেন্টের ডাটা বের করা
@@ -755,7 +775,7 @@ def my_results():
 @app.route("/result-details/<int:exam_id>")
 def result_details(exam_id):
     if "student_id" not in session: 
-        return redirect("/")
+        return redirect("/login")
         
     student_id = session["student_id"]
     student = Student.query.get(student_id) # লেআউটের জন্য স্টুডেন্ট ডাটা
@@ -791,7 +811,7 @@ def result_details(exam_id):
 @app.route("/profile")
 def profile():
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
     
     student = Student.query.get(session["student_id"])
     # স্টুডেন্ট কয়টা পরীক্ষা দিয়েছে তার একটা হিসাব (অপশনাল কিন্তু দেখতে ভালো লাগে)

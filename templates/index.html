@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examora - Advanced Examination Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Light Theme (Strictly based on your dashboard screenshots) */
+        :root {
+            --bg-color: #fffaf0;
+            /* Cream content area background from image_2.png */
+            --text-main: #2d1b0a;
+            /* Dark Brown Text */
+            --card-bg: #ffffff;
+            /* White cards */
+            --primary-orange: #ea580c;
+            /* Logo/Button Orange from image_2.png */
+            --primary-hover: #c2410c;
+            --sidebar-brown: #6b2e0b;
+            /* Dark Brown Sidebar background from image_2.png */
+            --navbar-bg: #ffffff;
+            --border-color: #fce7d2;
+            /* Light orange border */
+        }
+
+        /* [data-theme="dark"] integration (Gray & Orange for consistent dark mode) */
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            /* Deep slate gray */
+            --text-main: #f8fafc;
+            /* Near white text */
+            --card-bg: #1e293b;
+            /* Darker slate card */
+            --primary-orange: #f97316;
+            /* Bright Orange for visibility */
+            --primary-hover: #ea580c;
+            --sidebar-brown: #ffffff;
+            /* Headings become white */
+            --navbar-bg: #1a1a1a;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Navbar (Matches layout from image_4.png) */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: var(--navbar-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--sidebar-brown);
+            /* Dark brown to match dashboard sidebar */
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .logo {
+            color: #ffffff;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-orange);
+        }
+
+        .btn-action {
+            background: var(--primary-orange);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: var(--primary-hover);
+        }
+
+        /* The Oval Theme Toggle Button (Image 4 Style) */
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--primary-orange);
+            color: var(--primary-orange);
+            padding: 6px 12px;
+            border-radius: 20px;
+            /* Highly oval */
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px 10%;
+            min-height: 60vh;
+        }
+
+        .hero-text {
+            max-width: 50%;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--sidebar-brown);
+            /* Match dashboard headings */
+        }
+
+        [data-theme="dark"] .hero-text h1 {
+            color: #ffffff;
+        }
+
+        .hero-text h1 span {
+            color: var(--primary-orange);
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 550px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 10%;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 2.5rem;
+            color: var(--sidebar-brown);
+            margin-bottom: 40px;
+        }
+
+        [data-theme="dark"] .features h2 {
+            color: #ffffff;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-orange);
+        }
+
+        .icon-box img {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--navbar-bg);
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo">
+            Examora
+        </a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/support">Support</a>
+            <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">
+                🌙 Dark Mode
+            </button>
+            <a href="/login" class="btn-action">Login</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Empowering Education<br>with <span>Smart Exams</span></h1>
+            <p>Experience a seamless, secure, and intuitive platform for online exams, evaluations, and result tracking.
+                Examora empowers students and admins to achieve productivity like never before.</p>
+            <a href="/student-register" class="btn-action" style="padding: 12px 25px; font-size: 1.1rem;">Register
+                Now</a>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='hero-dashboard.png') }}" alt="Examora Dashboard Visual">
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2>Core Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon-box">
+                    <img src="{{ url_for('static', filename='feat-secure.png') }}" alt="Security Icon">
+                </div>
+                <h3>High Security</h3>
+                <p>Advanced anti-cheat systems and secure access codes ensure exam integrity.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-box">
+                    <img src="{{ url_for('static', filename='feat-analytics.png') }}" alt="Analytics Icon">
+                </div>
+                <h3>Instant Analytics</h3>
+                <p>Real-time result evaluation and detailed performance insights for every student.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-box" style="font-size: 70px; line-height: 1; margin-bottom: 20px;">⚡</div>
+                <h3>Efficient Workflow</h3>
+                <p>Intuitive interface for both admins to manage exams and students to take tests.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Examora System. All rights reserved. | Swe Department, Daffodil International University | Group
+            4</p>
+    </footer>
+
+    <script>
+        const body = document.body;
+        const themeBtn = document.getElementById('theme-btn');
+
+        // Check local storage for theme instantly
+        if (localStorage.getItem('theme') === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '☀️ Light Mode';
+        }
+
+        function toggleTheme() {
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerHTML = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerHTML = '☀️ Light Mode';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Center - Examora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Shared variables from dashboard theme */
+        :root {
+            --bg-color: #fffaf0;
+            --text-main: #2d1b0a;
+            --card-bg: #ffffff;
+            --primary-orange: #ea580c;
+            --sidebar-brown: #6b2e0b;
+            --border-color: #fce7d2;
+            --navbar-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --card-bg: #1e1e1e;
+            --primary-orange: #f97316;
+            --sidebar-brown: #ffffff;
+            --navbar-bg: #1a1a1a;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* --- Navbar Styles (Exactly like Home Page) --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: var(--navbar-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--sidebar-brown);
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .logo {
+            color: #ffffff;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-orange);
+        }
+
+        .btn-action {
+            background: var(--primary-orange);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--primary-orange);
+            color: var(--primary-orange);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+
+        /* --- Support Page Content Styles (Matched Dashboard Theme) --- */
+        .support-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .support-header {
+            text-align: center;
+            margin-bottom: 60px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .support-header-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .support-header-image img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 15px;
+        }
+
+        .support-header-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .support-header-text h1 {
+            color: var(--sidebar-brown);
+            margin-top: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] .support-header-text h1 {
+            color: #ffffff;
+        }
+
+        .faq-section h2 {
+            color: var(--sidebar-brown);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] .faq-section h2 {
+            color: #ffffff;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary-orange);
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: var(--primary-orange);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // Apply theme instantly on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
+    <nav>
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo">
+            Examora
+        </a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/support">Support</a>
+            <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">
+                🌙 Dark Mode
+            </button>
+            <a href="/login" class="btn-action">Login</a>
+        </div>
+    </nav>
+
+    <div class="support-container">
+        <div class="support-header">
+            <div class="support-header-image">
+                <img src="{{ url_for('static', filename='support-illustration.png') }}" alt="Support Team">
+            </div>
+            <div class="support-header-text">
+                <h1>We're Here to Help</h1>
+                <p>Find answers to common questions or reach out to our Software Engineering (SWE) department dedicated
+                    support team.</p>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <div class="faq-question">Q: I cannot log into my account. What should I do?</div>
+                <div class="faq-answer">A: Ensure you are using the correct credentials and selecting the right role
+                    (Student vs Admin) on the login page. Students can reset passwords by contacting their institutional
+                    Admin.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Q: How do institutional Admins create exam groups?</div>
+                <div class="faq-answer">A: Admins can navigate to "Group Management" in their dashboard, click "Create
+                    Group", provide a name, and a unique Group Code will be generated.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Q: Is student progress saved if the exam disconnects?</div>
+                <div class="faq-answer">A: Yes, Examora auto-saves submissions periodically. If disconnected, you can
+                    reconnect and resume within the allowed exam time window if the Admin permits.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const body = document.body;
+        const themeBtn = document.getElementById('theme-btn');
+
+        // Check local storage for theme instantly
+        if (localStorage.getItem('theme') === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '☀️ Light Mode';
+        }
+
+        function toggleTheme() {
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerHTML = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerHTML = '☀️ Light Mode';
+            }
+        }
+    </script>
+</body>
+
+</html>

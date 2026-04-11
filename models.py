@@ -24,6 +24,12 @@ class Student(db.Model):
     password = db.Column(db.String(100))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
+    #admin
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False) 
+
 # -----------------------------
 # EXAM TABLE
 # -----------------------------

@@ -1,99 +1,195 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
-    <title>Student Register</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Register - Examora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* Shared variables from dashboard theme */
+        :root {
+            --bg-color: #fffaf0;
+            /* Cream contented background from Image 2 */
+            --text-main: #2d1b0a;
+            /* Dark brown text */
+            --card-bg: #ffffff;
+            /* White card */
+            --primary-orange: #ea580c;
+            /* Orange from Image 2 */
+            --primary-hover: #c2410c;
+            --sidebar-brown: #6b2e0b;
+            --border-color: #fce7d2;
+            --input-bg: rgba(0, 0, 0, 0.03);
+            --link-color: #ea580c;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            /* Slate blue background like Image 6 */
+            --text-main: #f8fafc;
+            /* Near white text */
+            --card-bg: #1e293b;
+            /* Dark slate card from Image 6 */
+            --primary-orange: #f97316;
+            /* Bright Orange for visibility */
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --border-color: #333333;
+            --link-color: #818cf8;
+            /* Indigo accent */
+        }
+
         body {
-            font-family: Arial;
-            background: #fff7ed;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         .form-box {
-            background: white;
+            background-color: var(--card-bg);
             padding: 40px;
-            border-radius: 10px;
-            width: 350px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h2 {
             text-align: center;
-            color: #ea580c;
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: var(--sidebar-brown);
+            font-weight: 700;
         }
 
-        input {
+        [data-theme="dark"] h2 {
+            color: #ffffff;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-control {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px 15px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-main);
+            outline: none;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #ea580c;
+            background-color: var(--card-bg);
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background: #f97316;
+            padding: 12px;
+            background-color: #ea580c;
+            /* Dashboard Orange from image_2.png */
             border: none;
+            border-radius: 10px;
             color: white;
-            border-radius: 5px;
+            font-weight: 600;
             cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 10px;
+            font-family: inherit;
         }
 
         button:hover {
-            background: #ea580c;
+            background: #c2410c;
         }
 
-        a {
-            display: block;
+        .bottom-link {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .bottom-link a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 600;
         }
     </style>
-
 </head>
 
 <body>
 
-    <div class="form-box">
+    <script>
+        // Apply theme instantly on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
 
+    <div class="form-box">
         <h2>Student Registration</h2>
 
         <form method="POST">
+            <div class="form-group">
+                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="student_id" class="form-control" placeholder="Student ID" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="phone" class="form-control" placeholder="Phone Number" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="username" class="form-control" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="group_code" class="form-control" placeholder="Group Code" required>
+            </div>
 
-            <input type="text" name="name" placeholder="Full Name" required>
-            <br><br>
-
-            <input type="text" name="student_id" placeholder="Student ID" required>
-            <br><br>
-
-            <input type="email" name="email" placeholder="Email" required>
-            <br><br>
-
-            <input type="text" name="phone" placeholder="Phone Number" required>
-            <br><br>
-
-            <input type="text" name="username" placeholder="Username" required>
-            <br><br>
-
-            <input type="password" name="password" placeholder="Password" required>
-            <br><br>
-
-            <input type="text" name="group_code" placeholder="Group Code" required>
-            <br><br>
-
-            <button type="submit">Register</button>
-
+            <button type="submit">Register Now</button>
         </form>
 
-        <a href="/">Already have account? Login</a>
+        <div class="bottom-link">
+            Already have an account? <a href="/login">Login Now</a>
+        </div>
 
+        <div class="bottom-link" style="margin-top: 10px;">
+            <a href="/" style="color: var(--text-main); font-weight: normal; opacity: 0.8;">← Back to Home</a>
+        </div>
     </div>
 
 </body>
