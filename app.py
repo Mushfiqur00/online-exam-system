@@ -926,7 +926,7 @@ def evaluate_submission(result_id):
 
 # --- ডাটাবেস এবং অ্যাডমিন সেটআপ ---
 with app.app_context():
-    db.drop_all()  # ⚠️ এই লাইনটা ডাটাবেসের আগের সব টেবিল মুছে দিবে
+ 
     db.create_all() # এবার নতুন সাইজ (255) অনুযায়ী ফ্রেশ টেবিল বানাবে
     
     admin = Admin.query.filter_by(username='teacher').first()
