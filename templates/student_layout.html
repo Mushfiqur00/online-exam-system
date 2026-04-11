@@ -34,58 +34,50 @@
             color: #ffffff !important;
         }
 
-        /* 🔴 মেইন ফিক্স ১: Ongoing Exams কার্ড ডার্ক মোডে কার্ড সিস্টেম বোঝানোর জন্য */
-        /* আমি ড্যাশবোর্ড বা রেজাল্ট পেজের সব জেদি সাদা বক্স এবং .box/card ক্লাস টার্গেট করে সুন্দর ডার্ক গ্রে শ্যাডো সহ বক্স করব */
+        /* 🔴 মেইন ফিক্স ১: Ongoing Exams কার্ড ও অন্যান্য কার্ড ডার্ক মোডে */
         [data-theme="dark"] .content-body div,
         [data-theme="dark"] .content-body li,
         [data-theme="dark"] .content-body ul,
         [data-theme="dark"] .content-body .card,
-        [data-theme="dark"] .content-body .box {
+        [data-theme="dark"] .content-body .box,
+        [data-theme="dark"] .dash-card {
             background-color: #1e1e1e !important;
-            /* হালকা ডার্ক গ্রে কার্ড ব্যাকগ্রাউন্ড */
             border: 1px solid #333333 !important;
-            /* উজ্জ্বল বর্ডার */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
-            /* উজ্জ্বল শ্যাডো */
         }
 
-        /* "No ongoing exams" মেসেজের কার্ড ডিজাইন (Italic বা text-muted প্যারাগ্রাফ) */
+        /* "No ongoing exams" মেসেজের কার্ড ডিজাইন */
         [data-theme="dark"] .content-body p:has(i),
         [data-theme="dark"] .content-body p:has(em),
         [data-theme="dark"] .content-body p.text-muted {
             background-color: #1e1e1e !important;
-            /* হালকা ডার্ক গ্রে কার্ড ব্যাকগ্রাউন্ড */
             padding: 15px !important;
             border-radius: 8px !important;
             border: 1px solid #333333 !important;
-            /* উজ্জ্বল বর্ডার */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
-            /* উজ্জ্বল শ্যাডো */
             margin-top: 10px !important;
             display: block !important;
         }
 
-        /* ইনলাইন স্টাইলে সাদা ব্যাকগ্রাউন্ড দেওয়া থাকলে সেটাকেও ফোর্স করে ডার্ক করা */
-        /* 🔴 মেইন ফিক্স ২: রেজাল্ট ডিটেইলস পেজে মার্কস ব্যাজের ব্যাকগ্রাউন্ড ডার্ক করা */
-        [data-theme="dark"] [style*="background: white"],
-        [data-theme="dark"] [style*="background-color: white"],
-        [data-theme="dark"] [style*="background-color: #fff"],
-        [data-theme="dark"] [style*="background-color: #ffffff"] {
-            background-color: #374151 !important;
-            /* সুন্দর ডার্ক গ্রে ব্যাজ/কার্ড */
+        /* 🔴 মেইন ফিক্স ২: জেদি সাদা ও হালকা সবুজ বক্স, অ্যালার্ট ও ব্যাজ ফিক্স */
+        /* যেকোনো ক্লাস বা ইনলাইন স্টাইল যেখানে ব্যাকগ্রাউন্ড কালার আছে, সেটাকে ডার্ক গ্রে করা */
+        [data-theme="dark"] .content-body [style*="background-color"]:not([style*="transparent"]),
+        [data-theme="dark"] .content-body [style*="background:"]:not([style*="transparent"]),
+        [data-theme="dark"] .content-body .alert,
+        [data-theme="dark"] .content-body [class*="alert-"],
+        [data-theme="dark"] .content-body .badge,
+        [data-theme="dark"] .content-body [class*="bg-"] {
+            background-color: #2d3748 !important;
             color: #ffffff !important;
-            /* সাদা টেক্সট */
             border: 1px solid #4b5563 !important;
-            /* উজ্জ্বল বর্ডার */
-            padding: 5px 10px !important;
-            /* ব্যাজের মতো প্যাডিং */
             border-radius: 6px !important;
-            /* ব্যাজের মতো রেডিয়াস */
         }
 
         /* কন্টেইনারগুলোর ব্যাকগ্রাউন্ড ট্রান্সপারেন্ট রাখা */
         [data-theme="dark"] .content-body>div>div[style*="display: flex"] {
             background-color: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
         }
 
         /* 🟢 সব ধরনের টেক্সট ১০০% ব্রাইট (সাদা) করা */
@@ -104,17 +96,23 @@
             color: #ffffff !important;
         }
 
-        /* 🟢 ইনপুট ফিল্ড ও প্রোফাইল পেজ */
+        /* 🔴 মেইন ফিক্স ৩: Search Filter এবং সব ইনপুট ফিল্ড ফিক্স */
         [data-theme="dark"] input,
         [data-theme="dark"] select,
-        [data-theme="dark"] textarea {
-            background-color: #2d3748 !important;
+        [data-theme="dark"] textarea,
+        [data-theme="dark"] .input-field {
+            background-color: #1e293b !important;
             color: #ffffff !important;
             border: 1px solid #4a5568 !important;
         }
 
         [data-theme="dark"] input::placeholder {
-            color: #a0aec0 !important;
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] select option {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
         }
 
         /* 🟢 টেবিল ডিজাইন */
@@ -137,8 +135,6 @@
         [data-theme="dark"] table tr:hover td {
             background-color: #2d3748 !important;
         }
-
-
 
         /* 🟢 থিম বাটনের ডিজাইন */
         .theme-btn {
@@ -232,7 +228,6 @@
                 document.documentElement.setAttribute("data-theme", "dark");
                 localStorage.setItem("theme", "dark");
             } else {
-                // লাইট মোডে সব ডার্ক মোডের ট্যাগ সরিয়ে দেবে, ফলে তোমার student.css কাজ করবে
                 document.documentElement.removeAttribute("data-theme");
                 localStorage.setItem("theme", "light");
             }

@@ -707,8 +707,13 @@ def my_results():
     if "student_id" not in session: return redirect("/")
     student_id = session["student_id"]
     
-    # 🟢 ফিক্স ১: ডাটাবেস থেকে বর্তমান স্টুডেন্টের ডাটা বের করা
+    # 🟢 ডাটাবেস থেকে বর্তমান স্টুডেন্টের ডাটা বের করা
     student = Student.query.get(student_id) 
+    
+    # 🛡️ এক্সট্রা সেফটি চেক: ডাটাবেসে স্টুডেন্ট না থাকলে সেশন ক্লিয়ার করে বের করে দেবে
+    if not student:
+        session.clear()
+        return redirect("/")
     
     results = Result.query.filter_by(student_id=student_id).all()
     
@@ -740,13 +745,12 @@ def my_results():
             pending_count += 1
 
     return render_template("my_results.html", 
-                           student=student,  # 🟢 ফিক্স ২: স্টুডেন্টের ডাটা HTML এ পাস করা হলো
+                           student=student,  # 🟢 স্টুডেন্টের ডাটা HTML এ পাস করা হলো
                            exams_data=exams_data,
                            chart_labels=chart_labels,
                            chart_scores=chart_scores,
                            evaluated_count=evaluated_count,
                            pending_count=pending_count)
-
 
 @app.route("/result-details/<int:exam_id>")
 def result_details(exam_id):

@@ -232,16 +232,27 @@ tr:hover {
 /* ================= পরীক্ষা (Exam Form & Timer) ================= */
 #timer {
     display: block;
-    width: 120px;
+    width: 140px;
     margin: 25px auto;
     font-size: 30px;
     font-weight: 700;
     background: linear-gradient(135deg, #ef4444, #dc2626);
+    /* ডিফল্ট লাল গ্রেডিয়েন্ট */
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: none !important;
+    /* কোনো ট্রানজিশন রাখা যাবে না */
+}
+
+/* এই নতুন ক্লাসটি ব্লিঙ্কিং করাবে */
+.timer-blink {
+    background: white !important;
+    color: #dc2626 !important;
+    border: 2px solid #dc2626 !important;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.5) !important;
 }
 
 #examForm {
