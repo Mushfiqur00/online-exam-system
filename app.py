@@ -11,7 +11,17 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "secret"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+import os # এটি ফাইলের একদম উপরে ইমপোর্ট করে নিন
+
+# ডাটাবেস ইউআরআই সেটআপ
+uri = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
+
+# Render-এ ডাটাবেস ইউআরএল 'postgres://' দিয়ে শুরু হয়, 
+# but SQLAlchemy-uses 'postgresql://' is needed , thats why updated this  part
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
@@ -110,9 +120,7 @@ def admin_dashboard():
 
 @app.route("/student-register", methods=["GET","POST"])
 def student_register():
-
     if request.method == "POST":
-
         name = request.form["name"]
         student_id = request.form["student_id"]
         email = request.form["email"]
@@ -122,9 +130,12 @@ def student_register():
         group_code = request.form["group_code"]
 
         group = Group.query.filter_by(code=group_code).first()
-
         if not group:
-            return "Invalid Group Code"
+            flash("Invalid Group Code")
+            return redirect("/student-register")
+
+        # ✅ সমাধান: পাসওয়ার্ড হ্যাস করে সেভ করুন
+        hashed_pw = generate_password_hash(password)
 
         student = Student(
             name=name,
@@ -132,13 +143,14 @@ def student_register():
             email=email,
             phone=phone,
             username=username,
-            password=password,
+            password=hashed_pw, # <--- এখন হ্যাস করা পাসওয়ার্ড সেভ হবে
             group_id=group.id
         )
 
         db.session.add(student)
         db.session.commit()
-
+        
+        flash("Registration Successful! Please Login.")
         return redirect("/login")
 
     return render_template("register.html")
