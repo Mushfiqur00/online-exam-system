@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash, session , make_response
 from models import db, Group, Student, Exam, ExamAssignment , Question , Result
 from models import Student, Admin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import random
@@ -92,7 +93,25 @@ def logout():
     return redirect("/login")
 
 
-
+@app.route('/admin-login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'] # ফর্ম থেকে আসা পাসওয়ার্ড
+        
+        # ডাটাবেস থেকে অ্যাডমিনকে খোঁজা
+        admin = Admin.query.filter_by(username=username).first()
+        
+        # --- এই লাইনটাই হলো আসল ম্যাজিক ---
+        if admin and check_password_hash(admin.password, password):
+            session['admin'] = admin.username
+            flash("Admin logged in successfully!", "success")
+            return redirect('/admin-dashboard') # আপনার ড্যাশবোর্ডের লিংকে রিডাইরেক্ট করুন
+        else:
+            flash("Invalid Admin credentials!", "danger")
+            return redirect('/admin-login')
+            
+    return render_template('admin_login.html')
 
 @app.route("/admin-dashboard")
 def admin_dashboard():
