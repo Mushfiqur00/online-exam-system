@@ -900,14 +900,17 @@ def evaluate_submission(result_id):
     flash("Evaluation saved successfully!", "success")
     return redirect(f"/admin/exam-results/{result.exam_id}")
 
+# --- ডাটাবেস এবং অ্যাডমিন সেটআপ (Render এবং Local উভয়ের জন্য) ---
+with app.app_context():
+    db.create_all() 
+    admin = Admin.query.filter_by(username='teacher').first()
+    if not admin:
+        from werkzeug.security import generate_password_hash
+        new_admin = Admin(username='teacher', password=generate_password_hash('1234'))
+        db.session.add(new_admin)
+        db.session.commit()
+        print("Admin created automatically!")
+
+# --- লোকাল সার্ভার রান করার জন্য ---
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() 
-        admin = Admin.query.filter_by(username='teacher').first()
-        if not admin:
-            from werkzeug.security import generate_password_hash
-            new_admin = Admin(username='teacher', password=generate_password_hash('1234'))
-            db.session.add(new_admin)
-            db.session.commit()
-            print("Admin created automatically!")
     app.run(debug=True)
