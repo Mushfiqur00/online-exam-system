@@ -2,6 +2,30 @@
 
 {% block body %}
 
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-messages-container" style="max-width: 100%; margin-bottom: 20px;">
+    {% for message in messages %}
+    <div class="custom-alert" style="
+                    background-color: #ecfdf5; 
+                    color: #059669; 
+                    padding: 15px 20px; 
+                    border-radius: 8px; 
+                    border: 1px solid #a7f3d0;
+                    margin-bottom: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                ">
+        <span><strong>✅ Success:</strong> {{ message }}</span>
+        <span style="cursor: pointer; font-size: 20px; font-weight: bold; line-height: 1;"
+            onclick="this.parentElement.style.display='none';">&times;</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
 <h3>📅 Upcoming Exams</h3>
 
 {% if upcoming %}
@@ -90,8 +114,5 @@
     style="color: #6b7280; font-style: italic; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
     You haven't completed any exams yet.</p>
 {% endif %}
-
-
-
 
 {% endblock %}

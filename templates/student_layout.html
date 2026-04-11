@@ -60,7 +60,6 @@
         }
 
         /* 🔴 মেইন ফিক্স ২: জেদি সাদা ও হালকা সবুজ বক্স, অ্যালার্ট ও ব্যাজ ফিক্স */
-        /* যেকোনো ক্লাস বা ইনলাইন স্টাইল যেখানে ব্যাকগ্রাউন্ড কালার আছে, সেটাকে ডার্ক গ্রে করা */
         [data-theme="dark"] .content-body [style*="background-color"]:not([style*="transparent"]),
         [data-theme="dark"] .content-body [style*="background:"]:not([style*="transparent"]),
         [data-theme="dark"] .content-body .alert,
@@ -136,21 +135,31 @@
             background-color: #2d3748 !important;
         }
 
-        /* 🟢 থিম বাটনের ডিজাইন */
-        .theme-btn {
-            background: #4b5563;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+        /* 🟢 গোল সান/মুন বাটনের ডিজাইন */
+        .icon-theme-btn {
+            background: #ffffff;
+            color: #333;
+            border: 1px solid #e5e7eb;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-            transition: 0.3s;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .theme-btn:hover {
-            background: #374151;
+        .icon-theme-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        [data-theme="dark"] .icon-theme-btn {
+            background: #2d3748 !important;
+            border-color: #4a5568 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
         }
     </style>
     <script>
@@ -186,7 +195,6 @@
                 style="position: relative; display: flex; justify-content: space-between; align-items: center;">
 
                 <div style="display: flex; align-items: center;">
-                    <button class="theme-btn" onclick="toggleGlobalTheme()">🌓 Theme</button>
                     <button onclick="history.back()" class="back-btn">← Back</button>
                 </div>
 
@@ -197,7 +205,11 @@
                     {% endif %}
                 </div>
 
-                <div class="top-bar-right">
+                <div class="top-bar-right" style="display: flex; align-items: center;">
+                    <button id="themeToggleBtn" class="icon-theme-btn" onclick="toggleGlobalTheme()"
+                        title="Toggle Dark/Light Mode">
+                        🌙
+                    </button>
                 </div>
 
             </div>
@@ -220,16 +232,37 @@
     </footer>
 
     <script>
+        // পেজ লোড হওয়ার পর আইকন আপডেট করা
+        document.addEventListener("DOMContentLoaded", function () {
+            let btn = document.getElementById("themeToggleBtn");
+            if (localStorage.getItem("theme") === "dark") {
+                btn.innerHTML = "☀️"; // ডার্ক মোডে থাকলে সূর্য দেখাবে
+            } else {
+                btn.innerHTML = "🌙"; // লাইট মোডে চাঁদ দেখাবে
+            }
+        });
+
+        // থিম চেঞ্জ করার ফাংশন
         function toggleGlobalTheme() {
             let currentTheme = document.documentElement.getAttribute("data-theme");
             let newTheme = currentTheme === "dark" ? "light" : "dark";
+            let btn = document.getElementById("themeToggleBtn");
 
             if (newTheme === "dark") {
                 document.documentElement.setAttribute("data-theme", "dark");
                 localStorage.setItem("theme", "dark");
+                btn.innerHTML = "☀️";
+
+                // সুন্দর একটা ট্রানজিশন অ্যানিমেশন
+                btn.style.transform = "rotate(360deg)";
+                setTimeout(() => btn.style.transform = "none", 300);
             } else {
                 document.documentElement.removeAttribute("data-theme");
                 localStorage.setItem("theme", "light");
+                btn.innerHTML = "🌙";
+
+                btn.style.transform = "rotate(-360deg)";
+                setTimeout(() => btn.style.transform = "none", 300);
             }
         }
     </script>

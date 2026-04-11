@@ -668,22 +668,21 @@ def submit_exam(exam_id):
 
     student_id = session["student_id"]
 
-    # 🔒 ডাবল সাবমিট রোধ
+    # 🔒 ডাবল সাবমিট রোধ (কেউ যেন দুইবার পরীক্ষা দিতে না পারে)
     existing = Result.query.filter_by(
         student_id=student_id,
         exam_id=exam_id
     ).first()
 
     if existing:
+        flash("You have already submitted this exam!")
         return redirect("/student-dashboard")
 
     questions = Question.query.filter_by(exam_id=exam_id).all()
-    exam = Exam.query.get(exam_id) # এক্সাম অবজেক্ট নেওয়া হলো
+    exam = Exam.query.get(exam_id) 
 
     total_marks = 0
     obtained_marks = 0
-    correct_count = 0
-    wrong_count = 0
     has_short = False
 
     for q in questions:
@@ -694,13 +693,11 @@ def submit_exam(exam_id):
         marks_for_this_q = 0
 
         if q.question_type == "mcq":
-            if user_ans == q.correct_answer:
+            # user_ans খালি আছে কিনা তা চেক করে নেওয়া ভালো
+            if user_ans and user_ans == q.correct_answer:
                 obtained_marks += int(q.marks)
                 marks_for_this_q = int(q.marks)
-                correct_count += 1
                 is_correct = True
-            else:
-                wrong_count += 1
         else:
             has_short = True
         
@@ -725,15 +722,9 @@ def submit_exam(exam_id):
     db.session.add(result)
     db.session.commit()
 
-    return render_template(
-        "result.html",
-        total=total_marks,
-        obtained=obtained_marks,
-        correct=correct_count,
-        wrong=wrong_count,
-        has_short=has_short,
-        status=final_status
-    )
+   
+    flash("Exam submitted successfully! To see your result, please go to the 'My Results' section.")
+    return redirect("/student-dashboard")
 
 # --- Mushfiqur's Code: Feature 2 (Student Results View) ---
 @app.route("/my-results")

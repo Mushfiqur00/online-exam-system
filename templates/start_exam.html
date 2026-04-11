@@ -33,6 +33,8 @@
         border-radius: 8px;
         font-weight: bold;
         margin-bottom: 20px;
+        transition: none !important;
+        /* ব্লিঙ্কিং যাতে স্মুথ হয় */
     }
 
     /* question card */
@@ -84,11 +86,6 @@
         background: #1d4ed8;
     }
 
-    <style>#timer {
-        transition: none !important;
-        /* ব্লিঙ্কিং যাতে স্মুথ হয় */
-    }
-
     .timer-blink {
         background: white !important;
         color: #dc2626 !important;
@@ -97,65 +94,52 @@
     }
 </style>
 
-
-</style>
-
 <div class="exam-container">
-
     <h2 class="exam-title">📝 Exam</h2>
 
     <div class="timer-box" id="timer">Loading...</div>
 
-    <form id="examForm" method="POST" action="/submit-exam/{{exam_id}}">
+    <form id="examForm" method="POST" action="/submit-exam/{{ exam.id }}">
 
         {% for q in questions %}
-
         <div class="question-card">
-
             <p><b>{{loop.index}}. {{q.question_text}}</b></p>
 
             {% if q.question_type == "mcq" %}
-
             <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option1}}" required>
-                {{q.option1}}
+                <input type="radio" name="q{{q.id}}" value="{{q.option_a}}" required>
+                {{q.option_a}}
             </label>
 
             <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option2}}">
-                {{q.option2}}
+                <input type="radio" name="q{{q.id}}" value="{{q.option_b}}">
+                {{q.option_b}}
             </label>
 
             <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option3}}">
-                {{q.option3}}
+                <input type="radio" name="q{{q.id}}" value="{{q.option_c}}">
+                {{q.option_c}}
             </label>
 
             <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option4}}">
-                {{q.option4}}
+                <input type="radio" name="q{{q.id}}" value="{{q.option_d}}">
+                {{q.option_d}}
             </label>
 
             {% else %}
-
             <input type="text" name="q{{q.id}}" class="short-input" placeholder="Write your answer..." required>
-
             {% endif %}
-
         </div>
-
         {% endfor %}
 
         <div style="text-align:center;">
-            <button class="submit-btn">Submit Exam</button>
+            <button type="submit" class="submit-btn">Submit Exam</button>
         </div>
-
     </form>
 
 </div>
 
 <script>
-    // সার্ভার থেকে পাওয়া duration (মিনিটে) সেকেন্ডে রূপান্তর
     let totalSeconds = parseInt("{{ exam.duration }}") * 60;
     let timerDiv = document.getElementById("timer");
 
@@ -171,13 +155,11 @@
         let minutes = Math.floor(totalSeconds / 60);
         let seconds = totalSeconds % 60;
 
-        // 00:00 ফরম্যাট মেইনটেইন করা
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         timerDiv.innerHTML = minutes + " : " + seconds;
 
-        // 🔴 Last 1 Minute Warning + Blinking
         if (totalSeconds <= 60 && totalSeconds > 0) {
             if (totalSeconds % 2 !== 0) {
                 timerDiv.classList.add("timer-blink");
@@ -189,8 +171,7 @@
         totalSeconds--;
     }
 
-    // প্রতি ১ সেকেন্ড পরপর টাইমার আপডেট
     setInterval(updateTimer, 1000);
-    updateTimer(); // পেজ লোড হওয়ার সাথে সাথে একবার কল করা
+    updateTimer(); 
 </script>
 {% endblock %}
