@@ -7,37 +7,26 @@
     <title>Examora - Advanced Examination Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Light Theme (Strictly based on your dashboard screenshots) */
+        /* Light Theme */
         :root {
             --bg-color: #fffaf0;
-            /* Cream content area background from image_2.png */
             --text-main: #2d1b0a;
-            /* Dark Brown Text */
             --card-bg: #ffffff;
-            /* White cards */
             --primary-orange: #ea580c;
-            /* Logo/Button Orange from image_2.png */
             --primary-hover: #c2410c;
             --sidebar-brown: #6b2e0b;
-            /* Dark Brown Sidebar background from image_2.png */
             --navbar-bg: #ffffff;
             --border-color: #fce7d2;
-            /* Light orange border */
         }
 
-        /* [data-theme="dark"] integration (Gray & Orange for consistent dark mode) */
+        /* Dark Theme */
         [data-theme="dark"] {
             --bg-color: #0f172a;
-            /* Deep slate gray */
             --text-main: #f8fafc;
-            /* Near white text */
             --card-bg: #1e293b;
-            /* Darker slate card */
             --primary-orange: #f97316;
-            /* Bright Orange for visibility */
             --primary-hover: #ea580c;
             --sidebar-brown: #ffffff;
-            /* Headings become white */
             --navbar-bg: #1a1a1a;
             --border-color: #333333;
         }
@@ -51,7 +40,7 @@
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Navbar (Matches layout from image_4.png) */
+        /* Navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -73,7 +62,6 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--sidebar-brown);
-            /* Dark brown to match dashboard sidebar */
             text-decoration: none;
         }
 
@@ -111,20 +99,19 @@
             border-radius: 8px;
             transition: 0.3s;
             text-decoration: none;
+            text-align: center;
         }
 
         .btn-action:hover {
             background: var(--primary-hover);
         }
 
-        /* The Oval Theme Toggle Button (Image 4 Style) */
         .theme-toggle {
             background: none;
             border: 2px solid var(--primary-orange);
             color: var(--primary-orange);
             padding: 6px 12px;
             border-radius: 20px;
-            /* Highly oval */
             cursor: pointer;
             font-weight: 600;
             display: flex;
@@ -146,6 +133,7 @@
             justify-content: space-between;
             padding: 80px 10%;
             min-height: 60vh;
+            gap: 40px;
         }
 
         .hero-text {
@@ -157,7 +145,6 @@
             line-height: 1.2;
             margin-bottom: 20px;
             color: var(--sidebar-brown);
-            /* Match dashboard headings */
         }
 
         [data-theme="dark"] .hero-text h1 {
@@ -172,6 +159,12 @@
             font-size: 1.1rem;
             opacity: 0.8;
             margin-bottom: 30px;
+        }
+
+        .hero-image {
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         .hero-image img {
@@ -227,9 +220,65 @@
         footer {
             background: var(--navbar-bg);
             text-align: center;
-            padding: 30px;
+            padding: 30px 20px;
             border-top: 1px solid var(--border-color);
             margin-top: 50px;
+            font-size: 0.9rem;
+        }
+
+        /* =========================================
+           MOBILE RESPONSIVE DESIGN (Media Queries)
+           ========================================= */
+        @media (max-width: 768px) {
+
+            /* Navbar adjustments */
+            nav {
+                flex-direction: column;
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            /* Hero adjustments */
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 50px 20px;
+                min-height: auto;
+            }
+
+            .hero-text {
+                max-width: 100%;
+            }
+
+            .hero-text h1 {
+                font-size: 2.2rem;
+                /* Smaller font for mobile */
+            }
+
+            .hero-image img {
+                max-width: 100%;
+            }
+
+            /* Features adjustments */
+            .features {
+                padding: 50px 20px;
+            }
+
+            .features h2 {
+                font-size: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                /* Single column on mobile */
+                gap: 20px;
+            }
         }
     </style>
 </head>
@@ -256,7 +305,8 @@
             <h1>Empowering Education<br>with <span>Smart Exams</span></h1>
             <p>Experience a seamless, secure, and intuitive platform for online exams, evaluations, and result tracking.
                 Examora empowers students and admins to achieve productivity like never before.</p>
-            <a href="/student-register" class="btn-action" style="padding: 12px 25px; font-size: 1.1rem;">Register
+            <a href="/student-register" class="btn-action"
+                style="padding: 12px 25px; font-size: 1.1rem; display: inline-block;">Register
                 Now</a>
         </div>
         <div class="hero-image">
@@ -298,7 +348,6 @@
         const body = document.body;
         const themeBtn = document.getElementById('theme-btn');
 
-        // Check local storage for theme instantly
         if (localStorage.getItem('theme') === 'dark') {
             body.setAttribute('data-theme', 'dark');
             themeBtn.innerHTML = '☀️ Light Mode';
