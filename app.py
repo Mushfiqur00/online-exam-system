@@ -1,45 +1,31 @@
-from flask import Flask, render_template, request, redirect, flash, session , make_response
-from models import db, Group, Student, Exam, ExamAssignment , Question , Result
-from models import Student, Admin
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import os
 import random
 import string
-
 from datetime import datetime
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# নিশ্চিত করুন models.py এ এই সব ক্লাস/ফাংশন ঠিকমতো লেখা আছে
+from models import db, Group, Student, Admin, Exam, ExamAssignment, Question, Result, StudentAnswer, ActivityLog, log_activity
 
 app = Flask(__name__)
 app.secret_key = "secret"
 
-import os # এটি ফাইলের একদম উপরে ইমপোর্ট করে নিন
-
 # ডাটাবেস ইউআরআই সেটআপ
-uri = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
-
-# Render-এ ডাটাবেস ইউআরএল 'postgres://' দিয়ে শুরু হয়, 
-# but SQLAlchemy-uses 'postgresql://' is needed , thats why updated this  part
+uri = os.environ.get('DATABASE_URL', 'sqlite:///examora.db')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
-import os
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///examora.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
-
 def generate_code():
-
     letters = string.ascii_uppercase
     numbers = string.digits
-
     return ''.join(random.choice(letters+numbers) for i in range(6))
-
 
 
 @app.route("/")
@@ -50,22 +36,18 @@ def home():
 def support():
     return render_template("support.html")
 
-from werkzeug.security import check_password_hash # ফাইলের উপরে ইমপোর্ট করো
-
-from werkzeug.security import generate_password_hash, check_password_hash
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        role = request.form.get('role') # Hidden input থেকে role নিচ্ছি
+        role = request.form.get('role') 
 
         if role == 'student':
             student = Student.query.filter_by(username=username).first()
-            # স্টুডেন্টের পাসওয়ার্ড রেজিস্ট্রেশনের সময় অটো হ্যাস হয়
             if student and check_password_hash(student.password, password):
                 session['student_id'] = student.id
+                session['role'] = 'student'
                 flash("Login successful as Student!")
                 return redirect(url_for('student_dashboard'))
             else:
@@ -74,10 +56,11 @@ def login():
                 
         elif role == 'admin':
             admin = Admin.query.filter_by(username=username).first()
-            # আমরা এখন অ্যাডমিনকেও হ্যাস পাসওয়ার্ড দিয়ে তৈরি করবো
             if admin and check_password_hash(admin.password, password):
                 session['admin_id'] = admin.id 
+                session['role'] = 'admin'
                 flash("Login successful as Admin!")
+                log_activity(f"Admin '{username}' logged in") #📜
                 return redirect(url_for('admin_dashboard'))
             else:
                 flash("Invalid Admin credentials!")
@@ -85,46 +68,41 @@ def login():
 
     return render_template('login.html')
 
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/login")
-
-
 @app.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password'] # ফর্ম থেকে আসা পাসওয়ার্ড
+        password = request.form['password']
         
-        # ডাটাবেস থেকে অ্যাডমিনকে খোঁজা
         admin = Admin.query.filter_by(username=username).first()
         
-        # --- এই লাইনটাই হলো আসল ম্যাজিক ---
         if admin and check_password_hash(admin.password, password):
-            session['admin'] = admin.username
+            session['admin_id'] = admin.id
+            session['role'] = 'admin'
             flash("Admin logged in successfully!", "success")
-            return redirect('/admin-dashboard') # আপনার ড্যাশবোর্ডের লিংকে রিডাইরেক্ট করুন
+            return redirect('/admin-dashboard')
         else:
             flash("Invalid Admin credentials!", "danger")
             return redirect('/admin-login')
             
     return render_template('admin_login.html')
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
-
-    if "admin" not in session:
-        redirect("/login")
+    if "admin_id" not in session:
+        return redirect("/login")
 
     exams = Exam.query.all()
     students = Student.query.all()
     groups = Group.query.all()
     assignments = ExamAssignment.query.all()
 
-    
     for exam in exams:
         exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
 
@@ -135,15 +113,12 @@ def admin_dashboard():
         groups=groups,
         assignments=assignments
     ))
-
     response.headers["Cache-Control"] = "no-store"
-
     return response
 
 @app.route("/student-register", methods=["GET","POST"])
 def student_register():
     if request.method == "POST":
-        # .get() ব্যবহার করলে ডাটা না থাকলেও সার্ভার ক্র্যাশ করবে না
         name = request.form.get("name")
         student_id = request.form.get("student_id")
         email = request.form.get("email")
@@ -154,11 +129,9 @@ def student_register():
 
         group = Group.query.filter_by(code=group_code).first()
         if not group:
-            # 🔴 এখানে "danger" অ্যাড করা হয়েছে (লাল মেসেজ দেখাবে)
             flash("Invalid Group Code! Please contact your teacher.", "danger")
             return redirect("/student-register")
 
-        # পাসওয়ার্ড হ্যাস করে সেভ করুন
         hashed_pw = generate_password_hash(password)
 
         student = Student(
@@ -171,16 +144,13 @@ def student_register():
             group_id=group.id
         )
 
-        # সার্ভার ক্র্যাশ রোধ করার জন্য try-except ব্লক
         try:
             db.session.add(student)
             db.session.commit()
-            # 🟢 এখানে "success" অ্যাড করা হয়েছে (সবুজ মেসেজ দেখাবে)
             flash("Registration Successful! Please Login.", "success")
             return redirect("/login")
         except Exception as e:
-            db.session.rollback() # ডাটাবেস আটকে গেলে ছাড়িয়ে দিবে
-            # 🔴 এখানে "danger" অ্যাড করা হয়েছে (লাল মেসেজ দেখাবে)
+            db.session.rollback()
             flash("Registration Failed! Username or Student ID already exists.", "danger")
             return redirect("/student-register")
 
@@ -188,7 +158,6 @@ def student_register():
 
 @app.route("/student-dashboard")
 def student_dashboard():
-
     if "student_id" not in session:
         return redirect("/login")
 
@@ -204,7 +173,6 @@ def student_dashboard():
     completed = []
 
     for exam in exams:
-        # Check if the exam is assigned to this student or their group
         assignment = ExamAssignment.query.filter(
             (ExamAssignment.exam_id == exam.id) &
             (
@@ -215,7 +183,6 @@ def student_dashboard():
 
         exam.assigned = assignment is not None
 
-        # Check if the student has already submitted this exam
         existing_result = Result.query.filter_by(
             student_id=student.id,
             exam_id=exam.id
@@ -223,7 +190,6 @@ def student_dashboard():
 
         exam.submitted = existing_result is not None
 
-        # Logic for categorizing exams based on date and time
         if exam.exam_date > today:
             upcoming.append(exam)
         elif exam.exam_date == today:
@@ -246,70 +212,47 @@ def student_dashboard():
         current_time=current_time,
         results=results
     )
+
 @app.route("/group-management")
 def group_management():
-
     groups = Group.query.all()
-
-    return render_template(
-        "group_management.html",
-        groups=groups
-    )
-
-
-
+    return render_template("group_management.html", groups=groups)
 
 @app.route("/create-group", methods=["GET","POST"])
 def create_group():
-
     if request.method == "POST":
-
         name = request.form.get("name")
-
         if not name:
             flash("Group name required")
             return redirect("/group-management")
 
         existing = Group.query.filter_by(name=name).first()
-
         if existing:
             flash("Group already exists")
             return redirect("/group-management")
 
-        group = Group(
-            name=name,
-            code=generate_code()
-        )
-
+        group = Group(name=name, code=generate_code())
         db.session.add(group)
         db.session.commit()
-
+        
+        log_activity(f"Created a new group: {name}") #📜
         flash("Group created successfully")
-
         return redirect("/group-management")
 
     groups = Group.query.all()
-
-    return render_template(
-        "group_management.html",
-        groups=groups
-    )
-
+    return render_template("group_management.html", groups=groups)
 
 @app.route("/delete-group/<int:id>")
 def delete_group(id):
-
     group = Group.query.get(id)
-
-    db.session.delete(group)
-    db.session.commit()
-
+    if group:
+        db.session.delete(group)
+        db.session.commit()
+        log_activity(f"Deleted group: {group.name}") #📜
     return redirect("/group-management")
-
 
 @app.route("/create-exam", methods=["POST"])
 def create_exam():
-
     title = request.form.get("title")
     exam_date = request.form.get("exam_date")
     start_time = request.form.get("start_time")
@@ -327,17 +270,13 @@ def create_exam():
         end_time=end_time,
         duration=duration
     )
-
     db.session.add(exam)
     db.session.commit()
 
+    log_activity(f"Created a new exam: {title}") #📜
     flash("Exam created successfully")
-
     return redirect("/create-exam-page")
 
-
-# ✅ mushfiq
-# ✅ mushfiq
 @app.route("/start-exam/<int:exam_id>", methods=["GET", "POST"])
 def start_exam(exam_id):
     if "student_id" not in session:
@@ -345,29 +284,22 @@ def start_exam(exam_id):
     
     exam = Exam.query.get_or_404(exam_id)
     student = Student.query.get(session["student_id"])
-    
-    # প্রশ্নগুলো আনা
     questions = Question.query.filter_by(exam_id=exam.id).all()
 
-    # পরীক্ষা সাবমিট করা থাকলে আবার শুরু করতে দেওয়া হবে না
     existing = Result.query.filter_by(student_id=student.id, exam_id=exam.id).first()
     if existing:
         flash("You have already submitted this exam!")
         return redirect("/student-dashboard")
 
-    # যখন স্টুডেন্ট ফর্ম সাবমিট করবে (পরীক্ষা শেষ করবে)
     if request.method == "POST":
         obtained_marks = 0
         has_short = False
         
         for q in questions:
-            # HTML ফর্মে name="q_{{q.id}}" থাকতে হবে
             user_ans = request.form.get(f"q_{q.id}")
-            
             is_correct = False
             marks_for_this_q = 0
             
-            # MCQ এর ক্ষেত্রে সঠিক উত্তর চেক করা
             if q.question_type == "mcq":
                 if user_ans and user_ans.strip().lower() == q.correct_answer.strip().lower():
                     obtained_marks += int(q.marks)
@@ -376,7 +308,6 @@ def start_exam(exam_id):
             else:
                 has_short = True
 
-            # 🔥 ১. StudentAnswer টেবিলে প্রতিটি প্রশ্নের উত্তর সেভ করা হচ্ছে
             student_answer = StudentAnswer(
                 student_id=student.id,
                 exam_id=exam.id,
@@ -389,7 +320,6 @@ def start_exam(exam_id):
 
         final_status = "Pending" if has_short else "Evaluated"
 
-        # 🔥 ২. Result টেবিলে টোটাল স্কোর সেভ করা হচ্ছে
         new_result = Result(
             student_id=student.id, 
             exam_id=exam.id, 
@@ -406,29 +336,21 @@ def start_exam(exam_id):
 
 @app.route("/delete-exam/<int:id>")
 def delete_exam(id):
-
     exam = Exam.query.get(id)
-
     if exam:
         db.session.delete(exam)
         db.session.commit()
-
-    flash("Exam deleted")
-
+        flash("Exam deleted")
+        log_activity(f"Deleted exam: {exam.title}") #📜
     return redirect("/admin-dashboard")
 
 @app.route("/create-exam-page")
 def create_exam_page():
-
     exams = Exam.query.all()
+    return render_template("create_exam.html", exams=exams)
 
-    return render_template(
-        "create_exam.html",
-        exams=exams
-    )
 @app.route("/assign-exam", methods=["POST"])
 def assign_exam():
-
     exam_id = request.form.get("exam_id")
     student_id = request.form.get("student_id")
     group_id = request.form.get("group_id")
@@ -437,86 +359,52 @@ def assign_exam():
         flash("Please select exam")
         return redirect("/admin-dashboard")
 
-    # student assign
     if student_id:
-        existing = ExamAssignment.query.filter_by(
-            exam_id=exam_id,
-            student_id=student_id
-        ).first()
-
+        existing = ExamAssignment.query.filter_by(exam_id=exam_id, student_id=student_id).first()
         if not existing:
-            assign = ExamAssignment(
-                exam_id=exam_id,
-                student_id=student_id
-            )
+            assign = ExamAssignment(exam_id=exam_id, student_id=student_id)
             db.session.add(assign)
 
-    # group assign
     if group_id:
-        existing = ExamAssignment.query.filter_by(
-            exam_id=exam_id,
-            group_id=group_id
-        ).first()
-
+        existing = ExamAssignment.query.filter_by(exam_id=exam_id, group_id=group_id).first()
         if not existing:
-            assign = ExamAssignment(
-                exam_id=exam_id,
-                group_id=group_id
-            )
+            assign = ExamAssignment(exam_id=exam_id, group_id=group_id)
             db.session.add(assign)
 
-    # nothing selected
     if not student_id and not group_id:
         flash("Please select student or group")
         return redirect("/admin-dashboard")
 
     db.session.commit()
-
     flash("Exam assigned successfully")
+    log_activity(f"Assigned Exam ID {exam_id} to students/groups") #📜
     return redirect("/admin-dashboard")
-
-
 
 @app.route("/clear-assignment/<int:exam_id>")
 def clear_assignment(exam_id):
-
     assignments = ExamAssignment.query.filter_by(exam_id=exam_id).all()
-
     for a in assignments:
         db.session.delete(a)
-
     db.session.commit()
-
     flash("Assignments cleared")
-
+    log_activity(f"Cleared all assignments for Exam ID: {exam_id}") #📜
     return redirect("/admin-dashboard")
 
 
-
-
-# ✅ shubroto
-#add question
 @app.route("/add-question/<int:exam_id>", methods=["GET","POST"])
 def add_question(exam_id):
-
-    # 🔹 existing question gula anar jonno
     questions = Question.query.filter_by(exam_id=exam_id).all()
 
     if request.method == "POST":
-
         question_text = request.form.get("question_text")
         question_type = request.form.get("question_type")
-        
-        # HTML ফর্মের name অনুযায়ী ডাটা নেওয়া (নিশ্চিত করুন HTML এ name="option_a" আছে)
         option_a = request.form.get("option_a") 
         option_b = request.form.get("option_b")
         option_c = request.form.get("option_c")
         option_d = request.form.get("option_d")
-        
         correct_answer = request.form.get("correct_answer")
         marks = request.form.get("marks")
 
-        # ✅ validation
         if not question_text or not question_type or not marks:
             flash("সব field fill korte hobe")
             return redirect(f"/add-question/{exam_id}")
@@ -525,45 +413,27 @@ def add_question(exam_id):
             if not option_a or not option_b or not option_c or not option_d:
                 flash("MCQ হলে সব option dite hobe")
                 return redirect(f"/add-question/{exam_id}")
-
             if not correct_answer:
                 flash("Correct answer dite hobe")
                 return redirect(f"/add-question/{exam_id}")
 
-        # ✅ save (এখানেই ভুল ছিল, কলামের নামগুলো মডেলে যা আছে তা দিতে হবে)
         question = Question(
             exam_id=exam_id,
             question_text=question_text,
             question_type=question_type,
-            option_a=option_a,   # model.py এর সাথে মিল রেখে
+            option_a=option_a, 
             option_b=option_b,
             option_c=option_c,
             option_d=option_d,
             correct_answer=correct_answer,
             marks=marks
         )
-
         db.session.add(question)
         db.session.commit()
-
-        # 🔥 same page e thakbe (multiple add possible)
+        log_activity(f"Added a {question_type} question to Exam ID: {exam_id}") #📜
         return redirect(f"/add-question/{exam_id}")
-
-    return render_template(
-        "add_question.html",
-        exam_id=exam_id,
-        questions=questions
-    )
-
-# ✅ mushfiq
-
-from models import StudentAnswer # ফাইলের উপরে যেখানে ইমপোর্টগুলো আছে সেখানে এটি যোগ করবেন
-
-
-# =====================================================
-# RAKIBUL FEATURE
-# Admin delete question
-# =====================================================
+    
+    return render_template("add_question.html", exam_id=exam_id, questions=questions)
 
 
 @app.route("/delete-question/<int:id>/<int:exam_id>", methods=["POST"])
@@ -573,13 +443,9 @@ def delete_question(id, exam_id):
         db.session.delete(q)
         db.session.commit()
         flash("Question deleted!")
-    
+        log_activity(f"Deleted a question from Exam ID: {exam_id}") #📜
     return redirect(f"/add-question/{exam_id}")
 
-# =====================================================
-# RAKIBUL FEATURE
-# Admin edit question
-# =====================================================
 
 @app.route("/edit-question/<int:question_id>", methods=["GET", "POST"])
 def edit_question(question_id):
@@ -597,14 +463,12 @@ def edit_question(question_id):
         
         db.session.commit()
         flash("Question updated successfully!")
+        log_activity(f"Updated question details for Question ID: {question_id}") #📜
         return redirect(f"/add-question/{question.exam_id}")
 
     return render_template("edit_question.html", q=question)
 
 
-
-
-# ✅ mushfiq
 @app.route("/exam-instruction/<int:exam_id>")
 def exam_instruction(exam_id):
     if "student_id" not in session:
@@ -613,7 +477,6 @@ def exam_instruction(exam_id):
     exam = Exam.query.get_or_404(exam_id)
     student = Student.query.get(session["student_id"])
     
-    # পরীক্ষা সাবমিট করা থাকলে আবার শুরু করতে দেওয়া হবে না
     has_submitted = Result.query.filter_by(student_id=student.id, exam_id=exam.id).first()
     if has_submitted:
         flash("You have already submitted this exam!")
@@ -622,73 +485,71 @@ def exam_instruction(exam_id):
     return render_template("exam_instruction.html", exam=exam, student=student)
 
 
-
-
-
-
-
-
-
-
-
-
-# =====================================================
-# FEATURE WORK - Corrected & Linked
-# =====================================================
-
 @app.route("/admin-results")
-def admin_results_view(): # নাম পরিবর্তন করা হয়েছে ডুপ্লিকেট এড়াতে
+def admin_results_view():
     results = Result.query.all()
     return render_template("admin_results.html", results=results) 
 
+
 @app.route("/profile")
-def student_profile():
+def profile():
     if "student_id" not in session:
-        return redirect("/")
+        return redirect("/login")
+    
     student = Student.query.get(session["student_id"])
-    return render_template("profile.html", student=student)
+    total_exams = Result.query.filter_by(student_id=student.id).count()
+    return render_template("profile.html", student=student, total_exams=total_exams)
+
 
 @app.route("/question-bank")
 def view_question_bank():
-    # ডাটাবেজ থেকে সব প্রশ্ন নিয়ে টেম্পলেটে পাঠানো হচ্ছে
     all_questions = Question.query.all()
     return render_template("question_bank.html", questions=all_questions)
+
 
 @app.route('/students')
 def view_students():
     all_students = Student.query.all()
-    all_groups = Group.query.all() # এটি অবশ্যই ডাটাবেজ থেকে আনতে হবে
+    all_groups = Group.query.all()
     return render_template('students.html', students=all_students, groups=all_groups)
 
 
 @app.route("/settings")
 def admin_settings_page():
-    # নিশ্চিত করুন আপনার ফাইলে অন্য কোথাও 'def settings():' নেই
     return render_template("settings.html")
+
 
 @app.route('/update-student-group/<int:id>', methods=['POST'])
 def update_student_group(id):
     student = Student.query.get_or_404(id)
     new_group_id = request.form.get('group_id')
     
-    # ড্রপডাউনে কিছু না থাকলে (Select Group) গ্রুপ রিমুভ হবে
     student.group_id = new_group_id if new_group_id else None
-    
     db.session.commit()
+
+    log_activity(f"Changed group for Student: {student.name}") #📜
     return redirect('/students')
 
-# --- Rakibul's Code: Feature 4 (Publish/Hide) ---
-# ১. এখানে methods=["GET", "POST"] যোগ করা হয়েছে যাতে বাটন ক্লিক করলে এরর না আসে।
+
 @app.route("/toggle-publish/<int:exam_id>", methods=["GET", "POST"])
 def toggle_publish(exam_id):
+    if "admin_id" not in session:
+        return redirect("/login")
+        
     exam = Exam.query.get_or_404(exam_id)
     
-    # এক্সামের পাবলিশ স্ট্যাটাস উল্টে দেওয়া (True থাকলে False, False থাকলে True)
+    if exam.is_published:
+        status_text = "Hidden"
+        emoji = "🙈"
+    else:
+        status_text = "Published"
+        emoji = "📢"
+    
     exam.is_published = not exam.is_published
-    
     db.session.commit()
-    
-    # কাজ শেষে আবার আগের পেজেই ফেরত পাঠাবে
+
+    log_activity(f"{status_text} the exam: '{exam.title}' {emoji}") #📜
+    flash(f"Exam {status_text} successfully!", "success")
     return redirect(request.referrer or "/admin-dashboard")
 
 @app.route("/submit-exam/<int:exam_id>", methods=["POST"])
@@ -697,12 +558,7 @@ def submit_exam(exam_id):
         return redirect("/login")
 
     student_id = session["student_id"]
-
-    # 🔒 ডাবল সাবমিট রোধ (কেউ যেন দুইবার পরীক্ষা দিতে না পারে)
-    existing = Result.query.filter_by(
-        student_id=student_id,
-        exam_id=exam_id
-    ).first()
+    existing = Result.query.filter_by(student_id=student_id, exam_id=exam_id).first()
 
     if existing:
         flash("You have already submitted this exam!")
@@ -716,14 +572,13 @@ def submit_exam(exam_id):
     has_short = False
 
     for q in questions:
-        user_ans = request.form.get(f"q{q.id}")
+        user_ans = request.form.get(f"q_{q.id}") # ✅ Fix: q{q.id} থেকে q_{q.id} করা হয়েছে 
         total_marks += int(q.marks)
 
         is_correct = False
         marks_for_this_q = 0
 
         if q.question_type == "mcq":
-            # user_ans খালি আছে কিনা তা চেক করে নেওয়া ভালো
             if user_ans and user_ans == q.correct_answer:
                 obtained_marks += int(q.marks)
                 marks_for_this_q = int(q.marks)
@@ -752,20 +607,18 @@ def submit_exam(exam_id):
     db.session.add(result)
     db.session.commit()
 
-   
     flash("Exam submitted successfully! To see your result, please go to the 'My Results' section.")
     return redirect("/student-dashboard")
 
-# --- Mushfiqur's Code: Feature 2 (Student Results View) ---
+
 @app.route("/my-results")
 def my_results():
-    if "student_id" not in session: return redirect("/login")
+    if "student_id" not in session: 
+        return redirect("/login")
     student_id = session["student_id"]
     
-    # 🟢 ডাটাবেস থেকে বর্তমান স্টুডেন্টের ডাটা বের করা
     student = Student.query.get(student_id) 
     
-    # 🛡️ এক্সট্রা সেফটি চেক: ডাটাবেসে স্টুডেন্ট না থাকলে সেশন ক্লিয়ার করে বের করে দেবে
     if not student:
         session.clear()
         return redirect("/")
@@ -773,12 +626,8 @@ def my_results():
     results = Result.query.filter_by(student_id=student_id).all()
     
     exams_data = []
-    
-    # Chart-এর জন্য লিস্ট তৈরি
     chart_labels = []
     chart_scores = []
-    
-    # স্ট্যাটাস কাউন্ট করার জন্য
     evaluated_count = 0
     pending_count = 0
 
@@ -786,21 +635,19 @@ def my_results():
         exam = Exam.query.get(r.exam_id)
         exams_data.append({"result": r, "exam": exam})
         
-        # Bar Chart এর ডাটা
         chart_labels.append(exam.title)
         if exam.is_published and r.score is not None:
             chart_scores.append(r.score)
         else:
             chart_scores.append(0) 
             
-        # Pie Chart এর ডাটা
         if r.status == "Evaluated":
             evaluated_count += 1
         else:
             pending_count += 1
 
     return render_template("my_results.html", 
-                           student=student,  # 🟢 স্টুডেন্টের ডাটা HTML এ পাস করা হলো
+                           student=student,
                            exams_data=exams_data,
                            chart_labels=chart_labels,
                            chart_scores=chart_scores,
@@ -813,7 +660,7 @@ def result_details(exam_id):
         return redirect("/login")
         
     student_id = session["student_id"]
-    student = Student.query.get(student_id) # লেআউটের জন্য স্টুডেন্ট ডাটা
+    student = Student.query.get(student_id)
     
     result = Result.query.filter_by(student_id=student_id, exam_id=exam_id).first()
     exam = Exam.query.get_or_404(exam_id)
@@ -842,19 +689,17 @@ def result_details(exam_id):
                            correct_count=correct_count,
                            wrong_count=wrong_count)
 
-# --- Student Profile ---
-@app.route("/profile")
-def profile():
-    if "student_id" not in session:
+
+@app.route("/admin/history")
+def admin_history():
+    if session.get('role') != 'admin':
+        flash("Unauthorized access!", "danger")
         return redirect("/login")
     
-    student = Student.query.get(session["student_id"])
-    # স্টুডেন্ট কয়টা পরীক্ষা দিয়েছে তার একটা হিসাব (অপশনাল কিন্তু দেখতে ভালো লাগে)
-    total_exams = Result.query.filter_by(student_id=student.id).count()
-    
-    return render_template("profile.html", student=student, total_exams=total_exams)
+    logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
+    return render_template("admin_history.html", logs=logs)
 
-#Feature 3 (Admin View Stats & Submissions) ---
+
 @app.route("/admin/exam-results/<int:exam_id>")
 def admin_exam_results(exam_id):
     exam = Exam.query.get_or_404(exam_id)
@@ -870,21 +715,19 @@ def admin_exam_results(exam_id):
         
     return render_template("admin_exam_results.html", exam=exam, stats={"total": total_students, "avg": round(avg_score, 2)}, student_data=student_data)
 
+
 @app.route("/admin/student-submission/<int:result_id>")
 def admin_student_submission(result_id):
     result = Result.query.get_or_404(result_id)
     
-    # Sora-sori result table-er foreign keys use korun match korar jonno
     student = Student.query.get(result.student_id)
     exam = Exam.query.get(result.exam_id)
     
-    # Filter korar somoy result table-e thaka exact foreign keys pathan
     answers = StudentAnswer.query.filter_by(
         student_id=result.student_id, 
         exam_id=result.exam_id
     ).all()
     
-    # terminal-e check korun koto dekhay (eta fix korte khub help korbe)
     print(f"--- DEBUG INFO ---")
     print(f"Exam ID: {result.exam_id}, Student ID: {result.student_id}")
     print(f"Answers Found: {len(answers)}")
@@ -894,14 +737,9 @@ def admin_student_submission(result_id):
                            exam=exam, answers=answers)
 
 
-
-#for short question 
-
-from flask import request, flash, redirect
-
 @app.route("/admin/evaluate-submission/<int:result_id>", methods=["POST"])
 def evaluate_submission(result_id):
-    if "admin" not in session: # সিকিউরিটির জন্য (যদি তোমার অ্যাডমিন সেশন অন্য নামে থাকে, তবে সেটা দিও)
+    if "admin_id" not in session:
         return redirect("/admin-login")
 
     result = Result.query.get_or_404(result_id)
@@ -909,37 +747,31 @@ def evaluate_submission(result_id):
     
     for ans in answers:
         if ans.question.question_type == "short":
-            # ফর্ম থেকে মার্কস নেওয়া হচ্ছে
             mark_input = request.form.get(f"mark_{ans.id}")
             if mark_input is not None and mark_input.strip() != "":
                 ans.marks_obtained = float(mark_input)
-                # মার্কস 0 এর বেশি হলে সঠিক ধরা যেতে পারে, তবে শর্ট প্রশ্নের জন্য marks টাই আসল
                 ans.is_correct = True if float(mark_input) > 0 else False
 
-    # নতুন করে টোটাল স্কোর ক্যালকুলেট করা
     total_score = sum(ans.marks_obtained for ans in answers if ans.marks_obtained is not None)
     
-    # রেজাল্ট আপডেট
     result.score = total_score
     result.status = "Evaluated"
     db.session.commit()
     
     flash("Evaluation saved successfully!", "success")
+    log_activity(f"Evaluated submission for Student ID: {result.student_id}") #📜
     return redirect(f"/admin/exam-results/{result.exam_id}")
 
-# --- ডাটাবেস এবং অ্যাডমিন সেটআপ ---
+
 with app.app_context():
- 
-    db.create_all() # এবার নতুন সাইজ (255) অনুযায়ী ফ্রেশ টেবিল বানাবে
+    db.create_all() 
     
     admin = Admin.query.filter_by(username='teacher').first()
     if not admin:
-        from werkzeug.security import generate_password_hash
         new_admin = Admin(username='teacher', password=generate_password_hash('1234'))
         db.session.add(new_admin)
         db.session.commit()
         print("Admin created automatically!")
 
-# --- লোকাল সার্ভার রান করার জন্য ---
-if __name__ == '__main__':
+if __name__ == '__main__': 
     app.run(debug=True)

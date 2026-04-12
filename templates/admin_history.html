@@ -1,0 +1,38 @@
+{% extends "admin_layout.html" %}
+
+{% block body %}
+<div style="padding: 20px; font-family: 'Poppins', sans-serif;">
+    <h2 style="color: #6b2e0b; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        📜 System Activity History
+    </h2>
+
+    <div
+        style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #fce7d2;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid #fce7d2; color: #ea580c;">
+                    <th style="padding: 12px;">Date & Time</th>
+                    <th style="padding: 12px;">Action Performed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; font-size: 0.9rem; color: #666; width: 200px;">
+                        {{ log.timestamp.strftime('%d %b %Y | %I:%M %p') }}
+                    </td>
+                    <td style="padding: 12px; color: #2d1b0a; font-weight: 500;">
+                        {{ log.action }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" style="padding: 20px; text-align: center; color: #999;">No activity recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

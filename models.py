@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask import session
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -24,7 +26,9 @@ class Student(db.Model):
     password = db.Column(db.String(255))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
-    #admin
+# -----------------------------
+# ADMIN TABLE
+# -----------------------------
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -41,22 +45,20 @@ class Exam(db.Model):
     end_time = db.Column(db.String(10))
     duration = db.Column(db.Integer)
     is_published = db.Column(db.Boolean, default=False) 
-    
     questions = db.relationship('Question', backref='exam', cascade="all, delete-orphan", lazy=True)
 
 # -----------------------------
-# RESULT TABLE (Combined Feature 1 & 4)
+# RESULT TABLE
 # -----------------------------
-from datetime import datetime
-
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
     score = db.Column(db.Integer)
-    is_published = db.Column(db.Boolean, default=False)
+    is_published = db.Column(db.Boolean, default=False) # রেজাল্ট পাবলিশ করার জন্য
     status = db.Column(db.String(20), default="Evaluated")
     date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
+
 # -----------------------------
 # EXAM ASSIGNMENT TABLE
 # -----------------------------
@@ -86,7 +88,7 @@ class Question(db.Model):
     marks = db.Column(db.Integer)
 
 # -----------------------------
-# STUDENT ANSWER TABLE (New)
+# STUDENT ANSWER TABLE
 # -----------------------------
 class StudentAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -94,6 +96,32 @@ class StudentAnswer(db.Model):
     exam_id = db.Column(db.Integer, db.ForeignKey('exam.id'))
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     user_answer = db.Column(db.String(1000))
-    marks_obtained = db.Column(db.Integer, default=0)
+    marks_obtained = db.Column(db.Float, default=0) # মার্কস ডেসিমাল হতে পারে
     is_correct = db.Column(db.Boolean, default=False)
     question = db.relationship("Question", backref="student_answers")
+
+# -----------------------------
+# ACTIVITY LOG TABLE
+# -----------------------------
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True) # nullable True দেওয়া ভালো
+    action = db.Column(db.String(500), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    admin = db.relationship('Admin', backref='logs')
+
+# -----------------------------
+# HELPER FUNCTION
+# -----------------------------
+def log_activity(action_text):
+    admin_id = session.get('admin_id')
+    # সেশনে admin_id না থাকলে সরাসরি 'admin' কি চেক করবে
+    if not admin_id and 'admin' in session:
+        # যদি সেশনে শুধু ইউজারনেম থাকে, তবে ডাটাবেস থেকে আইডি খুঁজে নেবে
+        from models import Admin
+        admin_obj = Admin.query.filter_by(username=session['admin']).first()
+        admin_id = admin_obj.id if admin_obj else None
+
+    new_log = ActivityLog(admin_id=admin_id, action=action_text)
+    db.session.add(new_log)
+    db.session.commit()

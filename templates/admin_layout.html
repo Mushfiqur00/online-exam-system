@@ -37,6 +37,10 @@
                 <a href="/settings" class="nav-link {{ 'active' if request.path == '/settings' else '' }}">
                     <span>⚙️</span> Settings
                 </a>
+
+                <a href="{{ url_for('admin_history') }}" class="nav-link">
+                    <span>📜</span> History
+                </a>
                 <div class="nav-divider"></div>
                 <a href="/logout" class="nav-link logout-link">
                     <span>🚪</span> Logout
@@ -49,8 +53,6 @@
                 <div class="welcome-text">
                     Welcome back, <strong>Admin</strong>
                 </div>
-
-
             </header>
             <div style="margin-bottom: 15px;">
                 <button onclick="history.back()"
