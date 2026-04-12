@@ -38,6 +38,8 @@
             margin: 0;
             padding: 0;
             transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            /* Prevents horizontal scrolling issues */
         }
 
         /* Navbar */
@@ -95,11 +97,14 @@
         .btn-action {
             background: var(--primary-orange);
             color: white !important;
-            padding: 8px 20px;
+            padding: 10px 20px;
             border-radius: 8px;
             transition: 0.3s;
             text-decoration: none;
             text-align: center;
+            display: inline-block;
+            box-sizing: border-box;
+            white-space: nowrap;
         }
 
         .btn-action:hover {
@@ -110,12 +115,13 @@
             background: none;
             border: 2px solid var(--primary-orange);
             color: var(--primary-orange);
-            padding: 6px 12px;
+            padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             transition: 0.3s;
             font-family: inherit;
@@ -159,6 +165,7 @@
             font-size: 1.1rem;
             opacity: 0.8;
             margin-bottom: 30px;
+            line-height: 1.6;
         }
 
         .hero-image {
@@ -227,57 +234,74 @@
         }
 
         /* =========================================
-           MOBILE RESPONSIVE DESIGN (Media Queries)
+           POWERFUL MOBILE RESPONSIVE DESIGN
            ========================================= */
         @media (max-width: 768px) {
 
-            /* Navbar adjustments */
+            /* Navbar Mobile */
             nav {
-                flex-direction: column;
-                padding: 15px 20px;
-                gap: 15px;
+                flex-direction: column !important;
+                padding: 15px 20px !important;
             }
 
             .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
+                flex-direction: column !important;
+                width: 100%;
+                gap: 15px !important;
+                margin-top: 15px;
             }
 
-            /* Hero adjustments */
-            .hero {
-                flex-direction: column;
+            .nav-links a,
+            .theme-toggle {
+                width: 100%;
                 text-align: center;
-                padding: 50px 20px;
-                min-height: auto;
+                box-sizing: border-box;
+            }
+
+            /* Hero Mobile */
+            .hero {
+                flex-direction: column !important;
+                text-align: center;
+                padding: 40px 20px !important;
+                gap: 30px !important;
             }
 
             .hero-text {
-                max-width: 100%;
+                max-width: 100% !important;
+                width: 100%;
             }
 
             .hero-text h1 {
-                font-size: 2.2rem;
-                /* Smaller font for mobile */
+                font-size: 2.2rem !important;
+            }
+
+            .hero-text p {
+                font-size: 1rem !important;
+            }
+
+            .hero-image {
+                max-width: 100% !important;
+                width: 100% !important;
             }
 
             .hero-image img {
-                max-width: 100%;
+                width: 100% !important;
+                height: auto !important;
             }
 
-            /* Features adjustments */
+            /* Features Mobile */
             .features {
-                padding: 50px 20px;
+                padding: 40px 20px !important;
             }
 
             .features h2 {
-                font-size: 2rem;
+                font-size: 2rem !important;
             }
 
             .feature-grid {
-                grid-template-columns: 1fr;
-                /* Single column on mobile */
-                gap: 20px;
+                grid-template-columns: 1fr !important;
+                /* Stack cards vertically */
+                gap: 20px !important;
             }
         }
     </style>
@@ -305,9 +329,7 @@
             <h1>Empowering Education<br>with <span>Smart Exams</span></h1>
             <p>Experience a seamless, secure, and intuitive platform for online exams, evaluations, and result tracking.
                 Examora empowers students and admins to achieve productivity like never before.</p>
-            <a href="/student-register" class="btn-action"
-                style="padding: 12px 25px; font-size: 1.1rem; display: inline-block;">Register
-                Now</a>
+            <a href="/student-register" class="btn-action" style="font-size: 1.1rem;">Register Now</a>
         </div>
         <div class="hero-image">
             <img src="{{ url_for('static', filename='hero-dashboard.png') }}" alt="Examora Dashboard Visual">
