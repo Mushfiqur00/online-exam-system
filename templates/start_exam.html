@@ -2,176 +2,561 @@
 {% block body %}
 
 <style>
+    :root {
+        --primary: #ea580c;
+        --primary-dark: #c2410c;
+        --bg-color: #fdf8f5;
+        --card-bg: #ffffff;
+        --text-main: #2d1b0a;
+        --border: #fce7d2;
+    }
+
     body {
-        background: linear-gradient(135deg, #eef2ff, #f8fafc);
-        font-family: 'Segoe UI', sans-serif;
+        background: var(--bg-color);
+        font-family: 'Poppins', sans-serif;
+        color: var(--text-main);
+        user-select: none;
+        /* Anti-cheat: Disable text selection */
     }
 
-    /* container */
-    .exam-container {
-        max-width: 900px;
-        margin: auto;
-        padding: 20px;
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 2.5fr 1fr;
+        /* Left side 70%, Right side 30% */
+        gap: 25px;
     }
 
-    /* title */
-    .exam-title {
-        text-align: center;
-        font-size: 28px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    /* timer */
-    .timer-box {
-        position: sticky;
-        top: 10px;
-        background: #dc2626;
+    /* Top Bar */
+    .exam-header-bar {
+        grid-column: 1 / -1;
+        background: var(--primary);
         color: white;
-        padding: 10px;
-        text-align: center;
-        border-radius: 8px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        transition: none !important;
-        /* ব্লিঙ্কিং যাতে স্মুথ হয় */
-    }
-
-    /* question card */
-    .question-card {
-        background: white;
-        padding: 20px;
-        margin-bottom: 20px;
+        padding: 15px 25px;
         border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        transition: 0.2s;
+        font-size: 1.5rem;
+        font-weight: 700;
+        box-shadow: 0 10px 20px rgba(234, 88, 12, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .question-card:hover {
-        transform: translateY(-2px);
+    /* Cards Common Style */
+    .glass-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
     }
 
-    /* options */
-    .option {
-        display: block;
-        padding: 8px;
-        border-radius: 6px;
-        cursor: pointer;
+    /* Left Column Details */
+    .exam-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
     }
 
-    .option:hover {
-        background: #f1f5f9;
+    .detail-box,
+    .timer-box {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
     }
 
-    /* input */
-    .short-input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+    .timer-box {
+        text-align: right;
     }
 
-    /* button */
-    .submit-btn {
-        background: #2563eb;
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    .submit-btn:hover {
-        background: #1d4ed8;
+    .timer-text {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary);
     }
 
     .timer-blink {
-        background: white !important;
-        color: #dc2626 !important;
-        border: 2px solid #dc2626 !important;
-        box-shadow: 0 0 15px rgba(220, 38, 38, 0.8) !important;
+        color: #dc2626;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        margin-bottom: 20px;
+    }
+
+    .progress-bar-bg {
+        background: #e2e8f0;
+        height: 12px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .progress-bar-fill {
+        background: var(--primary);
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    /* Question Area */
+    .question-area {
+        min-height: 250px;
+    }
+
+    .question-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .option-label {
+        display: block;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .option-label:hover {
+        border-color: var(--primary);
+        background: #fff6f0;
+    }
+
+    input[type="radio"]:checked+.option-label {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Buttons */
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-solid {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-submit {
+        background: #16a34a;
+        color: white;
+    }
+
+    /* Right Column (Grid & Status) */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .grid-btn {
+        padding: 10px 5px;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .grid-btn.answered {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .grid-btn.active {
+        border: 2px solid var(--text-main);
+        transform: scale(1.1);
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #16a34a;
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+        }
+
+        .exam-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .timer-box {
+            text-align: left;
+        }
     }
 </style>
 
-<div class="exam-container">
-    <h2 class="exam-title">📝 Exam</h2>
+<form id="mainExamForm" method="POST" action="/submit-exam/{{ exam.id }}" style="display: none;">
+</form>
 
-    <div class="timer-box" id="timer">Loading...</div>
+<div class="dashboard-container">
 
-    <form id="examForm" method="POST" action="/submit-exam/{{ exam.id }}">
+    <div class="exam-header-bar">
+        <span>EXAMORA SYSTEM</span>
+        <span style="font-size: 1rem; opacity: 0.9;">Examinee Dashboard</span>
+    </div>
 
-        {% for q in questions %}
-        <div class="question-card">
-            <p><b>{{loop.index}}. {{q.question_text}}</b></p>
+    <div class="main-column">
 
-            {% if q.question_type == "mcq" %}
-            <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option_a}}" required>
-                {{q.option_a}}
-            </label>
-
-            <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option_b}}">
-                {{q.option_b}}
-            </label>
-
-            <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option_c}}">
-                {{q.option_c}}
-            </label>
-
-            <label class="option">
-                <input type="radio" name="q{{q.id}}" value="{{q.option_d}}">
-                {{q.option_d}}
-            </label>
-
-            {% else %}
-            <input type="text" name="q{{q.id}}" class="short-input" placeholder="Write your answer..." required>
-            {% endif %}
+        <div class="exam-details-grid">
+            <div class="detail-box">
+                <p style="margin:0; color: gray; font-size: 0.9rem;">Current Exam</p>
+                <h3 style="margin: 5px 0;">{{ exam.title | default('Advanced Assessment') }}</h3>
+                <p style="margin:0; font-size: 0.95rem;">
+                    Student: <b>{{ student.name }}</b> <br>
+                    <span style="font-size: 0.85rem; color: #555;">ID: {{ student.student_id }}</span>
+                </p>
+            </div>
+            <div class="timer-box">
+                <p style="margin:0; color: gray; font-size: 0.9rem;">Time Remaining</p>
+                <div class="timer-text" id="timer">Loading...</div>
+            </div>
         </div>
-        {% endfor %}
 
-        <div style="text-align:center;">
-            <button type="submit" class="submit-btn">Submit Exam</button>
+        <div class="glass-card progress-container">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>PROGRESS</span>
+                <span id="progress-text">0 / 0 Questions</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
         </div>
-    </form>
+
+        <div class="glass-card question-area" id="question-container">
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-outline" onclick="prevQuestion()" id="prevBtn">Previous</button>
+            <button class="btn btn-solid" onclick="nextQuestion()" id="nextBtn">Next</button>
+            <button class="btn btn-submit" onclick="submitExam()" id="submitBtn" style="display:none;">Submit
+                Exam</button>
+        </div>
+    </div>
+
+    <div class="side-column">
+
+        <div class="glass-card" style="margin-bottom: 20px;">
+            <h4 style="margin-top:0; border-bottom: 2px solid var(--border); padding-bottom: 10px;">QUESTION NAVIGATOR
+            </h4>
+            <div class="grid-container" id="question-grid">
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h4 style="margin-top:0; border-bottom: 2px solid var(--border); padding-bottom: 10px;">SYSTEM STATUS
+                (Anti-Cheat)</h4>
+            <div class="status-item">
+                <div class="status-dot"></div> Network: Online
+            </div>
+            <div class="status-item">
+                <div class="status-dot"></div> Tab Switch: Monitored
+            </div>
+            <div class="status-item">
+                <div class="status-dot"></div> Clipboard: Disabled
+            </div>
+        </div>
+
+    </div>
 
 </div>
 
 <script>
+    // --- 1. ANTI-CHEAT SYSTEM ---
+
+    // Disable Right Click, Copy, Paste
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('copy', event => { event.preventDefault(); alert("Copying is disabled!"); });
+    document.addEventListener('paste', event => { event.preventDefault(); alert("Pasting is disabled!"); });
+
+    // Tab Switch & Split Screen (Blur) Detection
+    let warningCount = 0;
+
+    // ওয়ার্নিং হ্যান্ডেল করার জন্য একটি কমন ফাংশন
+    function triggerCheatWarning(reason) {
+        warningCount++;
+        const tabSwitchItem = document.querySelectorAll('.status-item')[1];
+
+        if (warningCount === 1) {
+            tabSwitchItem.innerHTML = '<div class="status-dot" style="background: #eab308; animation: blink 1s infinite;"></div> <span style="color: #eab308;">Focus: Warning (1/3)</span>';
+            alert(`Warning 1: You left the exam window (${reason}). Your exam will be auto-submitted if you continue.`);
+        }
+        else if (warningCount === 2) {
+            tabSwitchItem.innerHTML = '<div class="status-dot" style="background: #dc2626; animation: blink 1s infinite;"></div> <span style="color: #dc2626;">Focus: Warning (2/3)</span>';
+            alert(`Warning 2: Final warning! Next time you leave the window, your exam will auto-submit.`);
+        }
+        else if (warningCount >= 3) {
+            tabSwitchItem.innerHTML = '<div class="status-dot" style="background: #dc2626;"></div> <span style="color: #dc2626;">Exam Auto-Submitted</span>';
+            alert("You have violated the exam rules 3 times. Your exam is being submitted automatically.");
+            submitExam(); // আপনার সাবমিট ফাংশন কল হবে
+        }
+    }
+
+    // ১. ধরবে যদি ট্যাব পরিবর্তন করে বা ব্রাউজার মিনিমাইজ করে
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            triggerCheatWarning("Switched Tab");
+        }
+    });
+
+    // ২. ধরবে যদি স্প্লিট স্ক্রিন করে অন্য ব্রাউজার বা অ্যাপে ক্লিক করে
+    window.addEventListener('blur', () => {
+        triggerCheatWarning("Clicked outside exam window");
+    });
+
+
+    // --- 2. EXAM LOGIC & DATA ---
+
+    // Pass Jinja questions to JavaScript Array
+    const questions = [
+        {% for q in questions %}
+    {
+        id: "{{ q.id }}",
+            type: "{{ q.question_type }}",
+                text: "{{ q.question_text | replace('\n', ' ') | replace('\"', '\\\"') }}",
+                    optA: "{{ q.option_a }}",
+                        optB: "{{ q.option_b }}",
+                            optC: "{{ q.option_c }}",
+                                optD: "{{ q.option_d }}"
+    },
+    {% endfor %}
+    ];
+
+    let currentIndex = 0;
+    let answers = {}; // Store answers { questionId: value }
+
+    // --- 3. UI RENDERING FUNCTIONS ---
+
+    function renderQuestion() {
+        const q = questions[currentIndex];
+        const container = document.getElementById('question-container');
+
+        let html = `<div class="question-text">Q${currentIndex + 1}. ${q.text}</div>`;
+
+        if (q.type === 'mcq') {
+            const options = [
+                { val: q.optA, label: q.optA },
+                { val: q.optB, label: q.optB },
+                { val: q.optC, label: q.optC },
+                { val: q.optD, label: q.optD }
+            ];
+
+            options.forEach(opt => {
+                if (opt.val && opt.val.trim() !== 'None') {
+                    let isChecked = answers[q.id] === opt.val ? 'checked' : '';
+                    html += `
+                        <label style="position:relative;">
+                            <input type="radio" name="current_q" value="${opt.val}" style="display:none;" onchange="saveAnswer('${q.id}', this.value)" ${isChecked}>
+                            <div class="option-label">${opt.label}</div>
+                        </label>
+                    `;
+                }
+            });
+        } else {
+            let currentAns = answers[q.id] || '';
+            html += `<textarea rows="4" style="width:100%; padding:10px; border-radius:8px; border:2px solid #e2e8f0;" placeholder="Write your answer here..." oninput="saveAnswer('${q.id}', this.value)">${currentAns}</textarea>`;
+        }
+
+        container.innerHTML = html;
+        updateButtons();
+        updateGridUI();
+    }
+
+    function saveAnswer(qId, value) {
+        answers[qId] = value;
+        updateProgress();
+        updateGridUI();
+    }
+
+    function updateProgress() {
+        const answeredCount = Object.keys(answers).filter(k => answers[k].trim() !== '').length;
+        const total = questions.length;
+        document.getElementById('progress-text').innerText = `${answeredCount} / ${total} Questions`;
+        document.getElementById('progress-bar').style.width = `${(answeredCount / total) * 100}%`;
+    }
+
+    // --- 4. NAVIGATION LOGIC ---
+
+    function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    }
+
+    function jumpTo(index) {
+        currentIndex = index;
+        renderQuestion();
+    }
+
+    function updateButtons() {
+        document.getElementById('prevBtn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+
+        if (currentIndex === questions.length - 1) {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+        } else {
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'none';
+        }
+    }
+
+    // --- 5. GRID NAVIGATOR ---
+
+    function initGrid() {
+        const grid = document.getElementById('question-grid');
+        let html = '';
+        questions.forEach((q, index) => {
+            html += `<div class="grid-btn" id="grid-btn-${index}" onclick="jumpTo(${index})">${index + 1}</div>`;
+        });
+        grid.innerHTML = html;
+    }
+
+    function updateGridUI() {
+        questions.forEach((q, index) => {
+            const btn = document.getElementById(`grid-btn-${index}`);
+
+            // Check if answered
+            if (answers[q.id] && answers[q.id].trim() !== '') {
+                btn.classList.add('answered');
+            } else {
+                btn.classList.remove('answered');
+            }
+
+            // Highlight active question
+            if (index === currentIndex) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // --- 6. TIMER LOGIC ---
+
     let totalSeconds = parseInt("{{ exam.duration }}") * 60;
     let timerDiv = document.getElementById("timer");
 
     function updateTimer() {
         if (totalSeconds <= 0) {
-            timerDiv.innerHTML = "Time's Up!";
-            timerDiv.classList.remove("timer-blink");
-            timerDiv.style.background = "black";
-            document.getElementById("examForm").submit(); // Auto submit
+            timerDiv.innerHTML = "00:00";
+            submitExam();
             return;
         }
 
         let minutes = Math.floor(totalSeconds / 60);
         let seconds = totalSeconds % 60;
-
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         timerDiv.innerHTML = minutes + " : " + seconds;
 
-        if (totalSeconds <= 60 && totalSeconds > 0) {
-            if (totalSeconds % 2 !== 0) {
-                timerDiv.classList.add("timer-blink");
-            } else {
-                timerDiv.classList.remove("timer-blink");
-            }
+        if (totalSeconds <= 60) {
+            timerDiv.classList.add("timer-blink");
         }
 
         totalSeconds--;
     }
 
-    setInterval(updateTimer, 1000);
-    updateTimer(); 
+    // --- 7. SUBMIT LOGIC ---
+
+    function submitExam() {
+        // Create hidden inputs for the backend form
+        const form = document.getElementById('mainExamForm');
+        form.innerHTML = ''; // Clear previous
+
+        Object.keys(answers).forEach(qId => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'q' + qId;
+            input.value = answers[qId];
+            form.appendChild(input);
+        });
+
+        // Submit the form
+        form.submit();
+    }
+
+    // Initialize everything on load
+    window.onload = () => {
+        initGrid();
+        renderQuestion();
+        updateProgress();
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    };
+
+    // --- 8. NETWORK STATUS DETECTION (এই নতুন অংশটুকু এখানে বসবে) ---
+    const networkStatusItems = document.querySelectorAll('.status-item');
+    const networkItem = networkStatusItems[0]; // প্রথম আইটেমটি হলো Network
+
+    window.addEventListener('online', () => {
+        networkItem.innerHTML = '<div class="status-dot" style="background: #16a34a;"></div> Network: Online';
+    });
+
+    window.addEventListener('offline', () => {
+        networkItem.innerHTML = '<div class="status-dot" style="background: #dc2626; animation: blink 1s infinite;"></div> <span style="color: #dc2626;">Network: Offline</span>';
+        alert('আপনার ইন্টারনেট কানেকশন বিচ্ছিন্ন হয়েছে! দয়া করে কানেকশন ঠিক করুন।');
+    });
+
 </script>
 {% endblock %}
