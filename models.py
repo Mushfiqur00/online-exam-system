@@ -46,7 +46,11 @@ class Exam(db.Model):
     duration = db.Column(db.Integer)
     is_published = db.Column(db.Boolean, default=False) 
     questions = db.relationship('Question', backref='exam', cascade="all, delete-orphan", lazy=True)
-
+    @property
+    def question_count(self):
+        return len(self.questions)
+    
+    
 # -----------------------------
 # RESULT TABLE
 # -----------------------------

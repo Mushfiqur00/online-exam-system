@@ -95,26 +95,40 @@ def logout():
 
 @app.route("/admin-dashboard")
 def admin_dashboard():
-    if "admin_id" not in session:
-        return redirect("/login")
+    # ১. সেশন চেক
+    if "admin_id" not in session or session.get('role') != 'admin':
+        flash("Please login as admin first.", "danger")
+        return redirect(url_for('login'))
 
-    exams = Exam.query.all()
-    students = Student.query.all()
-    groups = Group.query.all()
-    assignments = ExamAssignment.query.all()
+    try:
+        # ২. ডেটাবেস থেকে ডেটা ফেচ করা (সবগুলো একসাথে)
+        # .options(db.joinedload(...)) ব্যবহার করলে পারফরম্যান্স অনেক ভালো হয়
+        exams = Exam.query.order_by(Exam.id.desc()).all()
+        students = Student.query.all()
+        groups = Group.query.all()
+        assignments = ExamAssignment.query.all()
 
-    for exam in exams:
-        exam.question_count = Question.query.filter_by(exam_id=exam.id).count()
+        # ৩. রেসপন্স তৈরি করা
+        response = make_response(render_template(
+            "admin_dashboard.html",
+            exams=exams,
+            students=students,
+            groups=groups,
+            assignments=assignments
+        ))
 
-    response = make_response(render_template(
-        "admin_dashboard.html",
-        exams=exams,
-        students=students,
-        groups=groups,
-        assignments=assignments
-    ))
-    response.headers["Cache-Control"] = "no-store"
-    return response
+        # ৪. ব্রাউজার ক্যাশ বন্ধ করা (সিকিউরিটির জন্য)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        
+        return response
+
+    except Exception as e:
+        # যদি কোনো এরর হয়, তবে সেটি প্রিন্ট হবে এবং ইউজারকে রিডাইরেক্ট করবে
+        print(f"Error in Admin Dashboard: {e}")
+        flash("Something went wrong while loading the dashboard.", "danger")
+        return redirect(url_for('home'))
 
 @app.route("/student-register", methods=["GET","POST"])
 def student_register():
@@ -737,21 +751,40 @@ from datetime import datetime
 
 @app.route('/dashboard-analytics')
 def dashboard_analytics():
-    now = datetime.now()
+    if "admin_id" not in session:
+        return redirect("/login")
 
     # ১. বেসিক কাউন্টস
     total_students = Student.query.count()
     total_groups = Group.query.count()
     total_exams = Exam.query.count()
 
-    # ২. এক্সাম টাইমলাইন স্ট্যাটাস (Ongoing, Upcoming, Completed)
-    # আপনার ডাটাবেসের কলামের নাম অনুযায়ী start_time এবং end_time মিলিয়ে নেবেন
-    upcoming_exams = Exam.query.filter(Exam.start_time > now).count()
-    completed_exams = Exam.query.filter(Exam.end_time < now).count()
-    ongoing_exams = Exam.query.filter(Exam.start_time <= now, Exam.end_time >= now).count()
+    # ২. এক্সাম টাইমলাইন স্ট্যাটাস (Error-safe logic)
+    all_exams = Exam.query.all()
+    
+    # বর্তমান তারিখ এবং সময় স্ট্রিং ফরম্যাটে নেওয়া (যেহেতু ডেটাবেসে স্ট্রিং আছে)
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    now_time_str = datetime.now().strftime("%H:%M")
 
-    # ৩. সাবমিশন এবং ইভালুয়েশন (Result টেবিল থেকে)
-    # ধরে নিচ্ছি Result টেবিলে status='Evaluated' কলাম আছে
+    upcoming_exams = 0
+    completed_exams = 0
+    ongoing_exams = 0
+
+    for exam in all_exams:
+        # তারিখ তুলনা
+        if exam.exam_date > today_str:
+            upcoming_exams += 1
+        elif exam.exam_date < today_str:
+            completed_exams += 1
+        else: # যদি আজকের দিন হয়, তবে সময় তুলনা
+            if now_time_str < exam.start_time:
+                upcoming_exams += 1
+            elif exam.start_time <= now_time_str <= exam.end_time:
+                ongoing_exams += 1
+            else:
+                completed_exams += 1
+
+    # ৩. সাবমিশন এবং ইভালুয়েশন
     total_submissions = Result.query.count() 
     evaluated_count = Result.query.filter_by(status='Evaluated').count()
     pending_evaluation = total_submissions - evaluated_count
