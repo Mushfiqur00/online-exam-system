@@ -2,115 +2,236 @@
 
 {% block body %}
 
-<h2>📋 Questions List</h2>
+<style>
+    :root {
+        --primary-orange: #ff5e14;
+        --secondary-orange: #ff8a00;
+        --deep-charcoal: #1e1e1e;
+        /* Kora background gradient */
+        --bg-saturated: linear-gradient(135deg, #ffede5 0%, #ffe4d6 100%);
+    }
 
-{% if questions|length == 0 %}
-<p style="color:red;">No question added yet</p>
-{% else %}
+    body {
+        background: var(--bg-saturated);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
 
-{% for q in questions %}
+    .module-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        animation: slideUp 0.6s ease-out;
+    }
 
-<div
-    style="background:white;padding:15px;margin-bottom:15px;border-radius:12px; border: 1px solid #fed7aa; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-    <b style="font-size: 1.1rem;">{{loop.index}}. {{q.question_text}}</b><br>
+    /* Question Card Styling */
+    .question-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #ffd7c4;
+        padding: 30px;
+        margin-bottom: 30px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 25px rgba(255, 94, 20, 0.05);
+        position: relative;
+    }
+    
+    .question-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(255, 94, 20, 0.12);
+        border-color: var(--primary-orange);
+    }
 
-    {% if q.question_type == "mcq" %}
-    <small style="color:#f97316;">[MCQ]</small><br>
+    .marks-label {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        background: var(--deep-charcoal);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
 
-    <ul style="list-style-type: circle; margin-left: 20px; padding: 5px 0;">
-        <li>{{q.option_a}}</li>
-        <li>{{q.option_b}}</li>
-        <li>{{q.option_c}}</li>
-        <li>{{q.option_d}}</li>
-    </ul>
+    /* Form & Inputs */
+    .form-container {
+        background: white;
+        padding: 50px;
+        border-radius: 28px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+        border: 2px solid #ffd7c4;
+    }
 
-    <b style="color: green;">Correct:</b> {{q.correct_answer}} <br>
-    {% else %}
-    <small style="color:#6b7280;">[Short Question]</small><br>
-    {% endif %}
+    .custom-input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid #f1f5f9;
+        background: #fff;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        font-size: 15px;
+    }
 
-    <b>Marks:</b> {{q.marks}} <br><br>
+    .custom-input:focus {
+        outline: none;
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 4px rgba(255, 94, 20, 0.15);
+    }
 
-    <div style="display: flex; gap: 10px;">
-        <a href="/edit-question/{{q.id}}">
-            <button
-                style="background:#f59e0b; color:white; border:none; padding: 5px 15px; border-radius: 5px; cursor:pointer;">Edit</button>
-        </a>
+    .mcq-container {
+        background: #fff8f5;
+        border-radius: 18px;
+        padding: 35px;
+        border: 1px solid #ffccb3;
+        margin: 30px 0;
+    }
 
-        <form action="/delete-question/{{q.id}}/{{exam_id}}" method="POST" style="display:inline;">
-            <button type="submit"
-                style="background:#ef4444; color:white; border:none; padding: 5px 15px; border-radius: 5px; cursor:pointer;"
-                onclick="return confirm('Delete this question?')">Delete</button>
-        </form>
+    .opt-group {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 10px 18px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .opt-tag {
+        color: var(--primary-orange);
+        font-weight: 900;
+        margin-right: 18px;
+        font-size: 20px;
+    }
+
+    /* Save Button with Zoom */
+    .btn-save {
+        background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+        color: white;
+        border: none;
+        padding: 20px;
+        border-radius: 18px;
+        font-weight: 800;
+        font-size: 18px;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 12px 24px rgba(255, 94, 20, 0.3);
+    }
+
+    .btn-save:hover {
+        transform: scale(1.03);
+        box-shadow: 0 18px 35px rgba(255, 94, 20, 0.4);
+    }
+
+    /* Action Links Styling */
+    .action-link {
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: 0.2s;
+    }
+</style>
+
+<div class="module-wrapper">
+    <div style="margin-bottom: 50px; border-left: 8px solid var(--primary-orange); padding-left: 20px;">
+        <h1 style="color: var(--deep-charcoal); font-weight: 900; font-size: 36px; margin: 0;">Question Bank</h1>
+        <p style="color: #64748b; margin-top: 8px; font-weight: 500;">Exam Management Console | <span style="color: var(--primary-orange)">ID #{{ exam_id }}</span></p>
     </div>
 
-</div>
-
-{% endfor %}
-
-{% endif %}
-
-<hr style="border: 0; height: 1px; background: #fed7aa; margin: 30px 0;">
-
-<div style="background: #fff7ed; padding: 20px; border-radius: 12px; border: 1px solid #fdba74;">
-    <h2 style="color: #7c2d12;">➕ Add New Question</h2>
-
-    <form method="POST">
-        <label><b>Question</b></label><br>
-        <input type="text" name="question_text"
-            style="width: 100%; padding: 8px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc;"
-            required><br><br>
-
-        <label><b>Type</b></label><br>
-        <select name="question_type" id="type" onchange="toggleOptions()"
-            style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-            <option value="mcq">MCQ</option>
-            <option value="short">Short Answer</option>
-        </select><br><br>
-
-        <div id="mcqOptions">
-            <label>Option A</label> <input type="text" name="option_a"
-                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
-            <label>Option B</label> <input type="text" name="option_b"
-                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
-            <label>Option C</label> <input type="text" name="option_c"
-                style="width: 100%; padding: 6px; margin: 4px 0;"><br>
-            <label>Option D</label> <input type="text" name="option_d"
-                style="width: 100%; padding: 6px; margin: 4px 0;"><br><br>
-
-            <label><b>Correct Answer</b></label><br>
-            <input type="text" name="correct_answer" placeholder="Enter exactly as written in options"
-                style="width: 100%; padding: 8px; margin-top: 5px;"><br><br>
+    {% for q in questions %}
+    <div class="question-card">
+        <span class="marks-label">{{ q.marks }} MARKS</span>
+        <p style="font-size: 19px; font-weight: 700; color: #1e293b; margin-bottom: 25px; padding-right: 90px;">{{ loop.index }}. {{ q.question_text }}</p>
+        
+        {% if q.question_type == "mcq" %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="padding: 15px; background: #fffcfb; border-radius: 10px; font-size: 14px; border: 1px solid #ffd7c4;"><b>A.</b> {{q.option_a}}</div>
+            <div style="padding: 15px; background: #fffcfb; border-radius: 10px; font-size: 14px; border: 1px solid #ffd7c4;"><b>B.</b> {{q.option_b}}</div>
+            <div style="padding: 15px; background: #fffcfb; border-radius: 10px; font-size: 14px; border: 1px solid #ffd7c4;"><b>C.</b> {{q.option_c}}</div>
+            <div style="padding: 15px; background: #fffcfb; border-radius: 10px; font-size: 14px; border: 1px solid #ffd7c4;"><b>D.</b> {{q.option_d}}</div>
         </div>
+        {% endif %}
 
-        <label><b>Marks</b></label><br>
-        <input type="number" name="marks" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;"
-            required><br><br>
+        <div style="margin-top: 25px; display: flex; align-items: center; gap: 20px; border-top: 2px solid #f8fafc; padding-top: 20px;">
+            <a href="/edit-question/{{q.id}}" class="action-link" style="color: var(--primary-orange);">Edit</a>
+            
+            <form action="/delete-question/{{q.id}}/{{exam_id}}" method="POST" style="margin: 0; display: flex; align-items: center;">
+                <button type="submit" class="action-link" style="background:none; border:none; color: #ef4444; cursor:pointer; padding: 0;" onclick="return confirm('Delete this question?')">
+                    Remove
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
 
-        <button type="submit"
-            style="background: #f97316; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">Save
-            Question</button>
-    </form>
+    <div class="form-container">
+        <h3 style="margin: 0 0 35px 0; color: var(--deep-charcoal); font-weight: 900; font-size: 26px;">Create New Question</h3>
+        
+        <form method="POST">
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; margin-bottom: 12px; font-weight: 800; color: #334155;">Question Text</label>
+                <textarea name="question_text" class="custom-input" rows="3" required placeholder="Enter the question content..."></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                <div>
+                    <label style="display: block; margin-bottom: 12px; font-weight: 800; color: #334155;">Type</label>
+                    <select name="question_type" id="type" onchange="toggleOptions()" class="custom-input">
+                        <option value="mcq">Multiple Choice</option>
+                        <option value="short">Short Answer</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 12px; font-weight: 800; color: #334155;">Marks</label>
+                    <input type="number" name="marks" class="custom-input" required placeholder="0">
+                </div>
+            </div>
+
+            <div id="mcqOptions" class="mcq-container">
+                <p style="margin: 0 0 25px 0; font-weight: 900; color: var(--primary-orange); font-size: 13px; text-transform: uppercase;">Option Setup</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="opt-group"><span class="opt-tag">A</span><input type="text" name="option_a" class="custom-input" style="border:none;"></div>
+                    <div class="opt-group"><span class="opt-tag">B</span><input type="text" name="option_b" class="custom-input" style="border:none;"></div>
+                    <div class="opt-group"><span class="opt-tag">C</span><input type="text" name="option_c" class="custom-input" style="border:none;"></div>
+                    <div class="opt-group"><span class="opt-tag">D</span><input type="text" name="option_d" class="custom-input" style="border:none;"></div>
+                </div>
+                
+                <div style="margin-top: 35px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 800; color: #334155;">Correct Answer</label>
+                    <input type="text" name="correct_answer" class="custom-input" style="border-color: #ffccb3;" placeholder="Exact text matches only">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save">
+                🚀 Add to Question Bank
+            </button>
+        </form>
+    </div>
 </div>
 
 <script>
     function toggleOptions() {
         var type = document.getElementById("type").value;
         var mcq = document.getElementById("mcqOptions");
-
+        var inputs = mcq.querySelectorAll('input');
         if (type === "mcq") {
             mcq.style.display = "block";
-            // Make options required if MCQ is selected
-            document.getElementsByName("option_a")[0].required = true;
-            document.getElementsByName("option_b")[0].required = true;
+            inputs.forEach(i => i.required = true);
         } else {
             mcq.style.display = "none";
-            document.getElementsByName("option_a")[0].required = false;
-            document.getElementsByName("option_b")[0].required = false;
+            inputs.forEach(i => i.required = false);
         }
     }
     toggleOptions();
 </script>
-
 {% endblock %}
