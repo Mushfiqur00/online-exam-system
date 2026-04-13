@@ -616,12 +616,7 @@ def my_results():
     if "student_id" not in session: 
         return redirect("/login")
     student_id = session["student_id"]
-    
     student = Student.query.get(student_id) 
-    
-    if not student:
-        session.clear()
-        return redirect("/")
     
     results = Result.query.filter_by(student_id=student_id).all()
     
@@ -635,11 +630,10 @@ def my_results():
         exam = Exam.query.get(r.exam_id)
         exams_data.append({"result": r, "exam": exam})
         
-        chart_labels.append(exam.title)
-        if exam.is_published and r.score is not None:
-            chart_scores.append(r.score)
-        else:
-            chart_scores.append(0) 
+        # শুধুমাত্র পাবলিশড এবং ইভ্যালুয়েটেড এক্সামগুলো চার্টে দেখাবে
+        if exam.is_published and r.status == "Evaluated":
+            chart_labels.append(exam.title)
+            chart_scores.append(r.score if r.score is not None else 0)
             
         if r.status == "Evaluated":
             evaluated_count += 1
