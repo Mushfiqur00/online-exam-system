@@ -16,14 +16,14 @@
                 <span class="brand-name">Examora</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="/dashboard-analytics" class="nav-link">
-                    <span>📊</span> Dashboard
-                </a>
+
                 <a href="/admin-dashboard"
                     class="nav-link {{ 'active' if request.path == '/admin-dashboard' else '' }}">
                     <span>🛠️</span> Admin Panel
                 </a>
-
+                <a href="/dashboard-analytics" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
                 <a href="/create-exam-page"
                     class="nav-link {{ 'active' if request.path == '/create-exam-page' or '/add-question' in request.path else '' }}">
                     <span>📝</span> Manage Exams
