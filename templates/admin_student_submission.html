@@ -2,217 +2,284 @@
 {% block body %}
 
 <style>
+    /* Professional Enterprise Theme */
     :root {
-        --primary-orange: #ff5e14;
-        --deep-orange: #e14d00;
-        --kora-gradient: linear-gradient(135deg, #ff781f 0%, #ff5400 100%);
+        --bg-color: #f3f4f6;
+        --card-bg: #ffffff;
+        --text-main: #111827;
+        --text-muted: #6b7280;
+        --primary-blue: #2563eb;
+        --border-color: #e5e7eb;
+        --success-color: #059669;
+        --danger-color: #dc2626;
+        --warning-color: #d97706;
     }
 
     body {
-        background-color: #fdf5f2;
-        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text-main);
     }
 
-    .module-wrapper {
-        max-width: 950px;
-        margin: 40px auto;
+    .evaluation-container {
+        max-width: 1000px;
+        margin: 30px auto;
         padding: 0 20px;
     }
 
-    /* --- Top Header Section --- */
-    .review-header {
-        background: var(--kora-gradient);
-        padding: 40px;
-        border-radius: 24px;
-        color: white;
-        box-shadow: 0 15px 35px rgba(255, 94, 20, 0.2);
-        margin-bottom: 35px;
+    /* Header Section */
+    .page-header {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 24px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--primary-blue);
     }
 
-    .review-header h2 {
-        margin: 0 0 15px 0;
-        font-weight: 900;
-        font-size: 28px;
-        letter-spacing: -0.5px;
+    .page-header h2 {
+        margin: 0 0 16px 0;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-main);
     }
 
-    .info-bar {
+    .student-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 15px;
+        gap: 20px;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .meta-item {
+        display: flex;
         align-items: center;
-        font-size: 15px;
+        background: #f9fafb;
+        padding: 6px 12px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        font-weight: 500;
     }
 
-    .badge-white {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        padding: 6px 14px;
+    .meta-label {
+        color: var(--text-muted);
+        margin-right: 8px;
+        font-weight: 400;
+    }
+
+    .meta-value {
+        color: var(--text-main);
+        font-weight: 600;
+    }
+
+    /* Question Cards */
+    .question-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        font-weight: 700;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
-    /* --- Answer Cards --- */
-    .answer-card {
-        background: white;
-        padding: 30px;
-        border-radius: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-        border: 2px solid #fff;
-        transition: 0.3s;
-    }
-
-    .answer-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(255, 94, 20, 0.08);
-    }
-
-    /* Status Specific Borders */
-    .border-pending { border-color: #f59e0b !important; }
-    .border-correct { border-color: #16a34a !important; }
-    .border-wrong { border-color: #ef4444 !important; }
-
-    .q-text-row {
+    .question-header {
         display: flex;
         justify-content: space-between;
-        gap: 20px;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .question-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-main);
+        line-height: 1.5;
+        max-width: 80%;
+    }
+
+    .marks-pill {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid var(--border-color);
+    }
+
+    /* Answers */
+    .answer-section {
         margin-bottom: 20px;
     }
 
-    .q-text {
-        font-size: 18px;
-        font-weight: 800;
-        color: #1e293b;
+    .answer-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        font-weight: 600;
     }
 
-    .marks-badge {
+    .student-answer-box {
+        background: #f9fafb;
+        border: 1px solid var(--border-color);
+        padding: 16px;
+        border-radius: 6px;
+        font-size: 15px;
+        color: var(--text-main);
+        min-height: 50px;
+        line-height: 1.5;
+    }
+
+    .correct-answer-box {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: var(--success-color);
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 12px;
+    }
+
+    /* Evaluation Input */
+    .eval-box {
         background: #f8fafc;
-        color: #475569;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 800;
-        border: 1px solid #e2e8f0;
-        white-space: nowrap;
+        border: 1px dashed #cbd5e1;
+        padding: 16px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
     }
 
-    /* --- Evaluate Section --- */
-    .eval-container {
-        background: #fff9f6;
-        padding: 20px;
-        border-left: 5px solid var(--primary-orange);
-        border-radius: 0 15px 15px 0;
-        margin-top: 20px;
+    .eval-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
     }
 
     .eval-input {
-        width: 110px;
-        padding: 10px;
-        border-radius: 10px;
-        border: 2px solid #ffd7c4;
-        font-size: 16px;
-        font-weight: 800;
-        color: var(--primary-orange);
+        width: 100px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
         outline: none;
-        transition: 0.3s;
     }
 
     .eval-input:focus {
-        border-color: var(--primary-orange);
-        box-shadow: 0 0 0 4px rgba(255, 94, 20, 0.1);
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
     }
 
-    /* --- Submit Button --- */
-    .btn-push {
-        background: var(--kora-gradient);
-        color: white;
-        padding: 18px 35px;
-        font-size: 17px;
-        font-weight: 900;
-        border: none;
-        border-radius: 15px;
-        cursor: pointer;
-        width: 100%;
-        box-shadow: 0 10px 25px rgba(255, 94, 20, 0.3);
-        transition: 0.4s;
+    /* Action Button */
+    .action-bar {
+        margin-top: 30px;
+        text-align: right;
         margin-bottom: 50px;
     }
 
-    .btn-push:hover {
-        transform: scale(1.02);
-        box-shadow: 0 15px 35px rgba(255, 94, 20, 0.4);
+    .btn-submit {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 12px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
     }
 
-    /* Helper Classes */
-    .text-success { color: #16a34a; font-weight: 700; }
-    .text-danger { color: #ef4444; font-weight: 700; }
-    .text-primary { color: #ff5e14; font-weight: 700; }
+    .btn-submit:hover {
+        background-color: #1d4ed8;
+    }
+
+    /* Status text colors */
+    .text-muted-italic {
+        color: var(--text-muted);
+        font-style: italic;
+    }
 </style>
 
-<div class="module-wrapper">
-    <div class="review-header">
-        <h2>📝 Submission Review: {{ student.name }} (ID: {{ student.student_id }})</h2>
-        <div class="info-bar">
-            <span><strong>Exam:</strong> {{ exam.title }}</span>
-            <span class="badge-white">Total Score: {{ result.score }}</span>
-            <span class="badge-white">
-                Status: 
-                {% if result.status == 'Pending' %}
-                ⏳ {{ result.status }}
-                {% else %}
-                ✔ {{ result.status }}
-                {% endif %}
-            </span>
+<div class="evaluation-container">
+    <div class="page-header">
+        <h2>Submission Review</h2>
+        <div class="student-meta">
+            <div class="meta-item">
+                <span class="meta-label">Student:</span>
+                <span class="meta-value">{{ student.name }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">ID:</span>
+                <span class="meta-value">{{ student.student_id }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Exam:</span>
+                <span class="meta-value">{{ exam.title }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Status:</span>
+                <span class="meta-value"
+                    style="color: {% if result.status == 'Pending' %}var(--warning-color){% else %}var(--success-color){% endif %};">
+                    {{ result.status }}
+                </span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Total Score:</span>
+                <span class="meta-value">{{ result.score }}</span>
+            </div>
         </div>
     </div>
 
     <form action="/admin/evaluate-submission/{{ result.id }}" method="POST">
         {% for ans in answers %}
-        <div class="answer-card 
-            {% if ans.question.question_type == 'short' and result.status == 'Pending' %}border-pending
-            {% elif ans.is_correct %}border-correct
-            {% else %}border-wrong{% endif %}">
-
-            <div class="q-text-row">
-                <span class="q-text">Q: {{ ans.question.question_text }}</span>
-                <span class="marks-badge">{{ ans.marks_obtained }} / {{ ans.question.marks }} Marks</span>
+        <div class="question-card">
+            <div class="question-header">
+                <div class="question-text">
+                    {{ loop.index }}. {{ ans.question.question_text }}
+                </div>
+                <div class="marks-pill">
+                    {{ ans.marks_obtained }} / {{ ans.question.marks }} Marks
+                </div>
             </div>
 
-            <div style="margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #eee;">
-                <p style="margin: 0; color: #64748b; font-size: 13px; font-weight: 700; text-transform: uppercase;">Student Answer:</p>
-                <div class="{% if ans.is_correct %}text-success{% elif ans.question.question_type == 'short' %}text-primary{% else %}text-danger{% endif %}" style="font-size: 16px; margin-top: 5px;">
-                    {{ ans.user_answer if ans.user_answer else 'Not Answered' }}
+            <div class="answer-section">
+                <div class="answer-label">Student's Answer</div>
+                <div class="student-answer-box">
+                    {% if ans.user_answer %}
+                    {{ ans.user_answer }}
+                    {% else %}
+                    <span class="text-muted-italic">No answer provided by the student.</span>
+                    {% endif %}
                 </div>
             </div>
 
             {% if ans.question.question_type == 'mcq' %}
-            <div style="font-size: 14px; margin-top: 15px; color: #16a34a; font-weight: 600;">
-                Correct Answer: {{ ans.question.correct_answer }}
+            <div class="correct-answer-box">
+                System Correct Answer: <strong>{{ ans.question.correct_answer }}</strong>
             </div>
             {% else %}
-            <div class="eval-container">
-                <label style="font-weight: 800; color: #7c2d12; display: block; margin-bottom: 10px; font-size: 13px; text-transform: uppercase;">
-                    Evaluate This Answer (Max: {{ ans.question.marks }}):
-                </label>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <input type="number" name="mark_{{ ans.id }}" value="{{ ans.marks_obtained }}"
-                           max="{{ ans.question.marks }}" min="0" step="0.5" required
-                           class="eval-input">
-                    <span style="color: #94a3b8; font-weight: 700;">marks</span>
-                </div>
+            <div class="eval-box">
+                <span class="eval-label">Assign Marks (Max: {{ ans.question.marks }}):</span>
+                <input type="number" name="mark_{{ ans.id }}" value="{{ ans.marks_obtained }}"
+                    max="{{ ans.question.marks }}" min="0" step="0.5" required class="eval-input">
             </div>
             {% endif %}
         </div>
         {% endfor %}
 
-        <div style="margin-top: 40px;">
-            <button type="submit" class="btn-push">
-                💾 SAVE EVALUATION & UPDATE SCORE
+        <div class="action-bar">
+            <button type="submit" class="btn-submit">
+                Save Evaluation & Update Score
             </button>
         </div>
     </form>
 </div>
-
 {% endblock %}

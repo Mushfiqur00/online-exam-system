@@ -324,7 +324,7 @@
     // Tab Switch & Split Screen (Blur) Detection
     let warningCount = 0;
 
-    // ওয়ার্নিং হ্যান্ডেল করার জন্য একটি কমন ফাংশন
+    // ওয়ার্নিং হ্যান্ডেল করার জন্য একটি কমন ফাংশন
     function triggerCheatWarning(reason) {
         warningCount++;
         const tabSwitchItem = document.querySelectorAll('.status-item')[1];
@@ -527,7 +527,7 @@
         Object.keys(answers).forEach(qId => {
             const input = document.createElement('input');
             input.type = 'hidden';
-            input.name = 'q' + qId;
+            input.name = 'q_' + qId; // ✅ FIX APPLIED HERE: Added the underscore
             input.value = answers[qId];
             form.appendChild(input);
         });
