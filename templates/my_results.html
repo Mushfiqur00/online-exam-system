@@ -100,19 +100,32 @@
     </div>
 
     <div id="dashboard-content">
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
             <div class="kpi-card" style="border-left: 5px solid var(--secondary);">
                 <small style="color: #64748b; text-transform: uppercase;">Exams Attempted</small>
                 <h2 style="margin: 10px 0 0 0; font-size: 32px;">{{ exams_data|length }}</h2>
             </div>
+            
             <div class="kpi-card" style="border-left: 5px solid var(--success);">
                 <small style="color: #64748b; text-transform: uppercase;">Average Score</small>
-                <h2 style="margin: 10px 0 0 0; font-size: 32px;">84%</h2>
+                <h2 style="margin: 10px 0 0 0; font-size: 32px;">
+                    {% if average_score and average_score > 0 %}
+                        {{ average_score }}%
+                    {% else %}
+                        <span style="color: #94a3b8; font-size: 24px;">No Score</span>
+                    {% endif %}
+                </h2>
             </div>
+            
             <div class="kpi-card" style="border-left: 5px solid #f59e0b;">
                 <small style="color: #64748b; text-transform: uppercase;">Global Rank</small>
-                <h2 style="margin: 10px 0 0 0; font-size: 32px;">#12</h2>
+                <h2 style="margin: 10px 0 0 0; font-size: 32px;">
+                    {% if global_rank and global_rank != 'N/A' %}
+                        {{ global_rank }}
+                    {% else %}
+                        <span style="color: #94a3b8; font-size: 24px;">N/A</span>
+                    {% endif %}
+                </h2>
             </div>
         </div>
 
@@ -129,7 +142,7 @@
         </div>
 
         <div class="chart-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
                 <h4 style="margin:0;">📜 Detailed Exam History</h4>
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search exams..."
                     style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: var(--card); color: var(--text);">
@@ -152,8 +165,7 @@
                         </td>
                         <td>
                             {% if data.exam.is_published %}
-                            <div
-                                style="width: 120px; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px;">
+                            <div style="width: 120px; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px;">
                                 <div style="width: {{ data.result.score }}%; background: var(--success); height: 100%;">
                                 </div>
                             </div>
@@ -174,7 +186,6 @@
                         {% else %} 
                             background: #fef3c7; color: #d97706; 
                         {% endif %}">
-
                                 {% if data.result.status == 'Evaluated' and not data.exam.is_published %}
                                 Awaiting Publication
                                 {% else %}
@@ -200,79 +211,156 @@
                 </tbody>
             </table>
         </div>
-        <script>
-            // 1. Smooth Area Chart (Score Progression)
-            const ctxTrend = document.getElementById('trendChart').getContext('2d');
-            const trendGradient = ctxTrend.createLinearGradient(0, 0, 0, 400);
-            trendGradient.addColorStop(0, 'rgba(234, 88, 12, 0.3)');
-            trendGradient.addColorStop(1, 'rgba(234, 88, 12, 0)');
+    </div>
+</div>
 
-            new Chart(ctxTrend, {
-                type: 'line',
-                data: {
-                    labels: {{ chart_labels | tojson }},
-                datasets: [{
-                    label: 'Your Score',
-                    data: {{ chart_scores | tojson }},
+<script>
+    // 1. Smooth Area Chart (Score Progression)
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    const trendGradient = ctxTrend.createLinearGradient(0, 0, 0, 400);
+    trendGradient.addColorStop(0, 'rgba(234, 88, 12, 0.3)');
+    trendGradient.addColorStop(1, 'rgba(234, 88, 12, 0)');
+
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels | default([]) | tojson }},
+            datasets: [{
+                label: 'Your Score',
+                data: {{ chart_scores | default([]) | tojson }},
                 borderColor: '#ea580c',
                 borderWidth: 3,
                 fill: true,
                 backgroundColor: trendGradient,
-                tension: 0.4, // Makes the line curvy
+                tension: 0.4,
                 pointBackgroundColor: '#fff',
                 pointBorderColor: '#ea580c',
                 pointRadius: 5
             }]
         },
-                options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { grid: { display: false }, beginAtZero: true } }
-            }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { grid: { display: false }, beginAtZero: true } }
+        }
     });
 
-            // 2. Radar Chart (Skill Analysis - Hardcoded sample values)
-            new Chart(document.getElementById('radarChart'), {
-                type: 'radar',
-                data: {
-                    labels: ['Accuracy', 'Speed', 'Knowledge', 'Consistency', 'Persistence'],
-                    datasets: [{
-                        label: 'Student Skills',
-                        data: [85, 70, 90, 65, 80],
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: '#3b82f6',
-                        pointBackgroundColor: '#3b82f6'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+    // 2. Radar Chart
+    new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Accuracy', 'Speed', 'Knowledge', 'Consistency', 'Persistence'],
+            datasets: [{
+                label: 'Student Skills',
+                data: [85, 70, 90, 65, 80],
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderColor: '#3b82f6',
+                pointBackgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    function filterTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let rows = document.querySelectorAll(".result-row");
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    // --- ULTIMATE SEAMLESS PDF GENERATOR (LOADING SCREEN METHOD) ---
+    function downloadPDF() {
+        // ১. একটি সুন্দর Full-Screen Loading Overlay তৈরি করা
+        const loader = document.createElement('div');
+        loader.id = 'pdf-loading-overlay';
+        loader.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255, 255, 255, 0.95); z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: 'Inter', sans-serif;
+        `;
+        loader.innerHTML = `
+            <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #ea580c; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
+            <h2 style="color: #ea580c; margin: 0;">Generating Official Report...</h2>
+            <p style="color: #64748b;">Please do not close or refresh this window.</p>
+            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+        `;
+        document.body.appendChild(loader);
+
+        // ২. একটু সময় (100ms) দেয়া যাতে ব্রাউজার লোডিং স্ক্রিনটা দেখাতে পারে
+        setTimeout(() => {
+            const element = document.getElementById('dashboard-content');
+
+            // স্পেশাল PDF হেডার তৈরি করা
+            const pdfHeader = document.createElement('div');
+            pdfHeader.id = 'pdf-temp-header';
+            pdfHeader.style.padding = '20px';
+            pdfHeader.style.marginBottom = '25px';
+            pdfHeader.style.borderBottom = '4px solid #ea580c';
+            pdfHeader.style.backgroundColor = '#ffffff';
+
+            const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            pdfHeader.innerHTML = `
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <h1 style="color: #ea580c; margin: 0; font-size: 32px; font-weight: 800; text-transform: uppercase;">EXAMORA SYSTEM</h1>
+                    <h3 style="margin: 5px 0 0 0; color: #475569; font-weight: 600;">Official Academic Performance Report</h3>
+                </div>
+                <div style="display: flex; justify-content: space-between; background: #fff7ed; padding: 20px; border-radius: 10px; border-left: 6px solid #ea580c;">
+                    <div style="line-height: 1.8; font-size: 15px; color: #1e293b;">
+                        <strong>👨‍🎓 Full Name:</strong> {{ student.name | default('N/A') }}<br>
+                        <strong>🆔 Student ID:</strong> {{ student.student_id | default('N/A') }}
+                    </div>
+                    <div style="line-height: 1.8; font-size: 15px; text-align: right; color: #1e293b;">
+                        <strong>📧 Email:</strong> {{ student.email | default('N/A') }}<br>
+                        <strong>📅 Date Issued:</strong> ${today}
+                    </div>
+                </div>
+            `;
+            
+            // হেডার যুক্ত করা
+            element.insertBefore(pdfHeader, element.firstChild);
+
+            // সার্চ বক্স ও বাটনগুলো হাইড করা
+            const noPrintElements = document.querySelectorAll('.no-print');
+            noPrintElements.forEach(el => el.style.display = 'none');
+
+            // ৩. PDF জেনারেট অপশন
+            const opt = {
+                margin: [0.4, 0.4, 0.4, 0.4],
+                filename: 'Academic_Report_{{ student.student_id | default("Student") }}.pdf',
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // ৪. PDF সেভ করা এবং সবকিছু আগের মতো করে দেওয়া
+            html2pdf().set(opt).from(element).save().then(() => {
+                // কাজ শেষ, হেডার রিমুভ করুন
+                element.removeChild(pdfHeader);
+                
+                // বাটনগুলো ফিরিয়ে আনুন
+                noPrintElements.forEach(el => el.style.display = '');
+                
+                // পরিশেষে লোডিং স্ক্রিনটি সরিয়ে দিন
+                document.body.removeChild(loader);
+            }).catch(err => {
+                console.error("PDF Generation Failed:", err);
+                element.removeChild(pdfHeader);
+                noPrintElements.forEach(el => el.style.display = '');
+                document.body.removeChild(loader);
+                alert("Something went wrong while generating the PDF.");
             });
 
-            function filterTable() {
-                let input = document.getElementById("searchInput").value.toLowerCase();
-                let rows = document.querySelectorAll(".result-row");
-                rows.forEach(row => {
-                    let text = row.innerText.toLowerCase();
-                    row.style.display = text.includes(input) ? "" : "none";
-                });
-            }
+        }, 100); // 100ms delay
+    }
+</script>
 
-            // PDF Generation remains same as your logic but with better styling
-            function downloadPDF() {
-                const element = document.getElementById('dashboard-content');
-                const opt = {
-                    margin: 0.5,
-                    filename: 'Student_Report.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                html2pdf().set(opt).from(element).save();
-            }
-        </script>
-
-        {% endblock %}
+{% endblock %}

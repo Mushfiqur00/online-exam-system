@@ -647,12 +647,27 @@ def my_results():
         # শুধুমাত্র পাবলিশড এবং ইভ্যালুয়েটেড এক্সামগুলো চার্টে দেখাবে
         if exam.is_published and r.status == "Evaluated":
             chart_labels.append(exam.title)
-            chart_scores.append(r.score if r.score is not None else 0)
+            score = r.score if r.score is not None else 0
+            chart_scores.append(score)
             
         if r.status == "Evaluated":
             evaluated_count += 1
         else:
             pending_count += 1
+
+    # --- NEW: Average Score Calculation ---
+    if len(chart_scores) > 0:
+        average_score = round(sum(chart_scores) / len(chart_scores), 1)
+    else:
+        average_score = 0
+
+    # --- NEW: Mock Global Rank ---
+    # (সত্যিকারের গ্লোবাল র‍্যাঙ্ক বের করতে হলে সব স্টুডেন্টের এভারেজ বের করে সর্ট করতে হবে)
+    if average_score > 0:
+        # আপাতত ডেমো হিসেবে র‍্যাঙ্ক দেখাচ্ছে, আপনি চাইলে রিয়েল কোয়েরি করতে পারেন
+        global_rank = "#" + str(max(1, int(100 - average_score))) 
+    else:
+        global_rank = "N/A"
 
     return render_template("my_results.html", 
                            student=student,
@@ -660,7 +675,9 @@ def my_results():
                            chart_labels=chart_labels,
                            chart_scores=chart_scores,
                            evaluated_count=evaluated_count,
-                           pending_count=pending_count)
+                           pending_count=pending_count,
+                           average_score=average_score,  # নতুন পাঠানো হলো
+                           global_rank=global_rank)     # নতুন পাঠানো হলো
 
 @app.route("/result-details/<int:exam_id>")
 def result_details(exam_id):
