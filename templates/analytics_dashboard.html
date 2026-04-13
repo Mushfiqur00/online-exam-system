@@ -1,0 +1,330 @@
+{% extends "admin_layout.html" %}
+{% block body %}
+
+<style>
+    :root {
+        --primary: #6366f1;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-700: #334155;
+        --slate-900: #0f172a;
+    }
+
+    /* Main Container */
+    .dashboard-container {
+        padding: 20px;
+        background-color: var(--slate-50);
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .dashboard-header {
+        margin-bottom: 30px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--slate-900);
+        letter-spacing: -0.025em;
+    }
+
+    /* KPI Grid Layout */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .kpi-card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid var(--slate-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-content h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #64748b;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+    }
+
+    .kpi-content h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--slate-900);
+    }
+
+    .kpi-icon-box {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    /* Card Themes */
+    .bg-blue-light {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .bg-orange-light {
+        background: #ffedd5;
+        color: #9a3412;
+    }
+
+    .bg-green-light {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .bg-purple-light {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .kpi-sub-text {
+        font-size: 13px;
+        margin-top: 8px;
+        color: #94a3b8;
+    }
+
+    /* Chart Grid Layout */
+    .charts-main-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+        .charts-main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        background: white;
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid var(--slate-100);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--slate-700);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chart-container {
+        flex-grow: 1;
+        position: relative;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>🚀 Examora Analytics Center</h2>
+        <p style="color: #64748b;">A-Z Overview of System Performance & Evaluation</p>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h4>Total Exams</h4>
+                <h2>{{ total_exams | default(0) }}</h2>
+                <p class="kpi-sub-text">📅 Upcoming: <b>{{ upcoming_exams | default(0) }}</b></p>
+            </div>
+            <div class="kpi-icon-box bg-blue-light">📋</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h4>Ongoing Exams</h4>
+                <h2 style="color: var(--warning);">{{ ongoing_exams | default(0) }}</h2>
+                <p class="kpi-sub-text">⚡ Live Currently</p>
+            </div>
+            <div class="kpi-icon-box bg-orange-light">⚡</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h4>Evaluated</h4>
+                <h2 style="color: var(--success);">{{ evaluated_count | default(0) }}</h2>
+                <p class="kpi-sub-text">✅ Papers Checked</p>
+            </div>
+            <div class="kpi-icon-box bg-green-light">✅</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h4>Pending Eval.</h4>
+                <h2 style="color: var(--danger);">{{ pending_evaluation | default(0) }}</h2>
+                <p class="kpi-sub-text">⏳ Needs Review</p>
+            </div>
+            <div class="kpi-icon-box bg-purple-light">⏳</div>
+        </div>
+    </div>
+
+    <div class="charts-main-grid">
+        <div class="chart-card">
+            <h3>📊 Exam Timeline Status</h3>
+            <div class="chart-container">
+                <canvas id="lifecycleChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>🥧 Evaluation Progress</h3>
+            <div class="chart-container">
+                <canvas id="evalChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>📈 Daily Submission Trend</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>🍩 Publish vs Draft</h3>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Global Config
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+    // 1. Lifecycle Chart
+    new Chart(document.getElementById('lifecycleChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Upcoming', 'Ongoing', 'Completed'],
+            datasets: [{
+                label: 'Exams',
+                data: [{{ upcoming_exams | default(0)
+            }}, {{ ongoing_exams | default(0) }}, {{ completed_exams | default(0) }}],
+        backgroundColor: ['#6366f1', '#f59e0b', '#10b981'],
+        borderRadius: 8,
+        barThickness: 30
+            }]
+        },
+        options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false } } }
+    }
+    });
+
+    // 2. Evaluation Progress
+    new Chart(document.getElementById('evalChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Evaluated', 'Pending'],
+            datasets: [{
+                data: [{{ evaluated_count | default(0)
+            }}, {{ pending_evaluation | default(0) }}],
+        backgroundColor: ['#10b981', '#f87171'],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+    });
+
+    // 3. Trend Chart
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    let gradient = ctxTrend.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels | default([]) | tojson }},
+        datasets: [{
+            label: 'Submissions',
+            data: {{ trend_data | default ([]) | tojson }},
+        fill: true,
+        backgroundColor: gradient,
+        borderColor: '#6366f1',
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#fff'
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true },
+            x: { grid: { display: false } }
+        }
+    }
+    });
+
+    // 4. Publish Status
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Published', 'Drafts'],
+            datasets: [{
+                data: [{{ published_exams | default(0)
+            }}, {{ draft_exams | default(0) }}],
+        backgroundColor: ['#10b981', '#cbd5e1'],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        cutout: '75%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+    });
+</script>
+
+{% endblock %}

@@ -737,6 +737,63 @@ def admin_student_submission(result_id):
                            exam=exam, answers=answers)
 
 
+
+# Daboard for visualize
+from datetime import datetime
+
+@app.route('/dashboard-analytics')
+def dashboard_analytics():
+    now = datetime.now()
+
+    # ১. বেসিক কাউন্টস
+    total_students = Student.query.count()
+    total_groups = Group.query.count()
+    total_exams = Exam.query.count()
+
+    # ২. এক্সাম টাইমলাইন স্ট্যাটাস (Ongoing, Upcoming, Completed)
+    # আপনার ডাটাবেসের কলামের নাম অনুযায়ী start_time এবং end_time মিলিয়ে নেবেন
+    upcoming_exams = Exam.query.filter(Exam.start_time > now).count()
+    completed_exams = Exam.query.filter(Exam.end_time < now).count()
+    ongoing_exams = Exam.query.filter(Exam.start_time <= now, Exam.end_time >= now).count()
+
+    # ৩. সাবমিশন এবং ইভালুয়েশন (Result টেবিল থেকে)
+    # ধরে নিচ্ছি Result টেবিলে status='Evaluated' কলাম আছে
+    total_submissions = Result.query.count() 
+    evaluated_count = Result.query.filter_by(status='Evaluated').count()
+    pending_evaluation = total_submissions - evaluated_count
+
+    # ৪. পাবলিশ স্ট্যাটাস
+    published_exams = Exam.query.filter_by(is_published=True).count()
+    draft_exams = total_exams - published_exams
+
+    # ৫. গ্রুপ ডিস্ট্রিবিউশন
+    groups = Group.query.all()
+    group_names = [g.name for g in groups]
+    group_counts = [Student.query.filter_by(group_id=g.id).count() for g in groups]
+
+    # ৬. ট্রেন্ড ডেটা (ডেমো)
+    trend_labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today']
+    trend_data = [5, 12, 8, 25, 18, 30, 22] 
+
+    return render_template(
+        'analytics_dashboard.html',
+        total_students=total_students,
+        total_groups=total_groups,
+        total_exams=total_exams,
+        upcoming_exams=upcoming_exams,
+        ongoing_exams=ongoing_exams,
+        completed_exams=completed_exams,
+        total_submissions=total_submissions,
+        evaluated_count=evaluated_count,
+        pending_evaluation=pending_evaluation,
+        published_exams=published_exams,
+        draft_exams=draft_exams,
+        group_names=group_names,
+        group_student_counts=group_counts,
+        trend_labels=trend_labels,
+        trend_data=trend_data
+    )
+
 @app.route("/admin/evaluate-submission/<int:result_id>", methods=["POST"])
 def evaluate_submission(result_id):
     if "admin_id" not in session:
