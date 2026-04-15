@@ -170,6 +170,7 @@ def student_register():
 
     return render_template("register.html")
 
+
 @app.route("/student-dashboard")
 def student_dashboard():
     if "student_id" not in session:
@@ -187,6 +188,7 @@ def student_dashboard():
     completed = []
 
     for exam in exams:
+        # ১. আগে চেক করছি এই এক্সামটা ওই স্টুডেন্ট বা তার গ্রুপের জন্য কি না
         assignment = ExamAssignment.query.filter(
             (ExamAssignment.exam_id == exam.id) &
             (
@@ -195,26 +197,32 @@ def student_dashboard():
             )
         ).first()
 
-        exam.assigned = assignment is not None
+        # ২. শুধুমাত্র যদি অ্যাসাইনমেন্ট থাকে, তবেই সে ক্যাটাগরিতে ভাগ হবে
+        if assignment:
+            exam.assigned = True
+            
+            existing_result = Result.query.filter_by(
+                student_id=student.id,
+                exam_id=exam.id
+            ).first()
 
-        existing_result = Result.query.filter_by(
-            student_id=student.id,
-            exam_id=exam.id
-        ).first()
+            exam.submitted = existing_result is not None
 
-        exam.submitted = existing_result is not None
-
-        if exam.exam_date > today:
-            upcoming.append(exam)
-        elif exam.exam_date == today:
-            if current_time < exam.start_time:
+            # ৩. টাইম লজিক চেক (এখন শুধুমাত্র অ্যাসাইন করা এক্সামগুলোর জন্য চলবে)
+            if exam.exam_date > today:
                 upcoming.append(exam)
-            elif exam.start_time <= current_time <= exam.end_time:
-                ongoing.append(exam)
+            elif exam.exam_date == today:
+                # টাইম ফরম্যাট ঠিক থাকলে এটি সঠিক কাজ করবে
+                if current_time < exam.start_time:
+                    upcoming.append(exam)
+                elif exam.start_time <= current_time <= exam.end_time:
+                    ongoing.append(exam)
+                else:
+                    completed.append(exam)
             else:
                 completed.append(exam)
-        else:
-            completed.append(exam)
+        
+        # এখানে কোনো else নেই, তাই অ্যাসাইন না করা পরীক্ষাগুলো কোনো লিস্টেই ঢুকবে না
 
     return render_template(
         "student_dashboard.html",
@@ -226,7 +234,6 @@ def student_dashboard():
         current_time=current_time,
         results=results
     )
-
 @app.route("/group-management")
 def group_management():
     groups = Group.query.all()

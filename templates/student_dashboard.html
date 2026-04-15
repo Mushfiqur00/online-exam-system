@@ -26,6 +26,7 @@
 </div>
 {% endif %}
 {% endwith %}
+
 <h3>📅 Upcoming Exams</h3>
 
 {% if upcoming %}
@@ -39,11 +40,7 @@
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
-        {% if exam.assigned %}
         <td><span class="badge yellow">Not Started</span></td>
-        {% else %}
-        <td><span class="badge red">Not Assigned To You</span></td>
-        {% endif %}
     </tr>
     {% endfor %}
 </table>
@@ -64,7 +61,6 @@
             <h4>{{ exam.title }}</h4>
             <p>📅 {{ exam.exam_date }}</p>
 
-            {% if exam.assigned %}
             {% if exam.submitted %}
             <span class="badge gray">Submitted</span>
             {% elif current_time >= exam.start_time and current_time <= exam.end_time %} <a
@@ -73,9 +69,6 @@
                 </a>
                 {% else %}
                 <span class="badge yellow">Not Available</span>
-                {% endif %}
-                {% else %}
-                <span class="badge red">Not Assigned</span>
                 {% endif %}
         </div>
         {% endfor %}
@@ -101,11 +94,7 @@
     <tr>
         <td>{{ exam.title }}</td>
         <td>{{ exam.exam_date }}</td>
-        {% if exam.assigned %}
         <td><span class="badge gray">Finished</span></td>
-        {% else %}
-        <td><span class="badge red">Not Assigned To You</span></td>
-        {% endif %}
     </tr>
     {% endfor %}
 </table>
