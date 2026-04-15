@@ -171,6 +171,10 @@ def student_register():
     return render_template("register.html")
 
 
+
+import pytz
+from datetime import datetime
+
 @app.route("/student-dashboard")
 def student_dashboard():
     if "student_id" not in session:
@@ -180,15 +184,19 @@ def student_dashboard():
     results = db.session.query(Result, Exam).join(Exam, Result.exam_id == Exam.id).filter(Result.student_id == student.id).all()
     exams = Exam.query.all()
 
-    today = datetime.now().strftime("%Y-%m-%d")
-    current_time = datetime.now().strftime("%H:%M")
+    # ১. এখানে pytz ব্যবহার করে বাংলাদেশের সঠিক সময় বের করা হচ্ছে
+    bd_timezone = pytz.timezone('Asia/Dhaka')
+    now_in_bd = datetime.now(bd_timezone)
+
+    today = now_in_bd.strftime("%Y-%m-%d")
+    current_time = now_in_bd.strftime("%H:%M")
 
     upcoming = []
     ongoing = []
     completed = []
 
     for exam in exams:
-        # ১. আগে চেক করছি এই এক্সামটা ওই স্টুডেন্ট বা তার গ্রুপের জন্য কি না
+        # আগে চেক করছি এই এক্সামটা ওই স্টুডেন্ট বা তার গ্রুপের জন্য কি না
         assignment = ExamAssignment.query.filter(
             (ExamAssignment.exam_id == exam.id) &
             (
@@ -197,7 +205,7 @@ def student_dashboard():
             )
         ).first()
 
-        # ২. শুধুমাত্র যদি অ্যাসাইনমেন্ট থাকে, তবেই সে ক্যাটাগরিতে ভাগ হবে
+        # শুধুমাত্র যদি অ্যাসাইনমেন্ট থাকে, তবেই সে ক্যাটাগরিতে ভাগ হবে
         if assignment:
             exam.assigned = True
             
@@ -208,21 +216,23 @@ def student_dashboard():
 
             exam.submitted = existing_result is not None
 
-            # ৩. টাইম লজিক চেক (এখন শুধুমাত্র অ্যাসাইন করা এক্সামগুলোর জন্য চলবে)
-            if exam.exam_date > today:
+            # ২. ডাটাবেস থেকে আসা টাইমকে ফরম্যাট করা হচ্ছে (যাতে "10:30:00" আসলে "10:30" হয়ে যায়)
+            exam_date_str = str(exam.exam_date)[:10]
+            exam_start_str = str(exam.start_time)[:5]
+            exam_end_str = str(exam.end_time)[:5]
+
+            # ৩. টাইম লজিক চেক (ফরম্যাট করা ভেরিয়েবলগুলো দিয়ে)
+            if exam_date_str > today:
                 upcoming.append(exam)
-            elif exam.exam_date == today:
-                # টাইম ফরম্যাট ঠিক থাকলে এটি সঠিক কাজ করবে
-                if current_time < exam.start_time:
+            elif exam_date_str == today:
+                if current_time < exam_start_str:
                     upcoming.append(exam)
-                elif exam.start_time <= current_time <= exam.end_time:
+                elif exam_start_str <= current_time <= exam_end_str:
                     ongoing.append(exam)
                 else:
                     completed.append(exam)
             else:
                 completed.append(exam)
-        
-        # এখানে কোনো else নেই, তাই অ্যাসাইন না করা পরীক্ষাগুলো কোনো লিস্টেই ঢুকবে না
 
     return render_template(
         "student_dashboard.html",
