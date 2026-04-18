@@ -18,8 +18,8 @@ Examora is a secure, robust, and automated web-based digital examination platfor
  📸 Screenshots
 
  <img width="1915" height="904" alt="image" src="https://github.com/user-attachments/assets/d887f660-3713-4ab8-a417-36fd192e3cb6" />
-<img width="683" height="839" alt="image" src="https://github.com/user-attachments/assets/bab1b022-7f34-42e8-b5a2-91f79da70b85" />
-<img width="631" height="861" alt="image" src="https://github.com/user-attachments/assets/7e751b77-735f-4371-86c8-0f3bf3eeb88e" />
+<img width="683" height="839" alt="image" src="https://github.com/user-attachments/assets/bab1b022-7f34-42e8-b5a2-91f79da70b85" /><img width="631" height="861" alt="image" src="https://github.com/user-attachments/assets/7e751b77-735f-4371-86c8-0f3bf3eeb88e" />
+
 <img width="1781" height="610" alt="image" src="https://github.com/user-attachments/assets/537aa012-ee7e-4c66-9a63-7e5b6a61c15e" />
 <img width="1919" height="611" alt="image" src="https://github.com/user-attachments/assets/c2408c4d-6db1-490e-885b-af274fabb918" />
 <img width="1843" height="903" alt="image" src="https://github.com/user-attachments/assets/c6d2ad93-8734-4a61-9bd1-44ca15a59a88" />
